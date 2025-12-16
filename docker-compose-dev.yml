@@ -1,0 +1,39 @@
+version: '3.1'
+
+networks:
+  marks-dev-net:
+    driver: overlay
+
+services:
+  postgres:
+    image: postgres:14
+    user: '1939:1111'
+    volumes:
+      - /data/marksystem/dev-postgres_data:/var/lib/postgresql/data:shared
+    environment:
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: 'marks_system'
+    networks:
+      - marks-dev-net
+
+  backend:
+    image: docker.ergon.ch/marksystem/backend:${IMAGE_TAG}
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_HOST: 'postgres:5432'
+      DB_USERNAME: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+    networks:
+      - marks-dev-net
+
+  frontend:
+    image: docker.ergon.ch/marksystem/frontend-v2:${IMAGE_TAG}
+    ports:
+      - '30325:80'
+    environment:
+      APACHE_RUN_DIR: '/var/run/apache2'
+    networks:
+      - marks-dev-net

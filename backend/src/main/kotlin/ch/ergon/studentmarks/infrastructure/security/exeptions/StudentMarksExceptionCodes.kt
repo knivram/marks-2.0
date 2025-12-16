@@ -1,0 +1,14 @@
+package ch.ergon.studentmarks.infrastructure.security.exeptions
+
+enum class StudentMarksExceptionCodes {
+    //  REPO
+    SUBJECT_NOT_FOUND,
+    MARK_NOT_FOUND,
+    USER_NOT_FOUND,
+    USER_EXISTS,
+    OWN_USER_NOT_DELETABLE,
+
+    //  SECURITY
+    NO_SUBJECT,
+    NO_MAIL_IN_SUBJECT,
+}

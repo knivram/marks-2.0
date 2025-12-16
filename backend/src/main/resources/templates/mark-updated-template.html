@@ -1,0 +1,112 @@
+<table class="body-wrap" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; width: 100%; background-color: #f6f6f6; margin: 0;" bgcolor="#f6f6f6">
+    <tbody>
+    <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; margin: 0;">
+        <td style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; margin: 0;" valign="top"></td>
+        <td class="container" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; display: block !important; width: fit-content; clear: both !important; margin: 0 auto;" valign="top">
+            <div class="content" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; display: block; margin: 0 auto; padding: 20px;">
+                <table class="main" width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; border-radius: 3px; background-color: #fff; margin: 0; border: 1px solid #e9e9e9;" bgcolor="#fff">
+                    <tbody>
+                    <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; margin: 0;">
+                        <td style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; color: #fff; font-weight: 500; text-align: center; border-radius: 3px 3px 0 0; background-color: #38414a; margin: 0; padding: 20px;" align="center" bgcolor="#71b6f9" valign="top">
+                            <span style="font-size:32px;color:#fff;">Note geändert</span>
+                        </td>
+                    </tr>
+                    <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; margin: 0;">
+                        <td class="content-wrap" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; margin: 0; padding: 20px;" valign="top">
+                            <table width="100%" cellpadding="0" cellspacing="0" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; margin: 0;">
+                                <tbody>
+                                <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; margin: 0;">
+                                    <td class="content-block" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
+                                        <span th:text="${userName}">[userName]</span> hat eine Note abgeändert.
+                                    </td>
+                                </tr>
+                                <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; margin: 0;">
+                                    <td class="content-block" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
+                                        <table style="border: none; padding: 0; margin: 0;" cellpadding="0" cellspacing="0">
+                                            <tr>
+                                                <td style="padding: 0 0 0 16px; margin: 0;"></td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;"><strong>Alt:</strong></td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;"><strong>Neu:</strong></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 0; margin: 0;"><strong>Datum:</strong></td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldDate != newDate} ? 'color: red;' : ''">
+                                                    <span id="old-date" th:text="${oldDate}">[oldDate]</span>
+                                                </td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldDate != newDate} ? 'color: green;' : ''">
+                                                    <span id="new-date" th:text="${newDate}">[newDate]</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 0; margin: 0;"><strong>Fach:</strong></td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldSubjectName != newSubjectName} ? 'color: red;' : ''">
+                                                    <span id="old-subject-name" th:text="${oldSubjectName}">[oldSubjectName]</span>
+                                                </td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldSubjectName != newSubjectName} ? 'color: green;' : ''">
+                                                    <span id="new-subject-name" th:text="${newSubjectName}">[newSubjectName]</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 0; margin: 0;"><strong>Name:</strong></td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldMarkName != newMarkName} ? 'color: red;' : ''">
+                                                    <span id="old-mark-name" th:text="${oldMarkName}">[oldMarkName]</span>
+                                                </td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldMarkName != newMarkName} ? 'color: green;' : ''">
+                                                    <span id="new-mark-name" th:text="${newMarkName}">[newMarkName]</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 0; margin: 0;"><strong>Gewichtung:</strong></td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldWeight != newWeight} ? 'color: red;' : ''">
+                                                    <span id="old-weight" th:text="${oldWeight}">[oldWeight]</span>
+                                                </td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldWeight != newWeight} ? 'color: green;' : ''">
+                                                    <span id="new-weight" th:text="${newWeight}">[newWeight]</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 0; margin: 0;"><strong>Wert:</strong></td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldValue != newValue} ? 'color: red;' : ''">
+                                                    <span id="old-value" th:text="${oldValue}">[oldValue]</span>
+                                                </td>
+                                                <td style="padding: 0 0 0 16px; margin: 0;" th:styleappend="${oldValue != newValue} ? 'color: green;' : ''">
+                                                    <span id="new-value" th:text="${newValue}">[newValue]</span>
+                                                </td>
+                                            </tr>
+                                            <!-- Optionaler Abstand -->
+                                            <tr>
+                                                <td colspan="3" style="padding: 0; margin: 0;"><div style="height: 8px"></div></td>
+                                            </tr>
+                                            <tr>
+                                                <td colspan="3" style="height: 2px; background-color: #38414a" bgcolor="#c5c5c5"></td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 2px 0 0 0; margin: 0; "><strong>Durchschnitt des Faches:</strong></td>
+                                                <td style="padding: 2px 0 0 16px; margin: 0; " th:styleappend="${oldAverage != newAverage} ? 'color: red;' : ''">
+                                                    <span th:text="${oldAverage}">[oldAverage]</span>
+                                                </td>
+                                                <td style="padding: 2px 0 0 16px; margin: 0; " th:styleappend="${oldAverage != newAverage} ? 'color: green;' : ''">
+                                                    <span th:text="${newAverage}">[newAverage]</span>
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+
+                                </tr>
+                                <tr style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; margin: 0;">
+                                    <td class="content-block" style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; margin: 0; padding: 0 0 20px;" valign="top">
+                                        <a href="https://m.ergon.ch/marks">Zum Noten System</a>
+                                    </td>
+                                </tr>
+                                </tbody>
+                            </table>
+                        </td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </td>
+        <td style="font-family: 'Helvetica Neue',Helvetica,Arial,sans-serif; box-sizing: border-box; font-size: 16px; vertical-align: top; margin: 0;" valign="top"></td>
+    </tr>
+    </tbody>
+</table>

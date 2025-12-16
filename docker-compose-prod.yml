@@ -1,0 +1,44 @@
+version: '3.1'
+
+services:
+  postgres:
+    image: postgres:14
+    user: '1939:1111'
+    volumes:
+      - /data/marksystem/postgres_data:/var/lib/postgresql/data:shared
+    environment:
+      PGDATA: /var/lib/postgresql/data
+      POSTGRES_USER: ${DB_USERNAME}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: 'marks_system'
+
+  backuper:
+    image: docker.ergon.ch/marksystem/backuper:${IMAGE_TAG}
+    depends_on:
+      - postgres
+    user: '1939:1111'
+    volumes:
+      - /data/marksystem/backup:/backup:shared
+    environment:
+      DB_HOST: "postgres"
+      DB_PORT: "5432"
+      DB_USER: ${DB_USERNAME}
+      DB_PASSWORD: ${DB_PASSWORD}
+      DB_NAME: "marks_system"
+      BACKUP_DIR: "/backup"
+      CRON_SCHEDULE_EXPRESSION: "0 3 * * *"
+      RETENTION: "-mtime +60"
+
+  backend:
+    image: docker.ergon.ch/marksystem/backend:${IMAGE_TAG}
+    depends_on:
+      - postgres
+    environment:
+      POSTGRES_HOST: 'postgres:5432'
+
+  frontend:
+    image: docker.ergon.ch/marksystem/frontend-v2:${IMAGE_TAG}
+    ports:
+      - '30320:80'
+    environment:
+      APACHE_RUN_DIR: '/var/run/apache2'

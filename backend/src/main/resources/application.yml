@@ -1,0 +1,22 @@
+spring:
+  datasource:
+    url: 'jdbc:postgresql://${POSTGRES_HOST:localhost:3134}/marks_system'
+    username: '${DB_USERNAME:student_marks}'
+    password: '${DB_PASSWORD:admin}'
+  mail:
+    host: smtp.ergon.ch
+    port: 25
+    username: 'adm-marks@ergon.ch'
+    default-encoding: UTF-8
+    properties:
+      mail:
+        mime:
+          charset: UTF-8
+        smtp:
+          auth: false
+          starttls.enable: false
+          starttls.required: false
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+

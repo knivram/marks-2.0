@@ -1,0 +1,31 @@
+###
+# @name hello
+GET localHost:8080/api/hello
+Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJzdWIiOiJta3JhbWVyIiwiaWF0IjoxNjcxMTA3NTc4LCJleHAiOjE2NzExMTExNzh9.HxxpEvddiW-XPwqmsy46VE0Ip7OKi8j0ihICFgbarBR-IMp_EGcK1cAKf_Rl0Tzov6Mevw8uVFb3eD--JsdBZQ
+
+###
+# @name login
+POST http://localhost:8080/api/login
+content-type: application/json
+
+{
+  "username": "marvin@ergon.ch",
+  "password": "Passwort3"
+}
+
+###
+# @name signup
+POST http://localhost:8080/api/signup
+content-type: application/json
+
+{
+  "firstName": "Marvin",
+  "lastName": "Kramer",
+  "username": "marvin.kramer@ergon.ch",
+  "password": "Passwort3"
+}
+
+###
+# @name getSemesters
+GET localhost:8080/api/subjects?semesterId=50010262-4dc8-427e-b9f1-99a002fe82af&userId=80b5f44f-6e83-43e0-9211-9fcdfbdc5ac1
+X-Forwarded-Mail: marvin.kramer@ergon.ch

@@ -1,0 +1,80 @@
+#!groovy
+
+pipeline {
+	agent {
+		node {
+			label 'sw.os.linux && sw.tool.docker && hw.arch.amd64'
+		}
+	}
+
+	options {
+		ansiColor('xterm')
+		buildDiscarder(logRotator(
+            // number of builds to keep
+            numToKeepStr: env.BRANCH_NAME ==~ /release\/.*|master/ ? '30' : '10',
+            // number of builds to keep the artifacts from
+            artifactNumToKeepStr: env.BRANCH_NAME ==~ /release\/.*|master/ ? '30' : '3',
+            // number of days to keep builds
+            daysToKeepStr: env.BRANCH_NAME ==~ /release\/.*|master/ ? '90' : '10',
+            // number of days to keep artifacts
+            artifactDaysToKeepStr: env.BRANCH_NAME ==~ /release\/.*|master/ ? '90' : '10'
+        ))
+		timeout(time: 1, unit: 'HOURS')
+		timestamps()
+		skipStagesAfterUnstable()
+	}
+
+	parameters {
+		string(name: 'IMAGE_VERSION', defaultValue: 'latest', description: 'The version of the docker image which should be deployed.')
+		choice(
+				name: 'ENVIRONMENT',
+				choices: ['Development', 'Production'],
+				description: 'Select the target environment'
+		)
+    }
+
+	environment {
+		DB_USERNAME = credentials('MARKS_DB_USERNAME')
+		DB_PASSWORD = credentials('MARKS_DB_PASSWORD')
+	}
+
+	stages {
+		stage('Deployment') {
+			steps {
+
+			    sh "./deploy.sh ${env.IMAGE_VERSION} ${env.ENVIRONMENT}"
+			}
+			post {
+				failure {
+					notifyFailure('Deployment')
+					error 'Deploying on marks.ergon.ch failed.'
+				}
+			}
+		}
+	}
+	post{
+	    success {
+	        notifySucceeded()
+	    }
+	}
+}
+
+def notifyFailure(stage) {
+	GString messageText = "[Jenkins Deployment](${env.BUILD_URL}) #${env.BUILD_NUMBER} failed at ${stage}! :x:"
+	mattermostSend (
+			message: messageText,
+			channel: '#marksystem-development', // channel name to post to starting with hashtag e.g. '#channel-name'. You can find the API channel name in the "View Info" window in the client at URL.
+			endpoint: '', // optional, overrides global Jenkins setting, required if posting to private channels
+			color: 'danger', // one of: 'good', 'warning', 'danger' or any hex color, e.g. '#439FE0'
+	)
+}
+
+def notifySucceeded() {
+	GString messageText = "[Jenkins Deployment](${env.BUILD_URL}) #${env.BUILD_NUMBER} was successfull! [Noten-System](m.ergon.ch/marks) :white_check_mark:"
+	mattermostSend (
+			message: messageText,
+			channel: '#marksystem-development', // channel name to post to starting with hashtag e.g. '#channel-name'. You can find the API channel name in the "View Info" window in the client at URL.
+			endpoint: '', // optional, overrides global Jenkins setting, required if posting to private channels
+			color: 'good', // one of: 'good', 'warning', 'danger' or any hex color, e.g. '#439FE0'
+	)
+}

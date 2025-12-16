@@ -1,0 +1,1 @@
+update apprentice_supervisor set email_notification = true where id = 'e0466a09-cf7c-4fd2-87e3-6813544f8da8';
