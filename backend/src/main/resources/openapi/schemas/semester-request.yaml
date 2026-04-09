@@ -1,0 +1,12 @@
+type: object
+required:
+  - semesterName
+  - startDate
+  - endDate
+properties:
+  semesterName:
+    type: string
+  startDate:
+    type: string
+  endDate:
+    type: string

@@ -1,0 +1,18 @@
+type: object
+required:
+  - id
+  - semesterName
+  - startDate
+  - endDate
+properties:
+  id:
+    type: string
+    format: uuid
+  semesterName:
+    type: string
+  startDate:
+    type: string
+    format: date
+  endDate:
+    type: string
+    format: date

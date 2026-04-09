@@ -1,0 +1,9 @@
+type: object
+required:
+  - apprenticeEmail
+  - supervisorEmail
+properties:
+  apprenticeEmail:
+    type: string
+  supervisorEmail:
+    type: string

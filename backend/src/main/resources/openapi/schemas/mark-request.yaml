@@ -1,0 +1,19 @@
+type: object
+required:
+  - name
+  - subject
+  - date
+  - weight
+properties:
+  name:
+    type: string
+  subject:
+    $ref: "./subject.yaml"
+  date:
+    type: string
+    format: date
+  weight:
+    type: integer
+  value:
+    type: integer
+    nullable: true

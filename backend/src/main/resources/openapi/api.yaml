@@ -1,0 +1,103 @@
+openapi: 3.0.3
+info:
+  title: Student Marks API
+  description: API for the Student Marks management system
+  version: 1.0.0
+
+paths:
+  # User endpoints
+  /api/user:
+    $ref: "./paths/user/users.yaml"
+  /api/user/{id}/edit:
+    $ref: "./paths/user/user-edit.yaml"
+  /api/user/{id}:
+    $ref: "./paths/user/user-delete.yaml"
+  /api/user/{id}/restore:
+    $ref: "./paths/user/user-restore.yaml"
+  /api/user/deletedUsers:
+    $ref: "./paths/user/deleted-users.yaml"
+  /api/user/deletedUsers/{id}:
+    $ref: "./paths/user/deleted-user.yaml"
+  /api/user/info:
+    $ref: "./paths/user/user-info.yaml"
+  /api/user/connect:
+    $ref: "./paths/user/user-connect.yaml"
+  /api/user/{id}/apprentice:
+    $ref: "./paths/user/user-apprentices.yaml"
+  /api/user/connections:
+    $ref: "./paths/user/connections.yaml"
+  /api/user/connections/{id}:
+    $ref: "./paths/user/connection.yaml"
+  /api/user/apprentice:
+    $ref: "./paths/user/apprentice-search.yaml"
+  /api/user/supervisor:
+    $ref: "./paths/user/supervisor-search.yaml"
+
+  # Marks endpoints
+  /api/marks:
+    $ref: "./paths/marks/marks.yaml"
+  /api/marks/future-exams:
+    $ref: "./paths/marks/future-exams.yaml"
+  /api/marks/passed-exams:
+    $ref: "./paths/marks/passed-exams.yaml"
+  /api/marks/last:
+    $ref: "./paths/marks/last-marks.yaml"
+  /api/marks/{markId}/edit:
+    $ref: "./paths/marks/mark-edit.yaml"
+  /api/marks/{markId}/delete:
+    $ref: "./paths/marks/mark-delete.yaml"
+  /api/marks/{markId}/restore:
+    $ref: "./paths/marks/mark-restore.yaml"
+  /api/marks/calculate:
+    $ref: "./paths/marks/calculate.yaml"
+
+  # Semester endpoints
+  /api/semesters:
+    $ref: "./paths/semesters/semesters.yaml"
+  /api/semesters/{id}:
+    $ref: "./paths/semesters/semester.yaml"
+  /api/semesters/relevant:
+    $ref: "./paths/semesters/relevant.yaml"
+
+  # Subject endpoints
+  /api/subjects:
+    $ref: "./paths/subjects/subjects.yaml"
+  /api/subjects/{id}:
+    $ref: "./paths/subjects/subject.yaml"
+  /api/subjects/all:
+    $ref: "./paths/subjects/all-subjects.yaml"
+  /api/subjects/{subjectId}/full:
+    $ref: "./paths/subjects/full-subject.yaml"
+
+components:
+  schemas:
+    User:
+      $ref: "./schemas/user.yaml"
+    SimpleUser:
+      $ref: "./schemas/simple-user.yaml"
+    UserRole:
+      $ref: "./schemas/user-role.yaml"
+    ApprenticeSupervisorPair:
+      $ref: "./schemas/apprentice-supervisor-pair.yaml"
+    ApprenticeConnectRequest:
+      $ref: "./schemas/apprentice-connect-request.yaml"
+    Mark:
+      $ref: "./schemas/mark.yaml"
+    MarkRequest:
+      $ref: "./schemas/mark-request.yaml"
+    MarkValue:
+      $ref: "./schemas/mark-value.yaml"
+    Subject:
+      $ref: "./schemas/subject.yaml"
+    SubjectOverview:
+      $ref: "./schemas/subject-overview.yaml"
+    SubjectRequest:
+      $ref: "./schemas/subject-request.yaml"
+    FullSubject:
+      $ref: "./schemas/full-subject.yaml"
+    Semester:
+      $ref: "./schemas/semester.yaml"
+    SemesterRequest:
+      $ref: "./schemas/semester-request.yaml"
+    PaginatedSemesterList:
+      $ref: "./schemas/paginated-semester-list.yaml"

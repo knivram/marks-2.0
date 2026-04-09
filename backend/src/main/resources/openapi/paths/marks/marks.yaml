@@ -1,0 +1,56 @@
+get:
+  tags: [Marks]
+  operationId: getAllMarks
+  summary: Get all marks for a user/semester
+  parameters:
+    - name: subjectId
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+    - name: semesterId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: userId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: List of marks
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../api.yaml#/components/schemas/Mark"
+post:
+  tags: [Marks]
+  operationId: addMark
+  summary: Create a new mark
+  parameters:
+    - name: semesterId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../api.yaml#/components/schemas/MarkRequest"
+  responses:
+    '200':
+      description: Created mark
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/Mark"

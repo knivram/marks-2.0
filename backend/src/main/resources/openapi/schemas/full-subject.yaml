@@ -1,0 +1,24 @@
+type: object
+required:
+  - subjectId
+  - subjectName
+  - isVocationalModule
+  - markAverage
+  - marks
+properties:
+  subjectId:
+    type: string
+    format: uuid
+  subjectName:
+    type: string
+  isVocationalModule:
+    type: boolean
+  description:
+    type: string
+    nullable: true
+  markAverage:
+    type: integer
+  marks:
+    type: array
+    items:
+      $ref: "./mark.yaml"

@@ -1,0 +1,12 @@
+type: object
+required:
+  - name
+  - isVocationalModule
+properties:
+  name:
+    type: string
+  isVocationalModule:
+    type: boolean
+  description:
+    type: string
+    nullable: true

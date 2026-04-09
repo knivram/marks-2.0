@@ -1,0 +1,17 @@
+post:
+  tags: [Users]
+  operationId: connect
+  summary: Connect apprentice to supervisor
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../api.yaml#/components/schemas/ApprenticeConnectRequest"
+  responses:
+    '200':
+      description: Created connection
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/ApprenticeSupervisorPair"

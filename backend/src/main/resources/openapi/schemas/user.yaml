@@ -1,0 +1,16 @@
+type: object
+required:
+  - userId
+  - userName
+  - email
+  - role
+properties:
+  userId:
+    type: string
+    format: uuid
+  userName:
+    type: string
+  email:
+    type: string
+  role:
+    $ref: "./user-role.yaml"

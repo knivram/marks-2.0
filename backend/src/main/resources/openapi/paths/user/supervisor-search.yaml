@@ -1,0 +1,20 @@
+get:
+  tags: [Users]
+  operationId: returnMatchingSupervisor
+  summary: Search for matching supervisors
+  parameters:
+    - name: searchQuery
+      in: query
+      required: false
+      schema:
+        type: string
+        default: ""
+  responses:
+    '200':
+      description: Matching supervisors
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../api.yaml#/components/schemas/SimpleUser"

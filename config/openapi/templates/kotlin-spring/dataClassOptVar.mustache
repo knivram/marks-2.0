@@ -1,0 +1,5 @@
+{{#useBeanValidation}}{{>beanValidation}}{{>beanValidationModel}}{{/useBeanValidation}}{{#swagger2AnnotationLibrary}}
+	@field:Schema({{#example}}example = "{{#lambdaRemoveLineBreak}}{{#lambdaEscapeDoubleQuote}}{{{.}}}{{/lambdaEscapeDoubleQuote}}{{/lambdaRemoveLineBreak}}", {{/example}}{{#isReadOnly}}readOnly = {{{isReadOnly}}}, {{/isReadOnly}}description = "{{{description}}}"){{/swagger2AnnotationLibrary}}{{#swagger1AnnotationLibrary}}
+	@ApiModelProperty({{#example}}example = "{{#lambdaRemoveLineBreak}}{{#lambdaEscapeDoubleQuote}}{{{.}}}{{/lambdaEscapeDoubleQuote}}{{/lambdaRemoveLineBreak}}", {{/example}}{{#isReadOnly}}readOnly = {{{isReadOnly}}}, {{/isReadOnly}}value = "{{{description}}}"){{/swagger1AnnotationLibrary}}{{#deprecated}}
+	@Deprecated(message = ""){{/deprecated}}
+@get:JsonProperty("{{{baseName}}}"){{#isInherited}} override{{/isInherited}} {{>modelMutable}} {{{name}}}: {{#isEnum}}JsonNullable<{{#isArray}}{{baseType}}<{{/isArray}}{{classname}}.{{{nameInCamelCase}}}{{#isArray}}>{{/isArray}}>{{/isEnum}}{{^isEnum}}JsonNullable<{{{dataType}}}{{#isNullable}}?{{/isNullable}}>{{/isEnum}}{{#defaultValue}} = {{{defaultValue}}}{{/defaultValue}}

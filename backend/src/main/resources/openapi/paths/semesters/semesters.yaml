@@ -1,0 +1,41 @@
+get:
+  tags: [Semesters]
+  operationId: getAllSemester
+  summary: Get all semesters (paginated)
+  parameters:
+    - name: offset
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 0
+    - name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 20
+  responses:
+    '200':
+      description: Paginated list of semesters
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/PaginatedSemesterList"
+post:
+  tags: [Semesters]
+  operationId: addSemester
+  summary: Create a new semester
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../api.yaml#/components/schemas/SemesterRequest"
+  responses:
+    '200':
+      description: Created semester
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/Semester"

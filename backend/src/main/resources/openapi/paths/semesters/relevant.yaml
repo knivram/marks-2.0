@@ -1,0 +1,20 @@
+get:
+  tags: [Semesters]
+  operationId: getRelevantSemester
+  summary: Get relevant semesters for a user
+  parameters:
+    - name: userId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: List of relevant semesters
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../api.yaml#/components/schemas/Semester"

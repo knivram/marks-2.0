@@ -1,0 +1,26 @@
+get:
+  tags: [Marks]
+  operationId: lastMarks
+  summary: Get last N passed marks
+  parameters:
+    - name: userId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: limit
+      in: query
+      required: false
+      schema:
+        type: integer
+        default: 4
+  responses:
+    '200':
+      description: List of recent marks
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../api.yaml#/components/schemas/Mark"
