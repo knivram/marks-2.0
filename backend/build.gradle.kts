@@ -1,9 +1,11 @@
+import org.jooq.meta.jaxb.Logging
+import org.jooq.meta.jaxb.Property
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
     id("org.springframework.boot") version "3.5.13"
     id("io.spring.dependency-management") version "1.1.7"
-    id("nu.studer.jooq") version "10.2.1"
+    id("nu.studer.jooq") version "9.0"
     id("org.flywaydb.flyway") version "11.20.3"
     id("org.jlleitschuh.gradle.ktlint") version "14.2.0"
     id("org.openapi.generator") version "7.21.0"
@@ -75,31 +77,24 @@ jooq {
             generateSchemaSourceOnCompilation.set(true)
 
             jooqConfiguration.apply {
-                logging = org.jooq.meta.jaxb.Logging.WARN
+                logging = Logging.WARN
                 generator.apply {
-                    name = "org.jooq.codegen.DefaultGenerator"
                     database.apply {
                         name = "org.jooq.meta.extensions.ddl.DDLDatabase"
                         inputSchema = "public"
-                        properties.addAll(
-                            listOf(
-                                org.jooq.meta.jaxb.Property().apply {
-                                    key = "scripts"
-                                    value = "src/main/resources/db/migration/V*.sql"
-                                },
-                                org.jooq.meta.jaxb.Property().apply {
-                                    key = "sort"
-                                    value = "flyway"
-                                },
-                                org.jooq.meta.jaxb.Property().apply {
-                                    key = "unqualifiedSchema"
-                                    value = "public"
-                                },
-                                org.jooq.meta.jaxb.Property().apply {
-                                    key = "defaultNameCase"
-                                    value = "lower"
-                                },
-                            ),
+                        withProperties(
+                            Property()
+                                .withKey("scripts")
+                                .withValue("src/main/resources/db/migration/V*.sql"),
+                            Property()
+                                .withKey("sort")
+                                .withValue("flyway"),
+                            Property()
+                                .withKey("unqualifiedSchema")
+                                .withValue("public"),
+                            Property()
+                                .withKey("defaultNameCase")
+                                .withValue("lower"),
                         )
                     }
                     generate.apply {
@@ -109,6 +104,8 @@ jooq {
                         isFluentSetters = true
                         isRelations = true
                         isDaos = true
+                        isImplicitJoinPathsToOne = false
+                        isImplicitJoinPathsToMany = false
                     }
                     target.apply {
                         packageName = "ch.ergon.studentmarks.gen"
