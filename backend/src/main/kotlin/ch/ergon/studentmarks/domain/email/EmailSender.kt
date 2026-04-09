@@ -13,9 +13,9 @@ import org.springframework.stereotype.Service
 @Service
 class EmailSender(
     val mailSender: JavaMailSender,
-    @Value("\${spring.mail.username}")
+    @param:Value("\${spring.mail.username}")
     private val fromEmail: String,
-    @Value("\${marks.mail.enabled:true}")
+    @param:Value("\${marks.mail.enabled:true}")
     private val emailIsEnabled: Boolean,
 ) {
     companion object : Logger

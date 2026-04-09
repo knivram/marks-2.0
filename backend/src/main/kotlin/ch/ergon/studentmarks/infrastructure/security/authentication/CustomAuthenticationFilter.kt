@@ -25,7 +25,7 @@ const val SUBJECT_HEADER_NAME = "x-forwarded-subject"
 
 @Component
 class CustomAuthenticationFilter(
-    @Lazy private var manager: AuthenticationManager,
+    @param:Lazy private var manager: AuthenticationManager,
     private val userService: UserService,
     private val subjectExtractionService: SubjectExtractionService,
 ) : OncePerRequestFilter() {
@@ -49,12 +49,17 @@ class CustomAuthenticationFilter(
             processAuthentication(request, response, chain)
         } catch (e: StudentMarksException) {
             when (e) {
-                is MailNotInSubjectException ->
+                is MailNotInSubjectException -> {
                     response.logAndRespond("No email in subject", HttpStatus.UNAUTHORIZED)
-                is SubjectNotInHeaderException ->
+                }
+
+                is SubjectNotInHeaderException -> {
                     response.logAndRespond("No subject in request", HttpStatus.UNAUTHORIZED)
-                is UserNotFoundException ->
+                }
+
+                is UserNotFoundException -> {
                     response.logAndRespond("User with email: ${e.searchParam} not found", HttpStatus.UNAUTHORIZED)
+                }
             }
         } catch (e: Exception) {
             response.logAndRespond("Authentication failed", HttpStatus.FORBIDDEN)

@@ -21,17 +21,11 @@ class SecurityConfig(
         userLogFilter: UserLogFilter,
     ): SecurityFilterChain? {
         http
-            .httpBasic()
-            .disable()
-            .csrf()
-            .disable()
-            .formLogin()
-            .disable()
-            .logout()
-            .disable()
-            .sessionManagement()
-            .sessionCreationPolicy(STATELESS)
-            .and()
+            .httpBasic { it.disable() }
+            .csrf { it.disable() }
+            .formLogin { it.disable() }
+            .logout { it.disable() }
+            .sessionManagement { it.sessionCreationPolicy(STATELESS) }
             .authenticationProvider(provider)
             .addFilterBefore(customAuthenticationFilter, BasicAuthenticationFilter::class.java)
             .addFilterAfter(userLogFilter, customAuthenticationFilter::class.java)

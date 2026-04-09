@@ -129,6 +129,7 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     outputColorName.set("RED")
     filter {
         exclude("**/generated/**")
+        exclude { it.file.path.contains("/build/") }
     }
 }
 

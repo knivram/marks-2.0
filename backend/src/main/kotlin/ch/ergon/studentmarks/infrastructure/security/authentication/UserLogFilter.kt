@@ -20,7 +20,7 @@ class UserLogFilter(
     ) {
         val userName = userService.getCurrentUserOrNull()?.userName?.value
         if (userName != null) {
-            MDC.put(REQUEST_USER_ID.name, userName.toString())
+            MDC.put(REQUEST_USER_ID.name, userName)
         } else {
             MDC.remove(REQUEST_USER_ID.name)
         }
