@@ -4,6 +4,7 @@ required:
   - subject
   - date
   - weight
+  - value
 properties:
   name:
     type: string

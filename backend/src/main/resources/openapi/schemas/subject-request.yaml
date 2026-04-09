@@ -2,6 +2,7 @@ type: object
 required:
   - name
   - isVocationalModule
+  - description
 properties:
   name:
     type: string

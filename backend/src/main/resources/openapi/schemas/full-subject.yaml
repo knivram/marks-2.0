@@ -5,6 +5,7 @@ required:
   - isVocationalModule
   - markAverage
   - marks
+  - description
 properties:
   subjectId:
     type: string

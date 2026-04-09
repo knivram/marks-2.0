@@ -1,14 +1,20 @@
 package ch.ergon.studentmarks.api
 
-import ch.ergon.studentmarks.api.semester.PaginatedListDto
-import ch.ergon.studentmarks.api.semester.SemesterRequest
-import ch.ergon.studentmarks.api.subjects.SubjectOverviewDto
-import ch.ergon.studentmarks.api.subjects.SubjectRequest
-import ch.ergon.studentmarks.api.user.ApprenticeSupervisorPairDto
-import ch.ergon.studentmarks.api.user.SimpleUserDto
-import ch.ergon.studentmarks.api.user.UserDto
-import ch.ergon.studentmarks.api.user.UserRoleDto
+import ch.ergon.studentmarks.api.generated.dto.ApprenticeSupervisorPairDto
+import ch.ergon.studentmarks.api.generated.dto.MarkDto
+import ch.ergon.studentmarks.api.generated.dto.MarkValueDto
+import ch.ergon.studentmarks.api.generated.dto.PaginatedSemesterListDto
+import ch.ergon.studentmarks.api.generated.dto.SemesterDto
+import ch.ergon.studentmarks.api.generated.dto.SemesterRequestDto
+import ch.ergon.studentmarks.api.generated.dto.SimpleUserDto
+import ch.ergon.studentmarks.api.generated.dto.SubjectDto
+import ch.ergon.studentmarks.api.generated.dto.SubjectOverviewDto
+import ch.ergon.studentmarks.api.generated.dto.SubjectRequestDto
+import ch.ergon.studentmarks.api.generated.dto.UserDto
+import ch.ergon.studentmarks.api.generated.dto.UserRoleDto
 import ch.ergon.studentmarks.domain.PaginatedList
+import ch.ergon.studentmarks.domain.marks.Mark
+import ch.ergon.studentmarks.domain.marks.MarkValue
 import ch.ergon.studentmarks.domain.marks.SemesterId
 import ch.ergon.studentmarks.domain.marks.SubjectId
 import ch.ergon.studentmarks.domain.semester.Semester
@@ -101,7 +107,7 @@ fun SubjectOverview.toDto(): SubjectOverviewDto =
         description = description,
     )
 
-fun SubjectRequest.toDomain(subjectId: SubjectId): Subject =
+fun SubjectRequestDto.toDomain(subjectId: SubjectId): Subject =
     Subject(
         id = subjectId,
         name = name,
@@ -109,7 +115,7 @@ fun SubjectRequest.toDomain(subjectId: SubjectId): Subject =
         description = description,
     )
 
-fun SemesterRequest.toDomain(semesterId: SemesterId): Semester =
+fun SemesterRequestDto.toDomain(semesterId: SemesterId): Semester =
     Semester(
         id = semesterId,
         semesterName = semesterName,
@@ -117,9 +123,39 @@ fun SemesterRequest.toDomain(semesterId: SemesterId): Semester =
         endDate = LocalDate.parse(endDate),
     )
 
-fun <T> PaginatedList<T>.toDto(offset: Number): PaginatedListDto<T> =
-    PaginatedListDto(
+fun Subject.toDto(): SubjectDto =
+    SubjectDto(
+        id = id.value,
+        name = name,
+        isVocationalModule = isVocationalModule,
+        description = description,
+    )
+
+fun Semester.toDto(): SemesterDto =
+    SemesterDto(
+        id = id.value,
+        semesterName = semesterName,
+        startDate = startDate,
+        endDate = endDate,
+    )
+
+fun Mark.toDto(): MarkDto =
+    MarkDto(
+        id = id.value,
+        name = name,
+        subject = subject.toDto(),
+        date = date,
+        weight = weight,
+        value = value.value,
+        semesterId = semesterId.value,
+    )
+
+fun MarkValue.toDto(): MarkValueDto =
+    MarkValueDto(value = value)
+
+fun PaginatedList<Semester>.toPaginatedSemesterListDto(offset: Int): PaginatedSemesterListDto =
+    PaginatedSemesterListDto(
         totalEntries = totalEntries,
         offset = offset,
-        list = this,
+        list = this.map { it.toDto() },
     )

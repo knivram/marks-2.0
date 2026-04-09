@@ -1,94 +1,110 @@
 package ch.ergon.studentmarks.api.marks
 
+import ch.ergon.studentmarks.api.generated.MarksApi
+import ch.ergon.studentmarks.api.generated.dto.MarkDto
+import ch.ergon.studentmarks.api.generated.dto.MarkRequestDto
+import ch.ergon.studentmarks.api.generated.dto.MarkValueDto
+import ch.ergon.studentmarks.api.toDto
 import ch.ergon.studentmarks.domain.marks.Mark
 import ch.ergon.studentmarks.domain.marks.MarkId
 import ch.ergon.studentmarks.domain.marks.MarkService
 import ch.ergon.studentmarks.domain.marks.MarkValue
 import ch.ergon.studentmarks.domain.marks.SemesterId
 import ch.ergon.studentmarks.domain.marks.SubjectId
+import ch.ergon.studentmarks.domain.subjects.Subject
 import ch.ergon.studentmarks.domain.user.UserId
 import ch.ergon.studentmarks.utils.UuidUtils
-import org.springframework.web.bind.annotation.DeleteMapping
-import org.springframework.web.bind.annotation.GetMapping
-import org.springframework.web.bind.annotation.PathVariable
-import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestMapping
-import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
+import java.util.UUID
 
 @RestController
-@RequestMapping("/api/marks")
 class MarksController(
     private val markService: MarkService,
     private val uuidUtils: UuidUtils,
-) {
-    @GetMapping("")
-    fun getAllMarks(
-        @RequestParam(required = false) subjectId: SubjectId?,
-        @RequestParam semesterId: SemesterId,
-        @RequestParam userId: UserId,
-    ): List<Mark> = markService.getAllMarks(semesterId, userId, subjectId)
+) : MarksApi {
+    override fun getAllMarks(
+        semesterId: UUID,
+        userId: UUID,
+        subjectId: UUID?,
+    ): ResponseEntity<List<MarkDto>> =
+        ResponseEntity.ok(
+            markService.getAllMarks(
+                SemesterId(semesterId),
+                UserId(userId),
+                subjectId?.let { SubjectId(it) },
+            ).map { it.toDto() },
+        )
 
-    @PostMapping("")
-    fun addMark(
-        @RequestBody requestMark: Mark,
-        @RequestParam semesterId: SemesterId,
-    ): Mark {
+    override fun addMark(semesterId: UUID, body: MarkRequestDto): ResponseEntity<MarkDto> {
         val mark =
             Mark(
                 MarkId(uuidUtils.randomUUID()),
-                requestMark.name,
-                requestMark.subject,
-                requestMark.date,
-                requestMark.weight,
-                requestMark.value,
-                semesterId,
+                body.name,
+                Subject(
+                    SubjectId(body.subject.id),
+                    body.subject.name,
+                    body.subject.isVocationalModule,
+                    body.subject.description,
+                ),
+                body.date,
+                body.weight,
+                MarkValue(body.value),
+                SemesterId(semesterId),
             )
-        return markService.addNewMark(mark)
+        return ResponseEntity.ok(markService.addNewMark(mark).toDto())
     }
 
-    @GetMapping("future-exams")
-    fun getFutureExams(
-        @RequestParam userId: UserId,
-    ): List<Mark> = markService.getFutureExams(userId)
+    override fun getFutureExams(userId: UUID): ResponseEntity<List<MarkDto>> =
+        ResponseEntity.ok(markService.getFutureExams(UserId(userId)).map { it.toDto() })
 
-    @GetMapping("passed-exams")
-    fun getPassedExams(
-        @RequestParam userId: UserId,
-    ): List<Mark> = markService.getPassedExams(userId)
+    override fun getPassedExams(userId: UUID): ResponseEntity<List<MarkDto>> =
+        ResponseEntity.ok(markService.getPassedExams(UserId(userId)).map { it.toDto() })
 
-    @GetMapping("/last")
-    fun lastMarks(
-        @RequestParam userId: UserId,
-        @RequestParam(required = false, defaultValue = "4") limit: Int,
-    ): List<Mark> = markService.getPassedMarksWithValue(userId, limit)
+    override fun lastMarks(userId: UUID, limit: Int): ResponseEntity<List<MarkDto>> =
+        ResponseEntity.ok(markService.getPassedMarksWithValue(UserId(userId), limit).map { it.toDto() })
 
-    @PostMapping("{markId}/edit")
-    fun editMark(
-        @PathVariable markId: MarkId,
-        @RequestBody mark: Mark,
-    ): Mark = markService.editMark(mark)
-
-    @DeleteMapping("{markId}/delete")
-    fun deleteMark(
-        @PathVariable markId: MarkId,
-    ): MarkId {
-        markService.deleteMark(markId)
-        return markId
+    override fun editMark(markId: UUID, markDto: MarkDto): ResponseEntity<MarkDto> {
+        val mark =
+            Mark(
+                MarkId(markId),
+                markDto.name,
+                Subject(
+                    SubjectId(markDto.subject.id),
+                    markDto.subject.name,
+                    markDto.subject.isVocationalModule,
+                    markDto.subject.description,
+                ),
+                markDto.date,
+                markDto.weight,
+                MarkValue(markDto.value),
+                SemesterId(markDto.semesterId),
+            )
+        return ResponseEntity.ok(markService.editMark(mark).toDto())
     }
 
-    @PostMapping("{markId}/restore")
-    fun restoreMark(
-        @PathVariable markId: MarkId,
-    ): Mark = markService.restoreMark(markId)
+    override fun deleteMark(markId: UUID): ResponseEntity<UUID> {
+        markService.deleteMark(MarkId(markId))
+        return ResponseEntity.ok(markId)
+    }
 
-    @GetMapping("/calculate")
-    fun calculator(
-        @RequestParam userId: UserId,
-        @RequestParam semesterId: SemesterId,
-        @RequestParam subjectId: SubjectId,
-        @RequestParam goalMark: Int,
-        @RequestParam examWeight: Int,
-    ): MarkValue = markService.calculate(userId, semesterId, subjectId, MarkValue(goalMark), examWeight)
+    override fun restoreMark(markId: UUID): ResponseEntity<MarkDto> =
+        ResponseEntity.ok(markService.restoreMark(MarkId(markId)).toDto())
+
+    override fun calculator(
+        userId: UUID,
+        semesterId: UUID,
+        subjectId: UUID,
+        goalMark: Int,
+        examWeight: Int,
+    ): ResponseEntity<MarkValueDto> =
+        ResponseEntity.ok(
+            markService.calculate(
+                UserId(userId),
+                SemesterId(semesterId),
+                SubjectId(subjectId),
+                MarkValue(goalMark),
+                examWeight,
+            ).toDto(),
+        )
 }

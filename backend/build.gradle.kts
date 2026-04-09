@@ -133,6 +133,7 @@ val generateKotlinOpenApi = tasks.register("generateKotlinOpenApi", GenerateTask
             "interfaceOnly" to "true",
             "useBeanValidation" to "false",
             "enumPropertyNaming" to "UPPERCASE",
+            "documentationProvider" to "none",
         ),
     )
     templateDir.set("$projectDir/config/openapi/templates/kotlin-spring")
