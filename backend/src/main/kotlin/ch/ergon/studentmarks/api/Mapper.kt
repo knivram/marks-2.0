@@ -150,8 +150,7 @@ fun Mark.toDto(): MarkDto =
         semesterId = semesterId.value,
     )
 
-fun MarkValue.toDto(): MarkValueDto =
-    MarkValueDto(value = value)
+fun MarkValue.toDto(): MarkValueDto = MarkValueDto(value = value)
 
 fun PaginatedList<Semester>.toPaginatedSemesterListDto(offset: Int): PaginatedSemesterListDto =
     PaginatedSemesterListDto(

@@ -1,8 +1,9 @@
 package ch.ergon.studentmarks.api
 
 import ch.ergon.studentmarks.IntegrationTest
-import ch.ergon.studentmarks.api.subjects.FullSubjectDto
-import ch.ergon.studentmarks.api.subjects.SubjectOverviewDto
+import ch.ergon.studentmarks.api.generated.dto.FullSubjectDto
+import ch.ergon.studentmarks.api.generated.dto.SubjectOverviewDto
+import ch.ergon.studentmarks.api.toDto
 import ch.ergon.studentmarks.db.SubjectsRepository
 import ch.ergon.studentmarks.domain.subjects.Subject
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.LernenderMarks
@@ -138,7 +139,7 @@ class SubjectApiTest : IntegrationTest() {
                 TestSubjectOverview.Spring23.english.isVocationalModule,
                 TestSubjectOverview.Spring23.english.description,
                 TestSubjectOverview.Spring23.english.markAverage.value,
-                LernenderMarks.spring23.sortedBy { it.date },
+                LernenderMarks.spring23.sortedBy { it.date }.map { it.toDto() },
             )
 
         assertThat(response, `is`(expectedFullSubjectDto))

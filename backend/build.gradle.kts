@@ -5,7 +5,7 @@ plugins {
     id("io.spring.dependency-management") version "1.1.7"
     id("nu.studer.jooq") version "9.0"
     id("org.flywaydb.flyway") version "11.8.0"
-    id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
+    id("org.jlleitschuh.gradle.ktlint") version "12.3.0"
     id("org.openapi.generator") version "7.12.0"
     kotlin("jvm") version "2.3.10"
     kotlin("plugin.spring") version "2.3.10"
@@ -46,7 +46,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-jooq")
 
     runtimeOnly("org.postgresql:postgresql:42.5.1")
-    jooqGenerator("org.postgresql:postgresql:42.5.1")
+    jooqGenerator("org.jooq:jooq-meta-extensions:3.19.30")
 
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine:5.9.0")
     testImplementation("org.junit.jupiter:junit-jupiter-api:5.9.0")
@@ -69,22 +69,38 @@ flyway {
 }
 
 jooq {
+    version.set("3.19.30")
     configurations {
         create("main") {
-            generateSchemaSourceOnCompilation.set(false)
+            generateSchemaSourceOnCompilation.set(true)
 
             jooqConfiguration.apply {
                 logging = org.jooq.meta.jaxb.Logging.WARN
-                jdbc.apply {
-                    driver = "org.postgresql.Driver"
-                    url = "jdbc:postgresql://$gradlePostgresHost/gradlecodegen"
-                    user = "gradle"
-                    password = "password"
-                }
                 generator.apply {
                     name = "org.jooq.codegen.DefaultGenerator"
                     database.apply {
+                        name = "org.jooq.meta.extensions.ddl.DDLDatabase"
                         inputSchema = "public"
+                        properties.addAll(
+                            listOf(
+                                org.jooq.meta.jaxb.Property().apply {
+                                    key = "scripts"
+                                    value = "src/main/resources/db/migration/V*.sql"
+                                },
+                                org.jooq.meta.jaxb.Property().apply {
+                                    key = "sort"
+                                    value = "flyway"
+                                },
+                                org.jooq.meta.jaxb.Property().apply {
+                                    key = "unqualifiedSchema"
+                                    value = "public"
+                                },
+                                org.jooq.meta.jaxb.Property().apply {
+                                    key = "defaultNameCase"
+                                    value = "lower"
+                                },
+                            ),
+                        )
                     }
                     generate.apply {
                         isDeprecated = false
@@ -104,9 +120,8 @@ jooq {
     }
 }
 
-tasks["generateJooq"].dependsOn(tasks["flywayMigrate"])
-
 configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
+    version.set("1.6.0")
     debug.set(true)
     verbose.set(true)
     android.set(false)
@@ -117,32 +132,33 @@ configure<org.jlleitschuh.gradle.ktlint.KtlintExtension> {
     }
 }
 
-val generateKotlinOpenApi = tasks.register("generateKotlinOpenApi", GenerateTask::class.java) {
-    inputSpec.set("$projectDir/src/main/resources/openapi/api.yaml")
-    inputs.dir("$projectDir/src/main/resources/openapi/")
-    generatorName.set("kotlin-spring")
-    outputDir.set(layout.buildDirectory.dir("generated/openapi").map { it.asFile.absolutePath })
-    apiPackage.set("ch.ergon.studentmarks.api.generated")
-    modelPackage.set("ch.ergon.studentmarks.api.generated.dto")
-    modelNameSuffix.set("Dto")
-    configOptions.set(
-        mapOf(
-            "useSpringBoot3" to "true",
-            "useTags" to "true",
-            "skipDefaultInterface" to "true",
-            "interfaceOnly" to "true",
-            "useBeanValidation" to "false",
-            "enumPropertyNaming" to "UPPERCASE",
-            "documentationProvider" to "none",
-        ),
-    )
-    templateDir.set("$projectDir/config/openapi/templates/kotlin-spring")
-    generateModelTests.set(false)
-    generateModelDocumentation.set(false)
-    generateApiTests.set(false)
-    generateApiDocumentation.set(false)
-    skipValidateSpec.set(true)
-}
+val generateKotlinOpenApi =
+    tasks.register("generateKotlinOpenApi", GenerateTask::class.java) {
+        inputSpec.set("$projectDir/src/main/resources/openapi/api.yaml")
+        inputs.dir("$projectDir/src/main/resources/openapi/")
+        generatorName.set("kotlin-spring")
+        outputDir.set(layout.buildDirectory.dir("generated/openapi").map { it.asFile.absolutePath })
+        apiPackage.set("ch.ergon.studentmarks.api.generated")
+        modelPackage.set("ch.ergon.studentmarks.api.generated.dto")
+        modelNameSuffix.set("Dto")
+        configOptions.set(
+            mapOf(
+                "useSpringBoot3" to "true",
+                "useTags" to "true",
+                "skipDefaultInterface" to "true",
+                "interfaceOnly" to "true",
+                "useBeanValidation" to "false",
+                "enumPropertyNaming" to "UPPERCASE",
+                "documentationProvider" to "none",
+            ),
+        )
+        templateDir.set("$projectDir/config/openapi/templates/kotlin-spring")
+        generateModelTests.set(false)
+        generateModelDocumentation.set(false)
+        generateApiTests.set(false)
+        generateApiDocumentation.set(false)
+        skipValidateSpec.set(true)
+    }
 
 kotlin {
     compilerOptions {

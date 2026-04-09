@@ -52,7 +52,7 @@ CREATE TABLE deleted_mark
     date            DATE            NOT NULL,
     weight          INTEGER         NOT NULL,
     value           INTEGER                     DEFAULT null,
-    deleted_time    TIMESTAMP       NOT NULL    DEFAULT now()::timestamp,
+    deleted_time    TIMESTAMP       NOT NULL    DEFAULT CURRENT_TIMESTAMP,
     foreign key (user_id)       references "user"(id)       ON DELETE CASCADE ,
     foreign key (subject_id)    references subject(id)     ON DELETE CASCADE,
     foreign key (semester_id)   references semester(id)     ON DELETE CASCADE

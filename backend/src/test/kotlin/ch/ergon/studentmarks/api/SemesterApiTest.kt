@@ -1,7 +1,8 @@
 package ch.ergon.studentmarks.api
 
 import ch.ergon.studentmarks.IntegrationTest
-import ch.ergon.studentmarks.api.semester.PaginatedListDto
+import ch.ergon.studentmarks.api.generated.dto.PaginatedSemesterListDto
+import ch.ergon.studentmarks.api.toDto
 import ch.ergon.studentmarks.db.SemesterRepository
 import ch.ergon.studentmarks.domain.semester.Semester
 import ch.ergon.studentmarks.test.objects.TestSemester
@@ -10,7 +11,6 @@ import ch.ergon.studentmarks.test.objects.TestUser
 import ch.ergon.studentmarks.utils.TestUuidUtilsImpl
 import ch.ergon.studentmarks.utils.toAddSemesterRequest
 import io.restassured.RestAssured.given
-import io.restassured.common.mapper.TypeRef
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.containsInAnyOrder
@@ -27,41 +27,37 @@ class SemesterApiTest : IntegrationTest() {
 
     @Test
     fun getAllSemester() {
-        val response =
+        val response: PaginatedSemesterListDto =
             given()
                 .withApprentice()
                 .get("/api/semesters")
                 .then()
                 .statusCode(200)
                 .extract()
-                .response()
-                .body()
-                .`as`(object : TypeRef<PaginatedListDto<Semester>>() {})
+                .jsonPath()
+                .getObject(".", PaginatedSemesterListDto::class.java)
 
-        assertThat(response.list, containsInAnyOrder(*(TestSemester.semesters.toTypedArray())))
+        assertThat(response.list, containsInAnyOrder(*(TestSemester.semesters.map { it.toDto() }.toTypedArray())))
         assertThat(response.totalEntries, `is`(TestSemester.semesters.size))
     }
 
     @Test
     fun get_semesters_with_limit() {
-        val response =
+        val response: PaginatedSemesterListDto =
             given()
                 .withApprentice()
                 .get("/api/semesters?limit=2")
                 .then()
                 .statusCode(200)
                 .extract()
-                .response()
-                .body()
-                .`as`(object : TypeRef<PaginatedListDto<Semester>>() {})
-
-        println(response)
+                .jsonPath()
+                .getObject(".", PaginatedSemesterListDto::class.java)
 
         val expectedResponse =
-            PaginatedListDto(
+            PaginatedSemesterListDto(
                 totalEntries = 4,
                 offset = 0,
-                list = TestSemester.semesters.subList(0, 2),
+                list = TestSemester.semesters.subList(0, 2).map { it.toDto() },
             )
 
         assertThat(response, `is`(expectedResponse))
@@ -69,22 +65,21 @@ class SemesterApiTest : IntegrationTest() {
 
     @Test
     fun get_semesters_with_limit_and_offset() {
-        val response =
+        val response: PaginatedSemesterListDto =
             given()
                 .withApprentice()
                 .get("/api/semesters?offset=2&limit=2")
                 .then()
                 .statusCode(200)
                 .extract()
-                .response()
-                .body()
-                .`as`(object : TypeRef<PaginatedListDto<Semester>>() {})
+                .jsonPath()
+                .getObject(".", PaginatedSemesterListDto::class.java)
 
         val expectation =
-            PaginatedListDto(
+            PaginatedSemesterListDto(
                 totalEntries = 4,
                 offset = 2,
-                list = TestSemester.semesters.subList(2, 4),
+                list = TestSemester.semesters.subList(2, 4).map { it.toDto() },
             )
 
         assertThat(response, `is`(expectation))
@@ -147,8 +142,6 @@ class SemesterApiTest : IntegrationTest() {
                 .extract()
                 .jsonPath()
                 .getList(".", Semester::class.java)
-
-        println(response)
 
         assertThat(response, contains(*(TestSemester.semesters.toTypedArray())))
     }

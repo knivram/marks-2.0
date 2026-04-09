@@ -27,30 +27,28 @@ class UserController(
         return ResponseEntity.noContent().build()
     }
 
-    override fun editUser(id: UUID, userDto: UserDto): ResponseEntity<UserDto> =
-        ResponseEntity.ok(userService.editUser(UserId(id), userDto.toDomain()).toDto())
+    override fun editUser(
+        id: UUID,
+        userDto: UserDto,
+    ): ResponseEntity<UserDto> = ResponseEntity.ok(userService.editUser(UserId(id), userDto.toDomain()).toDto())
 
-    override fun deleteUser(id: UUID): ResponseEntity<UserDto> =
-        ResponseEntity.ok(userService.deleteUser(UserId(id)).toDto())
+    override fun deleteUser(id: UUID): ResponseEntity<UserDto> = ResponseEntity.ok(userService.deleteUser(UserId(id)).toDto())
 
-    override fun restoreUser(id: UUID): ResponseEntity<UserDto> =
-        ResponseEntity.ok(userService.restoreUser(UserId(id)).toDto())
+    override fun restoreUser(id: UUID): ResponseEntity<UserDto> = ResponseEntity.ok(userService.restoreUser(UserId(id)).toDto())
 
-    override fun getDeletedUsers(): ResponseEntity<List<UserDto>> =
-        ResponseEntity.ok(userService.getDeletedUsers().map { it.toDto() })
+    override fun getDeletedUsers(): ResponseEntity<List<UserDto>> = ResponseEntity.ok(userService.getDeletedUsers().map { it.toDto() })
 
-    override fun deleteDeletedUser(id: UUID): ResponseEntity<UserDto> =
-        ResponseEntity.ok(userService.deleteDeletedUser(UserId(id)).toDto())
+    override fun deleteDeletedUser(id: UUID): ResponseEntity<UserDto> = ResponseEntity.ok(userService.deleteDeletedUser(UserId(id)).toDto())
 
-    override fun userInfo(): ResponseEntity<UserDto> =
-        ResponseEntity.ok(userService.getCurrentUser().toDto())
+    override fun userInfo(): ResponseEntity<UserDto> = ResponseEntity.ok(userService.getCurrentUser().toDto())
 
     override fun connect(body: ApprenticeConnectRequestDto): ResponseEntity<ApprenticeSupervisorPairDto> =
         ResponseEntity.ok(
-            userService.connectApprenticeToSupervisor(
-                Email(body.apprenticeEmail),
-                Email(body.supervisorEmail),
-            ).toDto(),
+            userService
+                .connectApprenticeToSupervisor(
+                    Email(body.apprenticeEmail),
+                    Email(body.supervisorEmail),
+                ).toDto(),
         )
 
     override fun getApprentice(id: UUID): ResponseEntity<List<UserDto>> =

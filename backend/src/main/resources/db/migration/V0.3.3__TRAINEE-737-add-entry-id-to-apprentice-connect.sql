@@ -24,4 +24,5 @@ update apprentice_supervisor
 set id = '268a0ede-00a1-4d19-a572-2b76b7bc0c48'
 where fk_supervisor = '7d4db3ce-880c-4cba-bae1-7ec952d5d1ec';
 
+alter table apprentice_supervisor alter column id set not null;
 alter table apprentice_supervisor add primary key (id);

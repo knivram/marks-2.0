@@ -1,7 +1,7 @@
 package ch.ergon.studentmarks.api
 
 import ch.ergon.studentmarks.IntegrationTest
-import ch.ergon.studentmarks.api.user.UserDto
+import ch.ergon.studentmarks.api.generated.dto.UserDto
 import ch.ergon.studentmarks.test.objects.TestUser
 import io.restassured.RestAssured.given
 import org.hamcrest.MatcherAssert.assertThat

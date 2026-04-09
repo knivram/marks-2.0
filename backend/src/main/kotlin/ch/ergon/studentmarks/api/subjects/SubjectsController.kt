@@ -36,13 +36,15 @@ class SubjectsController(
             subjectsService.addSubject(body.toDomain(SubjectId(uuidUtils.randomUUID()))).toDto(),
         )
 
-    override fun editSubject(id: UUID, body: SubjectRequestDto): ResponseEntity<SubjectDto> =
+    override fun editSubject(
+        id: UUID,
+        body: SubjectRequestDto,
+    ): ResponseEntity<SubjectDto> =
         ResponseEntity.ok(
             subjectsService.editSubject(body.toDomain(SubjectId(id))).toDto(),
         )
 
-    override fun getAllSubject(): ResponseEntity<List<SubjectDto>> =
-        ResponseEntity.ok(subjectsService.getAllSubject().map { it.toDto() })
+    override fun getAllSubject(): ResponseEntity<List<SubjectDto>> = ResponseEntity.ok(subjectsService.getAllSubject().map { it.toDto() })
 
     override fun getFullSubject(
         subjectId: UUID,

@@ -21,7 +21,10 @@ class SemesterController(
     private val semesterService: SemesterService,
     private val uuidUtils: UuidUtils,
 ) : SemestersApi {
-    override fun getAllSemester(offset: Int, limit: Int): ResponseEntity<PaginatedSemesterListDto> {
+    override fun getAllSemester(
+        offset: Int,
+        limit: Int,
+    ): ResponseEntity<PaginatedSemesterListDto> {
         val pagedSemesterList = semesterService.getAllSemester(PaginationParams(offset, limit))
         return ResponseEntity.ok(pagedSemesterList.toPaginatedSemesterListDto(offset))
     }
@@ -31,7 +34,10 @@ class SemesterController(
             semesterService.addSemester(body.toDomain(SemesterId(uuidUtils.randomUUID()))).toDto(),
         )
 
-    override fun editSemester(id: UUID, body: SemesterRequestDto): ResponseEntity<SemesterDto> =
+    override fun editSemester(
+        id: UUID,
+        body: SemesterRequestDto,
+    ): ResponseEntity<SemesterDto> =
         ResponseEntity.ok(
             semesterService.editSemester(body.toDomain(SemesterId(id))).toDto(),
         )

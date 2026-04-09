@@ -1,14 +1,13 @@
 package ch.ergon.studentmarks.api
 
 import ch.ergon.studentmarks.IntegrationTest
-import ch.ergon.studentmarks.api.user.ApprenticeConnectRequest
-import ch.ergon.studentmarks.api.user.ApprenticeSupervisorPairDto
-import ch.ergon.studentmarks.api.user.SimpleUserDto
-import ch.ergon.studentmarks.api.user.UserDto
-import ch.ergon.studentmarks.api.user.UserRoleDto
+import ch.ergon.studentmarks.api.generated.dto.ApprenticeConnectRequestDto
+import ch.ergon.studentmarks.api.generated.dto.ApprenticeSupervisorPairDto
+import ch.ergon.studentmarks.api.generated.dto.SimpleUserDto
+import ch.ergon.studentmarks.api.generated.dto.UserDto
+import ch.ergon.studentmarks.api.generated.dto.UserRoleDto
 import ch.ergon.studentmarks.db.UserRepository
 import ch.ergon.studentmarks.domain.user.ApprenticeSupervisorPair
-import ch.ergon.studentmarks.domain.user.Email
 import ch.ergon.studentmarks.domain.user.User
 import ch.ergon.studentmarks.domain.user.UserName
 import ch.ergon.studentmarks.test.objects.TestConnections
@@ -183,7 +182,7 @@ class UserApiTest : IntegrationTest() {
         given()
             .withAdmin()
             .contentType("application/json")
-            .body(ApprenticeConnectRequest(Email("non.existing@mail.com"), Admin.email))
+            .body(ApprenticeConnectRequestDto(apprenticeEmail = "non.existing@mail.com", supervisorEmail = Admin.email.value))
             .post("/api/user/connect")
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
@@ -195,7 +194,7 @@ class UserApiTest : IntegrationTest() {
             given()
                 .withAdmin()
                 .contentType("application/json")
-                .body(ApprenticeConnectRequest(Lernender.email, Admin.email))
+                .body(ApprenticeConnectRequestDto(apprenticeEmail = Lernender.email.value, supervisorEmail = Admin.email.value))
                 .post("/api/user/connect")
                 .then()
                 .statusCode(HttpStatus.OK.value())

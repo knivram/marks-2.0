@@ -29,14 +29,18 @@ class MarksController(
         subjectId: UUID?,
     ): ResponseEntity<List<MarkDto>> =
         ResponseEntity.ok(
-            markService.getAllMarks(
-                SemesterId(semesterId),
-                UserId(userId),
-                subjectId?.let { SubjectId(it) },
-            ).map { it.toDto() },
+            markService
+                .getAllMarks(
+                    SemesterId(semesterId),
+                    UserId(userId),
+                    subjectId?.let { SubjectId(it) },
+                ).map { it.toDto() },
         )
 
-    override fun addMark(semesterId: UUID, body: MarkRequestDto): ResponseEntity<MarkDto> {
+    override fun addMark(
+        semesterId: UUID,
+        body: MarkRequestDto,
+    ): ResponseEntity<MarkDto> {
         val mark =
             Mark(
                 MarkId(uuidUtils.randomUUID()),
@@ -61,10 +65,15 @@ class MarksController(
     override fun getPassedExams(userId: UUID): ResponseEntity<List<MarkDto>> =
         ResponseEntity.ok(markService.getPassedExams(UserId(userId)).map { it.toDto() })
 
-    override fun lastMarks(userId: UUID, limit: Int): ResponseEntity<List<MarkDto>> =
-        ResponseEntity.ok(markService.getPassedMarksWithValue(UserId(userId), limit).map { it.toDto() })
+    override fun lastMarks(
+        userId: UUID,
+        limit: Int,
+    ): ResponseEntity<List<MarkDto>> = ResponseEntity.ok(markService.getPassedMarksWithValue(UserId(userId), limit).map { it.toDto() })
 
-    override fun editMark(markId: UUID, markDto: MarkDto): ResponseEntity<MarkDto> {
+    override fun editMark(
+        markId: UUID,
+        markDto: MarkDto,
+    ): ResponseEntity<MarkDto> {
         val mark =
             Mark(
                 MarkId(markId),
@@ -88,8 +97,7 @@ class MarksController(
         return ResponseEntity.ok(markId)
     }
 
-    override fun restoreMark(markId: UUID): ResponseEntity<MarkDto> =
-        ResponseEntity.ok(markService.restoreMark(MarkId(markId)).toDto())
+    override fun restoreMark(markId: UUID): ResponseEntity<MarkDto> = ResponseEntity.ok(markService.restoreMark(MarkId(markId)).toDto())
 
     override fun calculator(
         userId: UUID,
@@ -99,12 +107,13 @@ class MarksController(
         examWeight: Int,
     ): ResponseEntity<MarkValueDto> =
         ResponseEntity.ok(
-            markService.calculate(
-                UserId(userId),
-                SemesterId(semesterId),
-                SubjectId(subjectId),
-                MarkValue(goalMark),
-                examWeight,
-            ).toDto(),
+            markService
+                .calculate(
+                    UserId(userId),
+                    SemesterId(semesterId),
+                    SubjectId(subjectId),
+                    MarkValue(goalMark),
+                    examWeight,
+                ).toDto(),
         )
 }
