@@ -1,22 +1,21 @@
-import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
 
 plugins {
-    id("org.springframework.boot") version "3.0.0"
-    id("io.spring.dependency-management") version "1.1.0"
-    id("nu.studer.jooq") version "8.0"
-    id("org.flywaydb.flyway") version "9.7.0"
+    id("org.springframework.boot") version "3.5.12"
+    id("io.spring.dependency-management") version "1.1.7"
+    id("nu.studer.jooq") version "9.0"
+    id("org.flywaydb.flyway") version "11.8.0"
     id("org.jlleitschuh.gradle.ktlint") version "12.1.1"
     id("org.openapi.generator") version "7.12.0"
-    kotlin("jvm") version "1.9.10"
-    kotlin("plugin.spring") version "1.9.10"
+    kotlin("jvm") version "2.3.10"
+    kotlin("plugin.spring") version "2.3.10"
 }
 
 val gradlePostgresHost = project.properties["POSTGRES_HOST"] ?: "localhost:3134"
 
 group = "com.example"
 version = "0.0.1-SNAPSHOT"
-java.sourceCompatibility = JavaVersion.VERSION_17
+java.sourceCompatibility = JavaVersion.VERSION_21
 
 repositories {
     mavenCentral()
@@ -34,8 +33,8 @@ dependencies {
     implementation("jakarta.xml.bind:jakarta.xml.bind-api:4.0.0")
     implementation("org.glassfish.jaxb:jaxb-runtime:4.0.0")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
-    implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
-    implementation("org.flywaydb:flyway-core:9.10.0")
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
     implementation("org.springframework.boot:spring-boot-starter-jooq")
     implementation("com.google.code.gson:gson:2.10")
 
@@ -57,13 +56,6 @@ dependencies {
     testImplementation("org.mockito.kotlin:mockito-kotlin:5.2.1")
 }
 
-tasks.withType<KotlinCompile> {
-    kotlinOptions {
-        freeCompilerArgs = listOf("-Xjsr305=strict")
-        jvmTarget = "17"
-    }
-}
-
 tasks.withType<Test> {
     useJUnitPlatform()
 }
@@ -79,8 +71,7 @@ flyway {
 jooq {
     configurations {
         create("main") {
-            // name of the jOOQ configuration
-            generateSchemaSourceOnCompilation.set(true) // default (can be omitted)
+            generateSchemaSourceOnCompilation.set(false)
 
             jooqConfiguration.apply {
                 logging = org.jooq.meta.jaxb.Logging.WARN
@@ -153,6 +144,10 @@ val generateKotlinOpenApi = tasks.register("generateKotlinOpenApi", GenerateTask
 }
 
 kotlin {
+    compilerOptions {
+        freeCompilerArgs.add("-Xjsr305=strict")
+        jvmTarget.set(org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21)
+    }
     sourceSets["main"].kotlin.srcDir(
         generateKotlinOpenApi.map { file(it.outputDir).resolve("src/main/kotlin") },
     )

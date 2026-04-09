@@ -28,7 +28,7 @@ class SemesterRepository(
         }
     }
 
-    fun getAmountOfSemesters(): Number = dsl.fetchCount(SEMESTER)
+    fun getAmountOfSemesters(): Int = dsl.fetchCount(SEMESTER)
 
     fun addSemester(semester: Semester): Semester =
         dsl
