@@ -144,7 +144,7 @@ val generateKotlinOpenApi = tasks.register("generateKotlinOpenApi", GenerateTask
             "enumPropertyNaming" to "UPPERCASE",
         ),
     )
-    templateDir.set("$rootDir/config/openapi/templates/kotlin-spring")
+    templateDir.set("$projectDir/config/openapi/templates/kotlin-spring")
     generateModelTests.set(false)
     generateModelDocumentation.set(false)
     generateApiTests.set(false)
