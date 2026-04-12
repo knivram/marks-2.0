@@ -1,2 +1,2 @@
 CREATE SCHEMA IF NOT EXISTS "public";
-SET SCHEMA "public";
+SET search_path TO "public";

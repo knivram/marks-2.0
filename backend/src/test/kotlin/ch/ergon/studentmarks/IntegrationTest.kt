@@ -8,10 +8,22 @@ import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
+import org.testcontainers.containers.PostgreSQLContainer
 import java.util.UUID
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class IntegrationTest {
+    companion object {
+        init {
+            PostgreSQLContainer("postgres:14").apply {
+                start()
+                System.setProperty("spring.datasource.url", jdbcUrl)
+                System.setProperty("spring.datasource.username", username)
+                System.setProperty("spring.datasource.password", password)
+            }
+        }
+    }
+
     @LocalServerPort
     private var localServerPort: Int? = null
 
