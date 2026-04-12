@@ -3,7 +3,8 @@ package ch.ergon.studentmarks.permission
 import ch.ergon.studentmarks.IntegrationTest
 import ch.ergon.studentmarks.api.withApprentice
 import ch.ergon.studentmarks.api.withSupervisor
-import ch.ergon.studentmarks.domain.marks.Mark
+import ch.ergon.studentmarks.api.generated.dto.MarkDto
+import ch.ergon.studentmarks.api.toDto
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.LernenderMarks
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.SpecialMarks
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Jan
@@ -26,9 +27,9 @@ class PermissionTest : IntegrationTest() {
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getList(".", Mark::class.java)
+                .getList(".", MarkDto::class.java)
 
-        assertThat(response, containsInAnyOrder(*(LernenderMarks.FutureMark.marks.toTypedArray())))
+        assertThat(response, containsInAnyOrder(*(LernenderMarks.FutureMark.marks.map { it.toDto() }.toTypedArray())))
     }
 
     @Test
@@ -47,7 +48,7 @@ class PermissionTest : IntegrationTest() {
             .given()
             .withSupervisor()
             .contentType("application/json")
-            .body(SpecialMarks.EditedMathMark)
+            .body(SpecialMarks.EditedMathMark.toDto())
             .post("/api/marks/${SpecialMarks.EditedMathMark.id.value}/edit")
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())
