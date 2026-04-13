@@ -1,11 +1,11 @@
 package ch.ergon.studentmarks.test.objects
 
-import ch.ergon.studentmarks.api.toDto
-import ch.ergon.studentmarks.domain.user.Email
-import ch.ergon.studentmarks.domain.user.User
-import ch.ergon.studentmarks.domain.user.UserId
-import ch.ergon.studentmarks.domain.user.UserName
-import ch.ergon.studentmarks.domain.user.UserRole
+import ch.ergon.studentmarks.api.mapper.toDto
+import ch.ergon.studentmarks.domain.model.user.Email
+import ch.ergon.studentmarks.domain.model.user.User
+import ch.ergon.studentmarks.domain.model.user.UserId
+import ch.ergon.studentmarks.domain.model.user.UserName
+import ch.ergon.studentmarks.domain.model.user.UserRole
 
 class TestUser {
     companion object {

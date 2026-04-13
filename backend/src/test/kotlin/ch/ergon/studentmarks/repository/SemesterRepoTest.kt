@@ -1,8 +1,8 @@
 package ch.ergon.studentmarks.repository
 
 import ch.ergon.studentmarks.IntegrationTest
-import ch.ergon.studentmarks.db.SemesterRepository
-import ch.ergon.studentmarks.domain.PaginationParams
+import ch.ergon.studentmarks.domain.model.shared.PaginationParams
+import ch.ergon.studentmarks.domain.repository.SemesterRepository
 import ch.ergon.studentmarks.test.objects.TestSemester
 import ch.ergon.studentmarks.test.objects.TestSemester.Companion.SpecialTestSemesters
 import ch.ergon.studentmarks.test.objects.TestUser
@@ -22,50 +22,50 @@ class SemesterRepoTest : IntegrationTest() {
 
     @Test
     fun getAllSemester() {
-        val semesters = semesterRepository.getAllSemester()
+        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
 
-        assertThat(semesters, `is`(TestSemester.semesters))
+        assertThat(semesters.pageEntries, `is`(TestSemester.semesters))
     }
 
     @Test
     fun get_semesters_with_limit() {
-        val semesters = semesterRepository.getAllSemester(PaginationParams(0, 2))
+        val semesters = semesterRepository.findAll(PaginationParams(0, 2))
 
-        assertThat(semesters, `is`(TestSemester.semesters.subList(0, 2)))
+        assertThat(semesters.pageEntries, `is`(TestSemester.semesters.subList(0, 2)))
     }
 
     @Test
     fun get_semesters_with_limit_and_offset() {
-        val semesters = semesterRepository.getAllSemester(PaginationParams(2, 2))
+        val semesters = semesterRepository.findAll(PaginationParams(2, 2))
 
-        assertThat(semesters, `is`(TestSemester.semesters.subList(2, 4)))
+        assertThat(semesters.pageEntries, `is`(TestSemester.semesters.subList(2, 4)))
     }
 
     @Test
     fun add_semester() {
-        val semester = semesterRepository.addSemester(SpecialTestSemesters.AddSemester)
+        val semester = semesterRepository.save(SpecialTestSemesters.AddSemester)
 
         assertThat(semester, `is`(SpecialTestSemesters.AddSemester))
 
-        val semesters = semesterRepository.getAllSemester()
+        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
 
-        assertThat(semesters, `is`(SpecialTestSemesters.semestersAfterAdding))
+        assertThat(semesters.pageEntries, `is`(SpecialTestSemesters.semestersAfterAdding))
     }
 
     @Test
     fun edit_semester() {
-        val semester = semesterRepository.editSemester(SpecialTestSemesters.EditSemester)
+        val semester = semesterRepository.update(SpecialTestSemesters.EditSemester)
 
         assertThat(semester, `is`(SpecialTestSemesters.EditSemester))
 
-        val semesters = semesterRepository.getAllSemester()
+        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
 
-        assertThat(semesters, `is`(SpecialTestSemesters.semestersAfterEditing))
+        assertThat(semesters.pageEntries, `is`(SpecialTestSemesters.semestersAfterEditing))
     }
 
     @Test
     fun getAllRelevantSemester() {
-        val semesters = semesterRepository.getAllRelevantSemester(TestUser.Lernender.userId, testTimeUtilsImpl.now())
+        val semesters = semesterRepository.findRelevantForUser(TestUser.Lernender.userId, testTimeUtilsImpl.now())
 
         assertThat(semesters, contains(*(TestSemester.semesters.toTypedArray())))
     }

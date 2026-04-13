@@ -1,9 +1,9 @@
 package ch.ergon.studentmarks.infrastructure.security.exeptions
 
-import ch.ergon.studentmarks.domain.marks.MarkId
-import ch.ergon.studentmarks.domain.marks.SubjectId
-import ch.ergon.studentmarks.domain.user.Email
-import ch.ergon.studentmarks.domain.user.UserName
+import ch.ergon.studentmarks.domain.model.mark.MarkId
+import ch.ergon.studentmarks.domain.model.subject.SubjectId
+import ch.ergon.studentmarks.domain.model.user.Email
+import ch.ergon.studentmarks.domain.model.user.UserName
 import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.MARK_NOT_FOUND
 import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.NO_MAIL_IN_SUBJECT
 import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.NO_SUBJECT

@@ -1,0 +1,150 @@
+package ch.ergon.studentmarks.infrastructure.repository
+
+import ch.ergon.studentmarks.domain.model.mark.Mark
+import ch.ergon.studentmarks.domain.model.mark.MarkId
+import ch.ergon.studentmarks.domain.model.semester.SemesterId
+import ch.ergon.studentmarks.domain.model.subject.SubjectId
+import ch.ergon.studentmarks.domain.model.user.UserId
+import ch.ergon.studentmarks.domain.repository.MarkRepository
+import ch.ergon.studentmarks.gen.Tables.MARK
+import ch.ergon.studentmarks.infrastructure.repository.mapper.MarkRecordMapper.toMark
+import ch.ergon.studentmarks.infrastructure.security.exeptions.MarkNotFoundException
+import ch.ergon.studentmarks.infrastructure.security.exeptions.UserNotFoundException
+import org.jooq.DSLContext
+import org.jooq.impl.DSL.inline
+import org.springframework.stereotype.Repository
+import java.time.LocalDateTime
+
+@Repository
+class JooqMarkRepository(
+    private val dsl: DSLContext,
+) : MarkRepository {
+    override fun findById(markId: MarkId): Mark =
+        dsl
+            .selectFrom(MARK)
+            .where(MARK.ID.eq(markId.value))
+            .andNot(MARK.DELETED)
+            .fetchOne()
+            ?.toMark()
+            ?: throw MarkNotFoundException(markId)
+
+    override fun findByUser(
+        userId: UserId,
+        semesterId: SemesterId?,
+        subjectId: SubjectId?,
+    ): List<Mark> {
+        var selectCondition =
+            dsl
+                .selectFrom(MARK)
+                .where(MARK.USER_ID.eq(userId.value))
+
+        if (semesterId != null) {
+            selectCondition = selectCondition.and(MARK.SEMESTER_ID.eq(semesterId.value))
+        }
+        if (subjectId != null) {
+            selectCondition = selectCondition.and(MARK.SUBJECT_ID.eq(subjectId.value))
+        }
+
+        return selectCondition
+            .andNot(MARK.DELETED)
+            .orderBy(MARK.DATE)
+            .fetch()
+            .map { it.toMark() }
+    }
+
+    override fun save(
+        userId: UserId,
+        mark: Mark,
+    ): Mark {
+        dsl
+            .insertInto(MARK)
+            .set(MARK.ID, mark.id.value)
+            .set(MARK.USER_ID, userId.value)
+            .set(MARK.SUBJECT_ID, mark.subjectId.value)
+            .set(MARK.NAME, mark.name)
+            .set(MARK.DATE, mark.date)
+            .set(MARK.WEIGHT, mark.weight)
+            .set(MARK.VALUE, mark.value.value)
+            .set(MARK.SEMESTER_ID, mark.semesterId.value)
+            .execute()
+
+        return findById(mark.id)
+    }
+
+    override fun update(
+        userId: UserId,
+        mark: Mark,
+    ): Mark {
+        dsl
+            .update(MARK)
+            .set(MARK.ID, mark.id.value)
+            .set(MARK.USER_ID, userId.value)
+            .set(MARK.SUBJECT_ID, mark.subjectId.value)
+            .set(MARK.NAME, mark.name)
+            .set(MARK.DATE, mark.date)
+            .set(MARK.WEIGHT, mark.weight)
+            .set(MARK.VALUE, mark.value.value)
+            .where(MARK.ID.eq(mark.id.value))
+            .execute()
+
+        return findById(mark.id)
+    }
+
+    override fun softDelete(markId: MarkId) {
+        dsl
+            .update(MARK)
+            .set(MARK.DELETED, true)
+            .set(MARK.DELETED_TIME, LocalDateTime.now())
+            .where(MARK.ID.eq(markId.value))
+            .execute()
+    }
+
+    override fun softDeleteByUser(userId: UserId) {
+        dsl
+            .update(MARK)
+            .set(MARK.DELETED, true)
+            .set(MARK.DELETED_TIME, LocalDateTime.now())
+            .where(MARK.USER_ID.eq(userId.value))
+            .execute()
+    }
+
+    override fun restore(markId: MarkId): Mark {
+        dsl
+            .update(MARK)
+            .set(MARK.DELETED, false)
+            .setNull(MARK.DELETED_TIME)
+            .where(inline(true))
+            .and(MARK.ID.eq(markId.value))
+            .returning(MARK.asterisk())
+            .fetchOne()!!
+
+        return findById(markId)
+    }
+
+    override fun findDeleted(userId: UserId): List<Mark> =
+        dsl
+            .selectFrom(MARK)
+            .where(MARK.USER_ID.eq(userId.value))
+            .and(MARK.DELETED)
+            .orderBy(MARK.DATE)
+            .fetch()
+            .map { it.toMark() }
+
+    override fun getOwnerUserId(markId: MarkId): UserId =
+        dsl
+            .selectFrom(MARK)
+            .where(MARK.ID.eq(markId.value))
+            .fetchOne()
+            ?.let { UserId(it.userId) }
+            ?: throw UserNotFoundException(
+                searchParam = markId.value.toString(),
+                message = "The owner of mark with id \"${markId.value}\" was not found.",
+            )
+
+    override fun deleteExpiredSoftDeleted(olderThan: LocalDateTime) {
+        dsl
+            .deleteFrom(MARK)
+            .where(MARK.DELETED_TIME.lessThan(olderThan))
+            .execute()
+    }
+}

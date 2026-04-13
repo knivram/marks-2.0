@@ -1,0 +1,11 @@
+get:
+  tags: [UserInfo]
+  operationId: userInfo
+  summary: Get current authenticated user
+  responses:
+    '200':
+      description: Current user info
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/User"

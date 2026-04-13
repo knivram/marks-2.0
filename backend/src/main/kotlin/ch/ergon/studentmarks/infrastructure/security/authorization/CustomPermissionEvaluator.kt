@@ -1,10 +1,10 @@
 package ch.ergon.studentmarks.infrastructure.security.authorization
 
-import ch.ergon.studentmarks.db.MarkRepository
-import ch.ergon.studentmarks.db.UserRepository
-import ch.ergon.studentmarks.domain.marks.MarkId
-import ch.ergon.studentmarks.domain.user.User
-import ch.ergon.studentmarks.domain.user.UserId
+import ch.ergon.studentmarks.domain.model.mark.MarkId
+import ch.ergon.studentmarks.domain.model.user.User
+import ch.ergon.studentmarks.domain.model.user.UserId
+import ch.ergon.studentmarks.domain.repository.MarkRepository
+import ch.ergon.studentmarks.domain.repository.UserRepository
 import org.springframework.security.access.PermissionEvaluator
 import org.springframework.security.core.Authentication
 import org.springframework.stereotype.Service
@@ -20,7 +20,7 @@ class CustomPermissionEvaluator(
         targetDomainObject: Any?,
         permission: Any?,
     ): Boolean {
-        val user = authentication?.principal as User
+        val user = authentication?.principal as? User ?: return false
         return when (permission) {
             "IS_SUPERVISOR_OF" -> isSupervisorOf(targetDomainObject as UserId, user)
             "IS_CURRENT_USER" -> isCurrentUser(targetDomainObject as UserId, user)
@@ -41,7 +41,7 @@ class CustomPermissionEvaluator(
         currentUser: User,
     ): Boolean {
         val filteredApprentice =
-            userRepository.getApprentice(currentUser).singleOrNull { user: User -> user.userId == userId }
+            userRepository.findApprenticesForSupervisor(currentUser).singleOrNull { it.userId == userId }
         return filteredApprentice != null
     }
 
@@ -54,7 +54,7 @@ class CustomPermissionEvaluator(
         markId: MarkId,
         currentUser: User,
     ): Boolean {
-        val markOwnerId = markRepository.getOwnerOfMark(markId)
+        val markOwnerId = markRepository.getOwnerUserId(markId)
         return markOwnerId.value == currentUser.userId.value
     }
 }

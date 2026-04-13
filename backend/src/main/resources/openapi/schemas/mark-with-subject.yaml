@@ -1,0 +1,9 @@
+type: object
+required:
+  - mark
+  - subject
+properties:
+  mark:
+    $ref: "./mark.yaml"
+  subject:
+    $ref: "./subject.yaml"

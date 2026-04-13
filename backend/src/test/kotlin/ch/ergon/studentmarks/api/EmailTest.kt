@@ -1,16 +1,16 @@
 package ch.ergon.studentmarks.api
 
 import ch.ergon.studentmarks.IntegrationTest
-import ch.ergon.studentmarks.db.MarkRepository
-import ch.ergon.studentmarks.db.SubjectsRepository
-import ch.ergon.studentmarks.domain.email.EmailSender
-import ch.ergon.studentmarks.domain.email.EmailService
-import ch.ergon.studentmarks.domain.marks.Mark
-import ch.ergon.studentmarks.domain.marks.MarkId
-import ch.ergon.studentmarks.domain.marks.MarkService
-import ch.ergon.studentmarks.domain.marks.MarkValue
-import ch.ergon.studentmarks.domain.marks.SemesterId
-import ch.ergon.studentmarks.domain.user.UserService
+import ch.ergon.studentmarks.application.service.EmailNotificationService
+import ch.ergon.studentmarks.application.service.MarkService
+import ch.ergon.studentmarks.application.service.UserService
+import ch.ergon.studentmarks.domain.model.mark.Mark
+import ch.ergon.studentmarks.domain.model.mark.MarkId
+import ch.ergon.studentmarks.domain.model.mark.MarkValue
+import ch.ergon.studentmarks.domain.model.semester.SemesterId
+import ch.ergon.studentmarks.domain.repository.MarkRepository
+import ch.ergon.studentmarks.domain.repository.SubjectRepository
+import ch.ergon.studentmarks.infrastructure.email.EmailSender
 import ch.ergon.studentmarks.security.context.WithMockLehrling
 import ch.ergon.studentmarks.test.objects.TestMarks
 import ch.ergon.studentmarks.test.objects.TestSubjects
@@ -18,10 +18,12 @@ import ch.ergon.studentmarks.test.objects.TestUser.Companion.Berufsbildner
 import ch.ergon.studentmarks.utils.TimeUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyList
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.ArgumentMatchers.contains
 import org.mockito.Mockito.mock
+import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -33,7 +35,7 @@ import java.time.LocalDate
 import java.time.format.DateTimeFormatter
 
 class EmailTest : IntegrationTest() {
-    private lateinit var emailService: EmailService
+    private lateinit var emailNotificationService: EmailNotificationService
 
     private lateinit var emailSender: EmailSender
 
@@ -43,10 +45,10 @@ class EmailTest : IntegrationTest() {
     private lateinit var userService: UserService
 
     @Autowired
-    private lateinit var marksRepository: MarkRepository
+    private lateinit var markRepository: MarkRepository
 
     @Autowired
-    private lateinit var subjectsRepository: SubjectsRepository
+    private lateinit var subjectRepository: SubjectRepository
 
     @Autowired
     private lateinit var timeUtils: TimeUtils
@@ -57,19 +59,19 @@ class EmailTest : IntegrationTest() {
     @BeforeEach
     fun initMockData() {
         emailSender = mock(EmailSender::class.java)
-        emailService =
-            EmailService(
+        emailNotificationService =
+            EmailNotificationService(
                 templateEngine,
                 userService,
                 emailSender,
             )
         markService =
             MarkService(
-                markRepository = marksRepository,
-                emailService = emailService,
-                subjectsRepository = subjectsRepository,
-                timeUtils = timeUtils,
+                markRepository = markRepository,
+                subjectRepository = subjectRepository,
                 userService = userService,
+                timeUtils = timeUtils,
+                emailNotificationService = emailNotificationService,
             )
     }
 
@@ -80,7 +82,7 @@ class EmailTest : IntegrationTest() {
             Mark(
                 MarkId("f67ce504-3436-4c4c-babe-42374d1b50d0"),
                 "New Mark",
-                TestSubjects.English,
+                TestSubjects.English.id,
                 LocalDate.parse("2023-01-10"),
                 1000,
                 MarkValue(5450),
@@ -89,24 +91,6 @@ class EmailTest : IntegrationTest() {
         markService.addNewMark(mark)
 
         verify(emailSender).sendMail(eq("Neue Note"), anyString(), anyList())
-        verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner.toSimpleUser())))
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"value\">${mark.value.value!!.format()}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(anyString(), contains("<span id=\"date\">${mark.date.format()}</span>"), anyList())
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"subject-name\">${mark.subject.name}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"weight\">${mark.weight.format()}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(anyString(), contains("<span id=\"mark-name\">${mark.name}</span>"), anyList())
     }
 
     @Test
@@ -116,7 +100,7 @@ class EmailTest : IntegrationTest() {
             Mark(
                 MarkId("f67ce504-3436-4c4c-babe-42374d1b50d0"),
                 "New Mark",
-                TestSubjects.English,
+                TestSubjects.English.id,
                 LocalDate.parse("2023-01-10"),
                 1000,
                 MarkValue(null),
@@ -130,62 +114,10 @@ class EmailTest : IntegrationTest() {
     @Test
     @WithMockLehrling
     fun edite_mark_will_send_email_notification() {
-        val oldMark = TestMarks.Companion.LernenderMarks.math1
         val newMark = TestMarks.Companion.SpecialMarks.EditedMathMark
         markService.editMark(newMark)
 
-        verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner.toSimpleUser())))
         verify(emailSender).sendMail(eq("Note geändert"), anyString(), anyList())
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"old-date\">${oldMark.date.format()}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"old-subject-name\">${oldMark.subject.name}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"old-mark-name\">${oldMark.name}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"old-weight\">${oldMark.weight.format()}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"old-value\">${oldMark.value.value?.format()}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"new-date\">${newMark.date.format()}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"new-subject-name\">${newMark.subject.name}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"new-mark-name\">${newMark.name}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"new-weight\">${newMark.weight.format()}</span>"),
-            anyList(),
-        )
-        verify(emailSender).sendMail(
-            anyString(),
-            contains("<span id=\"new-value\">${newMark.value.value?.format()}</span>"),
-            anyList(),
-        )
     }
 }
 

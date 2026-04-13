@@ -1,10 +1,7 @@
 package ch.ergon.studentmarks.test.objects
 
-import ch.ergon.studentmarks.api.toDto
-import ch.ergon.studentmarks.domain.marks.MarkAverage
-import ch.ergon.studentmarks.domain.marks.SubjectId
-import ch.ergon.studentmarks.domain.subjects.Subject
-import ch.ergon.studentmarks.domain.subjects.SubjectOverview
+import ch.ergon.studentmarks.domain.model.subject.Subject
+import ch.ergon.studentmarks.domain.model.subject.SubjectId
 import java.util.UUID
 
 class TestSubjects {
@@ -60,71 +57,7 @@ class TestSubjects {
             val afterAddingSubject = listOf(French, Math, English, M117, AddSubject)
         }
 
-        object TestSubjectOverview {
-            object Spring22 {
-                val french =
-                    SubjectOverview(
-                        SubjectId(UUID.fromString("09f526bc-24ba-4ed9-988b-bac98d670112")),
-                        "Französisch",
-                        false,
-                        null,
-                        MarkAverage(5000),
-                    )
-            }
-
-            object Autumn22 {
-                val math =
-                    SubjectOverview(
-                        SubjectId(UUID.fromString("37bad6f5-461a-4d50-9074-02c95879148f")),
-                        "Mathematik",
-                        false,
-                        null,
-                        MarkAverage(5500),
-                    )
-                val french =
-                    SubjectOverview(
-                        SubjectId(UUID.fromString("09f526bc-24ba-4ed9-988b-bac98d670112")),
-                        "Französisch",
-                        false,
-                        null,
-                        MarkAverage(5000),
-                    )
-
-                val list = listOf(math, french)
-                val listDto = list.map { it.toDto() }
-            }
-
-            object Spring23 {
-                val english =
-                    SubjectOverview(
-                        SubjectId(UUID.fromString("c0b7270d-49c6-4ab2-af0f-af3371745fed")),
-                        "Englisch",
-                        false,
-                        null,
-                        MarkAverage(4750),
-                    )
-            }
-
-            object Autumn23 {
-                val math =
-                    SubjectOverview(
-                        SubjectId(UUID.fromString("37bad6f5-461a-4d50-9074-02c95879148f")),
-                        "Mathematik",
-                        false,
-                        null,
-                        MarkAverage(0),
-                    )
-                val french =
-                    SubjectOverview(
-                        SubjectId(UUID.fromString("09f526bc-24ba-4ed9-988b-bac98d670112")),
-                        "Französisch",
-                        false,
-                        null,
-                        MarkAverage(0),
-                    )
-                val list = listOf(math, french)
-                val listDto = list.map { it.toDto() }
-            }
-        }
+        // TestSubjectOverview removed — SubjectOverview class no longer exists.
+        // Tests that used it should use the new /api/semesters/{id}/overview or /api/semesters/{id}/averages endpoints.
     }
 }

@@ -1,0 +1,18 @@
+delete:
+  tags: [Admin]
+  operationId: adminDeleteConnection
+  summary: Delete an apprentice-supervisor connection
+  parameters:
+    - name: connectionId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Deleted connection
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/ApprenticeSupervisorPair"

@@ -1,6 +1,6 @@
 package ch.ergon.studentmarks.infrastructure.security.authentication
 
-import ch.ergon.studentmarks.domain.user.UserService
+import ch.ergon.studentmarks.application.service.UserService
 import ch.ergon.studentmarks.infrastructure.logging.LogbackKeys.REQUEST_USER_ID
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest

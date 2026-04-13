@@ -1,7 +1,7 @@
 package ch.ergon.studentmarks.infrastructure.security
 
-import ch.ergon.studentmarks.db.MarkRepository
-import ch.ergon.studentmarks.db.UserRepository
+import ch.ergon.studentmarks.domain.repository.MarkRepository
+import ch.ergon.studentmarks.domain.repository.UserRepository
 import ch.ergon.studentmarks.infrastructure.security.authorization.CustomPermissionEvaluator
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

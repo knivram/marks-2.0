@@ -1,0 +1,58 @@
+get:
+  tags: [Admin]
+  operationId: adminGetConnections
+  summary: Get apprentice-supervisor connections
+  parameters:
+    - name: supervisor-id
+      in: query
+      required: false
+      schema:
+        type: string
+        default: ""
+  responses:
+    '200':
+      description: List of connections
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../api.yaml#/components/schemas/ApprenticeSupervisorPair"
+post:
+  tags: [Admin]
+  operationId: adminConnect
+  summary: Connect apprentice to supervisor
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../api.yaml#/components/schemas/ApprenticeConnectRequest"
+  responses:
+    '200':
+      description: Created connection
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/ApprenticeSupervisorPair"
+put:
+  tags: [Admin]
+  operationId: adminUpdateConnections
+  summary: Update multiple apprentice-supervisor connections
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: array
+          items:
+            $ref: "../../api.yaml#/components/schemas/ApprenticeSupervisorPair"
+  responses:
+    '200':
+      description: Updated connections
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../api.yaml#/components/schemas/ApprenticeSupervisorPair"

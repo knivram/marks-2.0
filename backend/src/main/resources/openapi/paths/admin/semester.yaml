@@ -1,0 +1,24 @@
+put:
+  tags: [Admin]
+  operationId: adminEditSemester
+  summary: Edit an existing semester
+  parameters:
+    - name: semesterId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../api.yaml#/components/schemas/SemesterRequest"
+  responses:
+    '200':
+      description: Updated semester
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/Semester"

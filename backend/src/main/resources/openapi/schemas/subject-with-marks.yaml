@@ -1,0 +1,15 @@
+type: object
+required:
+  - subject
+  - marks
+properties:
+  subject:
+    $ref: "./subject.yaml"
+  average:
+    type: number
+    format: double
+    nullable: true
+  marks:
+    type: array
+    items:
+      $ref: "./mark.yaml"

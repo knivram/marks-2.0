@@ -1,0 +1,18 @@
+get:
+  tags: [Agenda]
+  operationId: getAgenda
+  summary: Get agenda with upcoming and ungraded exams
+  parameters:
+    - name: userId
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Agenda
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/Agenda"

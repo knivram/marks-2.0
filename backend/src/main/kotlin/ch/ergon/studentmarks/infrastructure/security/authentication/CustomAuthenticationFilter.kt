@@ -1,7 +1,7 @@
 package ch.ergon.studentmarks.infrastructure.security.authentication
 
-import ch.ergon.studentmarks.domain.user.Email
-import ch.ergon.studentmarks.domain.user.UserService
+import ch.ergon.studentmarks.application.service.UserService
+import ch.ergon.studentmarks.domain.model.user.Email
 import ch.ergon.studentmarks.infrastructure.logging.Logger
 import ch.ergon.studentmarks.infrastructure.security.exeptions.MailNotInSubjectException
 import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksException

@@ -1,14 +1,14 @@
 package ch.ergon.studentmarks.repository
 
 import ch.ergon.studentmarks.IntegrationTest
-import ch.ergon.studentmarks.api.toSimpleUser
-import ch.ergon.studentmarks.db.UserRepository
-import ch.ergon.studentmarks.domain.user.ApprenticeSupervisorPair
-import ch.ergon.studentmarks.domain.user.Email
-import ch.ergon.studentmarks.domain.user.SimpleUser
-import ch.ergon.studentmarks.domain.user.User
-import ch.ergon.studentmarks.domain.user.UserName
-import ch.ergon.studentmarks.domain.user.UserRole
+import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPair
+import ch.ergon.studentmarks.domain.model.user.Email
+import ch.ergon.studentmarks.domain.model.user.SimpleUser
+import ch.ergon.studentmarks.domain.model.user.User
+import ch.ergon.studentmarks.domain.model.user.UserName
+import ch.ergon.studentmarks.domain.model.user.UserRole
+import ch.ergon.studentmarks.domain.repository.ApprenticeSupervisorRepository
+import ch.ergon.studentmarks.domain.repository.UserRepository
 import ch.ergon.studentmarks.test.objects.TestConnections
 import ch.ergon.studentmarks.test.objects.TestUser
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Admin
@@ -18,6 +18,7 @@ import ch.ergon.studentmarks.test.objects.TestUser.Companion.Kevin
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Lernender
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Noah
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.UnusedUser
+import ch.ergon.studentmarks.utils.toSimpleUser
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.containsInRelativeOrder
@@ -31,16 +32,19 @@ class UserRepoTest : IntegrationTest() {
     @Autowired
     private lateinit var userRepository: UserRepository
 
+    @Autowired
+    private lateinit var apprenticeSupervisorRepository: ApprenticeSupervisorRepository
+
     @Test
     fun getUser() {
-        val result = userRepository.getUser(Lernender.email)
+        val result = userRepository.findByEmail(Lernender.email)
 
         assertThat(result, `is`(Lernender))
     }
 
     @Test
     fun supervisorListOfApprenticeContainsAnApprentices() {
-        val result = userRepository.getApprentice(Berufsbildner)
+        val result = userRepository.findApprenticesForSupervisor(Berufsbildner)
 
         assertThat(result, hasSize(1))
         assertThat(result, containsInAnyOrder(Lernender))
@@ -48,7 +52,7 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun list_of_supervisor_contains_the_supervisor_of_the_selected_apprentice() {
-        val result = userRepository.getNotificationEmailListForApprentice(Lernender.userId)
+        val result = userRepository.findSupervisorsWithNotificationsForApprentice(Lernender.userId)
 
         assertThat(result, hasSize(1))
         assertThat(result, containsInAnyOrder(Berufsbildner.toSimpleUser()))
@@ -56,7 +60,7 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun list_of_supervisor_contains_all_supervisors_of_an_apprentice_only_once() {
-        val result = userRepository.getNotificationEmailListForApprentice(Kevin.userId)
+        val result = userRepository.findSupervisorsWithNotificationsForApprentice(Kevin.userId)
 
         assertThat(result, hasSize(1))
         assertThat(result, containsInAnyOrder(Noah.toSimpleUser()))
@@ -64,35 +68,35 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun list_of_apprentices_is_empty_for_apprentices() {
-        val result = userRepository.getApprentice(Lernender)
+        val result = userRepository.findApprenticesForSupervisor(Lernender)
 
         assertThat(result, empty())
     }
 
     @Test
     fun search_for_apprentice_without_query_returns_list_of_all_apprentice_mail() {
-        val result = userRepository.getApprentice()
+        val result = userRepository.searchApprentices("")
 
         assertThat(result, containsInAnyOrder(*(TestUser.Apprentices.map { it.toSimpleUser() }.toTypedArray())))
     }
 
     @Test
     fun search_for_apprentice_with_query_Marvin_returns_only_one_mail() {
-        val result = userRepository.getApprentice("Marvin")
+        val result = userRepository.searchApprentices("Marvin")
 
         assertThat(result, containsInAnyOrder(Lernender.toSimpleUser()))
     }
 
     @Test
     fun search_for_supervisor_without_query_returns_list_of_all_supervisor_mail() {
-        val result = userRepository.getSupervisors()
+        val result = userRepository.searchSupervisors("")
 
         assertThat(result, containsInAnyOrder(*(TestUser.Supervisors.map { it.toSimpleUser() }.toTypedArray())))
     }
 
     @Test
     fun search_for_supervisor_with_query_Boksberger_returns_only_one_mail() {
-        val result = userRepository.getSupervisors("Boksberger")
+        val result = userRepository.searchSupervisors("Boksberger")
 
         assertThat(
             result,
@@ -102,34 +106,34 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun get_all_users() {
-        val result = userRepository.getUsers()
+        val result = userRepository.findAll()
         assertThat(result, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
     }
 
     @Test
     fun create_new_user() {
         val newUser = SimpleUser(Email("marvin@ergon.ch"), UserName("kmarvin"), UserRole.APPRENTICE)
-        val user = userRepository.createUser(newUser)
-        val result = userRepository.getUsers()
+        val user = userRepository.create(newUser)
+        val result = userRepository.findAll()
 
         assertThat(result, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray()), user))
     }
 
     @Test
     fun get_deleted_user_returns_all_deleted_users() {
-        val deletedUsers = userRepository.getDeletedUsers()
+        val deletedUsers = userRepository.findDeleted()
         assertThat(deletedUsers, containsInAnyOrder(DeletedUser))
     }
 
     @Test
     fun delete_user() {
-        val usersBefore = userRepository.getUsers()
+        val usersBefore = userRepository.findAll()
         assertThat(usersBefore, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
 
-        userRepository.deleteUser(UnusedUser.userId)
+        userRepository.softDelete(UnusedUser.userId)
 
-        val users = userRepository.getUsers()
-        val deletedUsers = userRepository.getDeletedUsers()
+        val users = userRepository.findAll()
+        val deletedUsers = userRepository.findDeleted()
         val testUsersWithoutDeletedOne = TestUser.AllUsers.filter { it.userId != UnusedUser.userId }
 
         assertThat(users, containsInAnyOrder(*(testUsersWithoutDeletedOne.toTypedArray())))
@@ -138,40 +142,40 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun after_deletion_user_is_in_deleted_Table() {
-        userRepository.deleteUser(UnusedUser.userId)
+        userRepository.softDelete(UnusedUser.userId)
 
-        val deletedUsers = userRepository.getDeletedUsers()
+        val deletedUsers = userRepository.findDeleted()
 
         assertThat(deletedUsers, containsInAnyOrder(DeletedUser, UnusedUser))
     }
 
     @Test
     fun restore_deleted_user() {
-        userRepository.restoreUser(DeletedUser.userId)
+        userRepository.restore(DeletedUser.userId)
 
-        val deletedUsers = userRepository.getDeletedUsers()
+        val deletedUsers = userRepository.findDeleted()
         assertThat(deletedUsers, empty())
 
-        val users = userRepository.getUsers()
+        val users = userRepository.findAll()
         assertThat(users, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray()), DeletedUser))
     }
 
     @Test
     fun delete_and_restore_after() {
-        var users = userRepository.getUsers()
+        var users = userRepository.findAll()
         assertThat(users, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
 
-        userRepository.deleteUser(UnusedUser.userId)
+        userRepository.softDelete(UnusedUser.userId)
 
-        users = userRepository.getUsers()
+        users = userRepository.findAll()
 
         val testUsersWithoutDeletedOne = TestUser.AllUsers.filter { it.userId != UnusedUser.userId }
 
         assertThat(users, containsInAnyOrder(*(testUsersWithoutDeletedOne.toTypedArray())))
 
-        userRepository.restoreUser(UnusedUser.userId)
+        userRepository.restore(UnusedUser.userId)
 
-        users = userRepository.getUsers()
+        users = userRepository.findAll()
         assertThat(users, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
     }
 
@@ -180,20 +184,20 @@ class UserRepoTest : IntegrationTest() {
         val editedUserBoxi =
             User(Berufsbildner.userId, UserName("boxi_new"), Berufsbildner.email, Berufsbildner.role)
 
-        userRepository.editUser(editedUserBoxi.userId, editedUserBoxi)
+        userRepository.update(editedUserBoxi.userId, editedUserBoxi)
 
-        val user = userRepository.getUser(Berufsbildner.userId)
+        val user = userRepository.findById(Berufsbildner.userId)
 
         assertThat(user.userName, `is`(editedUserBoxi.userName))
     }
 
     @Test
     fun delete_deletedUser() {
-        val deletedUser = userRepository.deleteDeletedUser(DeletedUser.userId)
+        val deletedUser = userRepository.permanentlyDelete(DeletedUser.userId)
 
         assertThat(deletedUser, `is`(deletedUser))
 
-        val deletedTable = userRepository.getDeletedUsers()
+        val deletedTable = userRepository.findDeleted()
 
         assertThat(deletedTable, empty())
     }
@@ -202,7 +206,7 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun load_all_connections_for_supervisor() {
-        val result = userRepository.getApprenticeSupervisorPairs(Berufsbildner.userId)
+        val result = apprenticeSupervisorRepository.findBySupervisor(Berufsbildner.userId, false)
 
         assertThat(result, hasSize(1))
         assertThat(result, containsInAnyOrder(TestConnections.connection1))
@@ -210,31 +214,31 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun load_all_apprentice_supervisor_connections() {
-        val result = userRepository.getApprenticeSupervisorPairs()
+        val result = apprenticeSupervisorRepository.findAll()
 
         assertThat(result, containsInAnyOrder(*(TestConnections.connections.toTypedArray())))
     }
 
     @Test
     fun connect_apprentice_to_supervisor() {
-        val connection = userRepository.connectApprenticeToSupervisor(Lernender.userId, Admin.userId)
+        val connection = apprenticeSupervisorRepository.connect(Lernender.userId, Admin.userId)
 
-        val result = userRepository.getApprenticeSupervisorPairs()
+        val result = apprenticeSupervisorRepository.findAll()
 
         assertThat(
             result,
             containsInAnyOrder(
                 *(TestConnections.connections.toTypedArray()),
-                ApprenticeSupervisorPair(connection.id, Lernender, Admin, false),
+                ApprenticeSupervisorPair(connection.id, Lernender.userId, Admin.userId, false),
             ),
         )
     }
 
     @Test
     fun delete_apprenticeSupervisor_connection() {
-        userRepository.deleteConnection(TestConnections.connection1.id)
+        apprenticeSupervisorRepository.delete(TestConnections.connection1.id)
 
-        val result = userRepository.getApprenticeSupervisorPairs()
+        val result = apprenticeSupervisorRepository.findAll()
 
         val connectionListWithoutDeletedOne =
             TestConnections.connections.filter { it.id != TestConnections.connection1.id }
@@ -245,9 +249,9 @@ class UserRepoTest : IntegrationTest() {
     @Test
     fun update_connection() {
         val updatedConnection = TestConnections.connection2.copy(emailNotification = true)
-        userRepository.updateOrInsertApprenticeSupervisorConnection(updatedConnection)
+        apprenticeSupervisorRepository.updateOrInsert(updatedConnection)
 
-        val result = userRepository.getApprenticeSupervisorPairs(updatedConnection.supervisor.userId)
+        val result = apprenticeSupervisorRepository.findBySupervisor(updatedConnection.supervisorId, false)
 
         assertThat(result, containsInAnyOrder(updatedConnection))
     }
@@ -257,14 +261,14 @@ class UserRepoTest : IntegrationTest() {
         val newConnection =
             ApprenticeSupervisorPair(
                 id = "78418690-ef7f-4ec2-83f5-970de80da37c",
-                apprentice = Lernender,
-                supervisor = Noah,
+                apprenticeId = Lernender.userId,
+                supervisorId = Noah.userId,
                 emailNotification = true,
             )
 
-        userRepository.updateOrInsertApprenticeSupervisorConnection(newConnection)
+        apprenticeSupervisorRepository.updateOrInsert(newConnection)
 
-        val result = userRepository.getApprenticeSupervisorPairs(newConnection.supervisor.userId)
+        val result = apprenticeSupervisorRepository.findBySupervisor(newConnection.supervisorId, false)
         assertThat(result, containsInRelativeOrder(newConnection))
     }
 }

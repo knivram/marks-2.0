@@ -1,0 +1,40 @@
+get:
+  tags: [StudentMarks]
+  operationId: calculator
+  summary: Calculate required mark to reach a goal
+  parameters:
+    - name: userId
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+    - name: semesterId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: subjectId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: goalMark
+      in: query
+      required: true
+      schema:
+        type: integer
+    - name: examWeight
+      in: query
+      required: true
+      schema:
+        type: integer
+  responses:
+    '200':
+      description: Calculated mark value
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/MarkValue"

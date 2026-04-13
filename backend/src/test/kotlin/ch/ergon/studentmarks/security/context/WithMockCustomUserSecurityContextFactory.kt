@@ -1,7 +1,7 @@
 package ch.ergon.studentmarks.security.context
 
-import ch.ergon.studentmarks.domain.user.Email
-import ch.ergon.studentmarks.domain.user.UserService
+import ch.ergon.studentmarks.application.service.UserService
+import ch.ergon.studentmarks.domain.model.user.Email
 import ch.ergon.studentmarks.infrastructure.security.authentication.CustomAuthentication
 import org.springframework.context.annotation.Lazy
 import org.springframework.security.authentication.AuthenticationManager

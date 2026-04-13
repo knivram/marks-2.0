@@ -1,9 +1,18 @@
 package ch.ergon.studentmarks.utils
 
+import ch.ergon.studentmarks.api.generated.dto.MarkDto
+import ch.ergon.studentmarks.api.generated.dto.MarkRequestDto
+import ch.ergon.studentmarks.api.generated.dto.MarkWithSubjectDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterRequestDto
+import ch.ergon.studentmarks.api.generated.dto.SimpleUserDto
 import ch.ergon.studentmarks.api.generated.dto.SubjectRequestDto
-import ch.ergon.studentmarks.domain.semester.Semester
-import ch.ergon.studentmarks.domain.subjects.Subject
+import ch.ergon.studentmarks.api.mapper.toDto
+import ch.ergon.studentmarks.domain.model.mark.Mark
+import ch.ergon.studentmarks.domain.model.semester.Semester
+import ch.ergon.studentmarks.domain.model.subject.Subject
+import ch.ergon.studentmarks.domain.model.user.SimpleUser
+import ch.ergon.studentmarks.domain.model.user.User
+import ch.ergon.studentmarks.test.objects.TestSubjects
 import java.time.format.DateTimeFormatter
 
 fun Semester.toAddSemesterRequest(): SemesterRequestDto =
@@ -18,4 +27,66 @@ fun Subject.toRequest(): SubjectRequestDto =
         name = name,
         isVocationalModule = isVocationalModule,
         description = description,
+    )
+
+private val subjectLookup = TestSubjects.subjects.associateBy { it.id }
+
+/**
+ * Test helper: converts a Mark domain object to a MarkDto by resolving the subject from TestSubjects.
+ */
+fun Mark.toDto(): MarkDto {
+    val subject = subjectLookup.getValue(subjectId)
+    return MarkDto(
+        id = id.value,
+        name = name,
+        subject = subject.toDto(),
+        date = date,
+        weight = weight,
+        value = value.value,
+        semesterId = semesterId.value,
+    )
+}
+
+/**
+ * Test helper: converts a Mark domain object to a MarkRequestDto (for POST/create requests).
+ */
+fun Mark.toMarkRequestDto(): MarkRequestDto =
+    MarkRequestDto(
+        name = name,
+        subjectId = subjectId.value,
+        date = date,
+        weight = weight,
+        value = value.value,
+    )
+
+/**
+ * Test helper: converts a Mark domain object to a MarkWithSubjectDto.
+ */
+fun Mark.toMarkWithSubjectDto(): MarkWithSubjectDto {
+    val subject = subjectLookup.getValue(subjectId)
+    val markDto = toDto()
+    return MarkWithSubjectDto(
+        mark = markDto,
+        subject = subject.toDto(),
+    )
+}
+
+/**
+ * Test helper: converts a User to a SimpleUser domain object.
+ */
+fun User.toSimpleUser(): SimpleUser =
+    SimpleUser(
+        email = email,
+        userName = userName,
+        role = role,
+    )
+
+/**
+ * Test helper: converts a User to a SimpleUserDto.
+ */
+fun User.toSimpleUserDto(): SimpleUserDto =
+    SimpleUserDto(
+        email = email.value,
+        userName = userName.value,
+        role = role.toDto(),
     )

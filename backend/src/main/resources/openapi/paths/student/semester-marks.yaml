@@ -1,0 +1,24 @@
+post:
+  tags: [StudentMarks]
+  operationId: addMark
+  summary: Create a new mark
+  parameters:
+    - name: semesterId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../api.yaml#/components/schemas/MarkRequest"
+  responses:
+    '200':
+      description: Created mark with subject
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/MarkWithSubject"

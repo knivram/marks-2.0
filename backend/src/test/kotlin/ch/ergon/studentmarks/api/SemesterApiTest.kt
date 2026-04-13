@@ -2,9 +2,10 @@ package ch.ergon.studentmarks.api
 
 import ch.ergon.studentmarks.IntegrationTest
 import ch.ergon.studentmarks.api.generated.dto.PaginatedSemesterListDto
-import ch.ergon.studentmarks.api.toDto
-import ch.ergon.studentmarks.db.SemesterRepository
-import ch.ergon.studentmarks.domain.semester.Semester
+import ch.ergon.studentmarks.api.mapper.toDto
+import ch.ergon.studentmarks.domain.model.semester.Semester
+import ch.ergon.studentmarks.domain.model.shared.PaginationParams
+import ch.ergon.studentmarks.domain.repository.SemesterRepository
 import ch.ergon.studentmarks.test.objects.TestSemester
 import ch.ergon.studentmarks.test.objects.TestSemester.Companion.SpecialTestSemesters
 import ch.ergon.studentmarks.test.objects.TestUser
@@ -95,7 +96,7 @@ class SemesterApiTest : IntegrationTest() {
                 .accept("application/json")
                 .contentType("application/json")
                 .body(SpecialTestSemesters.AddSemester.toAddSemesterRequest())
-                .post("/api/semesters")
+                .post("/api/admin/semesters")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -104,9 +105,9 @@ class SemesterApiTest : IntegrationTest() {
 
         assertThat(semester, `is`(SpecialTestSemesters.AddSemester))
 
-        val semesters = semesterRepository.getAllSemester()
+        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
 
-        assertThat(semesters, `is`(SpecialTestSemesters.semestersAfterAdding))
+        assertThat(semesters.pageEntries, `is`(SpecialTestSemesters.semestersAfterAdding))
     }
 
     @Test
@@ -117,7 +118,7 @@ class SemesterApiTest : IntegrationTest() {
                 .accept("application/json")
                 .contentType("application/json")
                 .body(SpecialTestSemesters.EditSemester.toAddSemesterRequest())
-                .put("/api/semesters/${SpecialTestSemesters.EditSemester.id.value}")
+                .put("/api/admin/semesters/${SpecialTestSemesters.EditSemester.id.value}")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -126,9 +127,9 @@ class SemesterApiTest : IntegrationTest() {
 
         assertThat(semester, `is`(SpecialTestSemesters.EditSemester))
 
-        val semesters = semesterRepository.getAllSemester()
+        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
 
-        assertThat(semesters, `is`(SpecialTestSemesters.semestersAfterEditing))
+        assertThat(semesters.pageEntries, `is`(SpecialTestSemesters.semestersAfterEditing))
     }
 
     @Test

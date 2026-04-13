@@ -1,9 +1,9 @@
 package ch.ergon.studentmarks.test.objects
 
-import ch.ergon.studentmarks.domain.marks.Mark
-import ch.ergon.studentmarks.domain.marks.MarkId
-import ch.ergon.studentmarks.domain.marks.MarkValue
-import ch.ergon.studentmarks.domain.marks.SemesterId
+import ch.ergon.studentmarks.domain.model.mark.Mark
+import ch.ergon.studentmarks.domain.model.mark.MarkId
+import ch.ergon.studentmarks.domain.model.mark.MarkValue
+import ch.ergon.studentmarks.domain.model.semester.SemesterId
 import java.time.LocalDate
 import java.util.UUID
 
@@ -14,7 +14,7 @@ class TestMarks {
                 Mark(
                     MarkId(UUID.fromString("087db115-3b23-46ca-b44d-8ef4eca28965")),
                     "Voci-Test",
-                    TestSubjects.French,
+                    TestSubjects.French.id,
                     LocalDate.parse("2022-04-20"),
                     1000,
                     MarkValue(5000),
@@ -24,7 +24,7 @@ class TestMarks {
                 Mark(
                     MarkId(UUID.fromString("fb8fefeb-a29d-4589-8329-1578c53567e0")),
                     "Voci-Test 2",
-                    TestSubjects.French,
+                    TestSubjects.French.id,
                     LocalDate.parse("2022-12-11"),
                     1000,
                     MarkValue(5000),
@@ -34,7 +34,7 @@ class TestMarks {
                 Mark(
                     MarkId(UUID.fromString("bf8ef84a-c5c6-4933-ad85-50809fe8eb49")),
                     "Sin, Cos, Tan",
-                    TestSubjects.Math,
+                    TestSubjects.Math.id,
                     LocalDate.parse("2022-10-23"),
                     1500,
                     MarkValue(5500),
@@ -44,7 +44,7 @@ class TestMarks {
                 Mark(
                     MarkId(UUID.fromString("31c9909c-f0dd-425a-892d-c44791342874")),
                     "Addition und Subtraktion",
-                    TestSubjects.Math,
+                    TestSubjects.Math.id,
                     LocalDate.parse("2022-12-23"),
                     1500,
                     MarkValue(5500),
@@ -54,7 +54,7 @@ class TestMarks {
                 Mark(
                     MarkId(UUID.fromString("35e683bc-4051-4b97-80ab-7f50588c0611")),
                     "Past Simple",
-                    TestSubjects.English,
+                    TestSubjects.English.id,
                     LocalDate.parse("2023-05-01"),
                     1000,
                     MarkValue(4750),
@@ -84,7 +84,7 @@ class TestMarks {
                     Mark(
                         MarkId(UUID.fromString("14223a88-a262-4347-9dc8-d176c7fd9c7e")),
                         "Französisch Verben",
-                        TestSubjects.French,
+                        TestSubjects.French.id,
                         LocalDate.parse("2024-01-24"),
                         1250,
                         MarkValue(null),
@@ -95,7 +95,7 @@ class TestMarks {
                     Mark(
                         MarkId(UUID.fromString("684df94c-d874-45bb-ae7f-da3e019ec58c")),
                         "Kurzen von Brüchen",
-                        TestSubjects.Math,
+                        TestSubjects.Math.id,
                         LocalDate.parse("2023-12-02"),
                         1000,
                         MarkValue(null),
@@ -110,7 +110,7 @@ class TestMarks {
                     Mark(
                         MarkId(UUID.fromString("1861801a-7861-4851-96a3-81d71a7a65fe")),
                         "Vocitest",
-                        TestSubjects.English,
+                        TestSubjects.English.id,
                         LocalDate.parse("2023-04-04"),
                         500,
                         MarkValue(null),
@@ -121,7 +121,7 @@ class TestMarks {
                     Mark(
                         MarkId(UUID.fromString("f41fa713-afb0-48bc-9357-3182726e50be")),
                         "Future",
-                        TestSubjects.English,
+                        TestSubjects.English.id,
                         LocalDate.parse("2023-04-04"),
                         750,
                         MarkValue(null),
@@ -137,7 +137,7 @@ class TestMarks {
                 Mark(
                     MarkId("11e032f5-5b03-4df3-b78f-b6efda42275c"),
                     "Voci Test",
-                    TestSubjects.French,
+                    TestSubjects.French.id,
                     LocalDate.parse("2022-04-20"),
                     1000,
                     MarkValue(5000),
@@ -147,7 +147,7 @@ class TestMarks {
                 Mark(
                     MarkId("2d7fa523-43d2-4c3e-a4c6-0fd0317d7c14"),
                     "Sin, Cos, Tan",
-                    TestSubjects.Math,
+                    TestSubjects.Math.id,
                     LocalDate.parse("2022-10-23"),
                     1500,
                     MarkValue(5500),
@@ -157,7 +157,7 @@ class TestMarks {
                 Mark(
                     MarkId("a838e911-ec43-48c6-8fd9-be079d6ff333"),
                     "Past Simple",
-                    TestSubjects.English,
+                    TestSubjects.English.id,
                     LocalDate.parse("2023-05-01"),
                     1000,
                     MarkValue(4750),
@@ -172,7 +172,7 @@ class TestMarks {
                 Mark(
                     MarkId("aeee5d61-89db-4ce1-9667-9b669ca14188"),
                     "New Mark",
-                    TestSubjects.English,
+                    TestSubjects.English.id,
                     LocalDate.parse("2023-01-10"),
                     1000,
                     MarkValue(5450),
@@ -184,7 +184,7 @@ class TestMarks {
                 Mark(
                     MarkId(UUID.fromString("bf8ef84a-c5c6-4933-ad85-50809fe8eb49")),
                     "Sin, Cos",
-                    TestSubjects.Math,
+                    TestSubjects.Math.id,
                     LocalDate.parse("2022-10-23"),
                     1250,
                     MarkValue(4500),
@@ -196,7 +196,7 @@ class TestMarks {
                 Mark(
                     MarkId(UUID.fromString("9727e907-5374-46a1-a4d3-91a5518d41ac")),
                     "deleted_mark",
-                    TestSubjects.Math,
+                    TestSubjects.Math.id,
                     LocalDate.parse("2023-06-02"),
                     500,
                     MarkValue(5000),

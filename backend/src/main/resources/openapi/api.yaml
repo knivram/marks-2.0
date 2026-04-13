@@ -2,72 +2,72 @@ openapi: 3.0.3
 info:
   title: Student Marks API
   description: API for the Student Marks management system
-  version: 1.0.0
+  version: 2.0.0
 
 paths:
-  # User endpoints
-  /api/user:
-    $ref: "./paths/user/users.yaml"
-  /api/user/{id}/edit:
-    $ref: "./paths/user/user-edit.yaml"
-  /api/user/{id}:
-    $ref: "./paths/user/user-delete.yaml"
-  /api/user/{id}/restore:
-    $ref: "./paths/user/user-restore.yaml"
-  /api/user/deletedUsers:
-    $ref: "./paths/user/deleted-users.yaml"
-  /api/user/deletedUsers/{id}:
-    $ref: "./paths/user/deleted-user.yaml"
-  /api/user/info:
-    $ref: "./paths/user/user-info.yaml"
-  /api/user/connect:
-    $ref: "./paths/user/user-connect.yaml"
-  /api/user/{id}/apprentice:
-    $ref: "./paths/user/user-apprentices.yaml"
-  /api/user/connections:
-    $ref: "./paths/user/connections.yaml"
-  /api/user/connections/{id}:
-    $ref: "./paths/user/connection.yaml"
-  /api/user/apprentice:
-    $ref: "./paths/user/apprentice-search.yaml"
-  /api/user/supervisor:
-    $ref: "./paths/user/supervisor-search.yaml"
-
-  # Marks endpoints
-  /api/marks:
-    $ref: "./paths/marks/marks.yaml"
-  /api/marks/future-exams:
-    $ref: "./paths/marks/future-exams.yaml"
-  /api/marks/passed-exams:
-    $ref: "./paths/marks/passed-exams.yaml"
-  /api/marks/last:
-    $ref: "./paths/marks/last-marks.yaml"
-  /api/marks/{markId}/edit:
-    $ref: "./paths/marks/mark-edit.yaml"
-  /api/marks/{markId}/delete:
-    $ref: "./paths/marks/mark-delete.yaml"
-  /api/marks/{markId}/restore:
-    $ref: "./paths/marks/mark-restore.yaml"
-  /api/marks/calculate:
-    $ref: "./paths/marks/calculate.yaml"
-
-  # Semester endpoints
+  # Student semester endpoints
   /api/semesters:
-    $ref: "./paths/semesters/semesters.yaml"
-  /api/semesters/{id}:
-    $ref: "./paths/semesters/semester.yaml"
+    $ref: "./paths/student/semesters.yaml"
   /api/semesters/relevant:
-    $ref: "./paths/semesters/relevant.yaml"
+    $ref: "./paths/student/semesters-relevant.yaml"
+  /api/semesters/{semesterId}/overview:
+    $ref: "./paths/student/semester-overview.yaml"
+  /api/semesters/{semesterId}/averages:
+    $ref: "./paths/student/semester-averages.yaml"
 
-  # Subject endpoints
-  /api/subjects:
-    $ref: "./paths/subjects/subjects.yaml"
-  /api/subjects/{id}:
-    $ref: "./paths/subjects/subject.yaml"
-  /api/subjects/all:
-    $ref: "./paths/subjects/all-subjects.yaml"
-  /api/subjects/{subjectId}/full:
-    $ref: "./paths/subjects/full-subject.yaml"
+  # Agenda (global, not semester-scoped)
+  /api/agenda:
+    $ref: "./paths/student/agenda.yaml"
+
+  # Student mark endpoints
+  /api/semesters/{semesterId}/marks:
+    $ref: "./paths/student/semester-marks.yaml"
+  /api/marks/{markId}:
+    $ref: "./paths/student/mark.yaml"
+  /api/marks/{markId}/restore:
+    $ref: "./paths/student/mark-restore.yaml"
+  /api/marks/calculate:
+    $ref: "./paths/student/calculate.yaml"
+
+  # User info endpoints
+  /api/user/info:
+    $ref: "./paths/student/user-info.yaml"
+  /api/user/{id}/apprentice:
+    $ref: "./paths/student/user-apprentices.yaml"
+
+  # Admin subject endpoints
+  /api/admin/subjects:
+    $ref: "./paths/admin/subjects.yaml"
+  /api/admin/subjects/{subjectId}:
+    $ref: "./paths/admin/subject.yaml"
+
+  # Admin semester endpoints
+  /api/admin/semesters:
+    $ref: "./paths/admin/semesters.yaml"
+  /api/admin/semesters/{semesterId}:
+    $ref: "./paths/admin/semester.yaml"
+
+  # Admin user endpoints
+  /api/admin/users:
+    $ref: "./paths/admin/users.yaml"
+  /api/admin/users/{userId}:
+    $ref: "./paths/admin/user.yaml"
+  /api/admin/users/{userId}/restore:
+    $ref: "./paths/admin/user-restore.yaml"
+  /api/admin/users/deleted:
+    $ref: "./paths/admin/deleted-users.yaml"
+  /api/admin/users/deleted/{userId}:
+    $ref: "./paths/admin/deleted-user.yaml"
+  /api/admin/users/apprentice:
+    $ref: "./paths/admin/apprentice-search.yaml"
+  /api/admin/users/supervisor:
+    $ref: "./paths/admin/supervisor-search.yaml"
+
+  # Admin connection endpoints
+  /api/admin/connections:
+    $ref: "./paths/admin/connections.yaml"
+  /api/admin/connections/{connectionId}:
+    $ref: "./paths/admin/connection.yaml"
 
 components:
   schemas:
@@ -87,14 +87,22 @@ components:
       $ref: "./schemas/mark-request.yaml"
     MarkValue:
       $ref: "./schemas/mark-value.yaml"
+    MarkWithSubject:
+      $ref: "./schemas/mark-with-subject.yaml"
     Subject:
       $ref: "./schemas/subject.yaml"
-    SubjectOverview:
-      $ref: "./schemas/subject-overview.yaml"
     SubjectRequest:
       $ref: "./schemas/subject-request.yaml"
-    FullSubject:
-      $ref: "./schemas/full-subject.yaml"
+    SubjectWithMarks:
+      $ref: "./schemas/subject-with-marks.yaml"
+    SubjectAverage:
+      $ref: "./schemas/subject-average.yaml"
+    SemesterOverview:
+      $ref: "./schemas/semester-overview.yaml"
+    DashboardAverages:
+      $ref: "./schemas/dashboard-averages.yaml"
+    Agenda:
+      $ref: "./schemas/agenda.yaml"
     Semester:
       $ref: "./schemas/semester.yaml"
     SemesterRequest:

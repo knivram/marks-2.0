@@ -1,15 +1,16 @@
 type: object
 required:
   - name
-  - subject
+  - subjectId
   - date
   - weight
   - value
 properties:
   name:
     type: string
-  subject:
-    $ref: "./subject.yaml"
+  subjectId:
+    type: string
+    format: uuid
   date:
     type: string
     format: date

@@ -1,0 +1,18 @@
+delete:
+  tags: [Admin]
+  operationId: adminDeleteDeletedUser
+  summary: Permanently delete a soft-deleted user
+  parameters:
+    - name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Permanently deleted user
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/User"

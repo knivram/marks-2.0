@@ -1,6 +1,6 @@
 package ch.ergon.studentmarks.infrastructure.security.authentication
 
-import ch.ergon.studentmarks.domain.user.User
+import ch.ergon.studentmarks.domain.model.user.User
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.GrantedAuthority
 

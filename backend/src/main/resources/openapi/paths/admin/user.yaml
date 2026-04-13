@@ -1,0 +1,42 @@
+put:
+  tags: [Admin]
+  operationId: adminEditUser
+  summary: Edit an existing user
+  parameters:
+    - name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../api.yaml#/components/schemas/User"
+  responses:
+    '200':
+      description: Updated user
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/User"
+delete:
+  tags: [Admin]
+  operationId: adminDeleteUser
+  summary: Soft delete a user
+  parameters:
+    - name: userId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Deleted user
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/User"

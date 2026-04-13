@@ -1,9 +1,9 @@
 package ch.ergon.studentmarks.service
 
 import ch.ergon.studentmarks.IntegrationTest
-import ch.ergon.studentmarks.db.MarkRepository
-import ch.ergon.studentmarks.db.UserRepository
-import ch.ergon.studentmarks.domain.user.UserService
+import ch.ergon.studentmarks.application.service.UserService
+import ch.ergon.studentmarks.domain.repository.MarkRepository
+import ch.ergon.studentmarks.domain.repository.UserRepository
 import ch.ergon.studentmarks.security.context.WithMockAdmin
 import ch.ergon.studentmarks.security.context.WithMockBerufsbildner
 import ch.ergon.studentmarks.security.context.WithMockLehrling
@@ -72,17 +72,17 @@ class UserServiceTest : IntegrationTest() {
         userService.restoreUser(UnusedUser.userId)
 
         // check if deleted user and marks are deleted form delete table
-        val deletedMarks = markRepository.getDeletedMarks(UnusedUser.userId)
+        val deletedMarks = markRepository.findDeleted(UnusedUser.userId)
         assertThat(deletedMarks, empty())
 
-        val deletedUser = userRepository.getDeletedUsers()
+        val deletedUser = userRepository.findDeleted()
         assertThat(deletedUser, containsInAnyOrder(DeletedUser))
 
         // User and Marks should be back
-        val marks = markRepository.getMarks(UnusedUser.userId)
+        val marks = markRepository.findByUser(UnusedUser.userId)
         assertThat(marks, containsInAnyOrder(*(UnusedUserMarks.marks.toTypedArray())))
 
-        val users = userRepository.getUsers()
+        val users = userRepository.findAll()
 
         assertThat(users, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
     }

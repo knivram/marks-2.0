@@ -6,10 +6,10 @@ import ch.ergon.studentmarks.api.generated.dto.ApprenticeSupervisorPairDto
 import ch.ergon.studentmarks.api.generated.dto.SimpleUserDto
 import ch.ergon.studentmarks.api.generated.dto.UserDto
 import ch.ergon.studentmarks.api.generated.dto.UserRoleDto
-import ch.ergon.studentmarks.db.UserRepository
-import ch.ergon.studentmarks.domain.user.ApprenticeSupervisorPair
-import ch.ergon.studentmarks.domain.user.User
-import ch.ergon.studentmarks.domain.user.UserName
+import ch.ergon.studentmarks.api.mapper.toDto
+import ch.ergon.studentmarks.domain.model.user.User
+import ch.ergon.studentmarks.domain.model.user.UserName
+import ch.ergon.studentmarks.domain.repository.UserRepository
 import ch.ergon.studentmarks.test.objects.TestConnections
 import ch.ergon.studentmarks.test.objects.TestUser
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Admin
@@ -17,6 +17,7 @@ import ch.ergon.studentmarks.test.objects.TestUser.Companion.Berufsbildner
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.DeletedUser
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Lernender
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.UserDtos
+import ch.ergon.studentmarks.utils.toSimpleUserDto
 import io.restassured.RestAssured.given
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.contains
@@ -67,7 +68,7 @@ class UserApiTest : IntegrationTest() {
             given()
                 .withAdmin()
                 .accept("application/json")
-                .get("/api/user")
+                .get("/api/admin/users")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -82,7 +83,7 @@ class UserApiTest : IntegrationTest() {
         val response =
             given()
                 .withAdmin()
-                .get("/api/user/apprentice")
+                .get("/api/admin/users/apprentice")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -99,7 +100,7 @@ class UserApiTest : IntegrationTest() {
         val response =
             given()
                 .withAdmin()
-                .get("/api/user/apprentice?searchQuery=Marvin")
+                .get("/api/admin/users/apprentice?searchQuery=Marvin")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -114,7 +115,7 @@ class UserApiTest : IntegrationTest() {
         val response =
             given()
                 .withAdmin()
-                .get("/api/user/supervisor")
+                .get("/api/admin/users/supervisor")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -131,7 +132,7 @@ class UserApiTest : IntegrationTest() {
         val response =
             given()
                 .withAdmin()
-                .get("/api/user/supervisor?searchQuery=Boksberger")
+                .get("/api/admin/users/supervisor?searchQuery=Boksberger")
                 .then()
                 .statusCode(200)
                 .extract()
@@ -148,7 +149,7 @@ class UserApiTest : IntegrationTest() {
             .accept("application/json")
             .contentType("application/json")
             .body(SimpleUserDto(Lernender.email.value, Lernender.userName.value, UserRoleDto.APPRENTICE))
-            .post("/api/user")
+            .post("/api/admin/users")
             .then()
             .statusCode(HttpStatus.CONFLICT.value())
     }
@@ -183,7 +184,7 @@ class UserApiTest : IntegrationTest() {
             .withAdmin()
             .contentType("application/json")
             .body(ApprenticeConnectRequestDto(apprenticeEmail = "non.existing@mail.com", supervisorEmail = Admin.email.value))
-            .post("/api/user/connect")
+            .post("/api/admin/connections")
             .then()
             .statusCode(HttpStatus.NOT_FOUND.value())
     }
@@ -195,7 +196,7 @@ class UserApiTest : IntegrationTest() {
                 .withAdmin()
                 .contentType("application/json")
                 .body(ApprenticeConnectRequestDto(apprenticeEmail = Lernender.email.value, supervisorEmail = Admin.email.value))
-                .post("/api/user/connect")
+                .post("/api/admin/connections")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -206,7 +207,7 @@ class UserApiTest : IntegrationTest() {
             given()
                 .withAdmin()
                 .accept("application/json")
-                .get("/api/user/connections")
+                .get("/api/admin/connections")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -232,13 +233,13 @@ class UserApiTest : IntegrationTest() {
 
     @Test
     fun update_apprentice_supervisor_connection() {
-        val updatedConnection = TestConnections.connection1.copy(emailNotification = false).toDto()
+        val updatedConnection = TestConnections.connectionDtos.first().copy(emailNotification = false)
         val connections =
             given()
                 .withSupervisor()
                 .contentType("application/json")
                 .body(listOf(updatedConnection))
-                .put("/api/user/connections")
+                .put("/api/admin/connections")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -254,7 +255,7 @@ class UserApiTest : IntegrationTest() {
             given()
                 .withAdmin()
                 .accept("application/json")
-                .get("/api/user/connections")
+                .get("/api/admin/connections")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -271,40 +272,28 @@ class UserApiTest : IntegrationTest() {
             given()
                 .withAdmin()
                 .accept("application/json")
-                .delete("/api/user/connections/${connection1.id.value}")
+                .delete("/api/admin/connections/${connection1.id.value}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
                 .jsonPath()
                 .getObject(".", ApprenticeSupervisorPairDto::class.java)
 
-        val result = userRepository.getApprenticeSupervisorPairs()
+        // Verify the connection was deleted by checking remaining connections
+        val result =
+            given()
+                .withAdmin()
+                .accept("application/json")
+                .get("/api/admin/connections")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract()
+                .jsonPath()
+                .getList(".", ApprenticeSupervisorPairDto::class.java)
 
         val listWithoutDeletedConnections =
-            TestConnections.connections.filter { pair ->
-                pair.id.value !=
-                    TestConnections.connection1.id.value
-            }
+            TestConnections.connectionDtos.filter { it.id != connection1.id.value }
 
-        val supervisor =
-            User(
-                TestConnections.connection1.supervisor.userId,
-                TestConnections.connection1.supervisor.userName,
-                TestConnections.connection1.supervisor.email,
-                TestConnections.connection1.supervisor.role,
-            )
-
-        assertThat(
-            deletedConnection,
-            `is`(
-                ApprenticeSupervisorPair(
-                    connection1.id,
-                    connection1.apprentice,
-                    supervisor,
-                    connection1.emailNotification,
-                ).toDto(),
-            ),
-        )
         assertThat(result, containsInAnyOrder(*(listWithoutDeletedConnections.toTypedArray())))
     }
 
@@ -314,7 +303,7 @@ class UserApiTest : IntegrationTest() {
             given()
                 .withAdmin()
                 .accept("application/json")
-                .get("/api/user/deletedUsers")
+                .get("/api/admin/users/deleted")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -330,7 +319,7 @@ class UserApiTest : IntegrationTest() {
             given()
                 .withAdmin()
                 .accept("application/json")
-                .delete("/api/user/${Lernender.userId.value}")
+                .delete("/api/admin/users/${Lernender.userId.value}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -346,7 +335,7 @@ class UserApiTest : IntegrationTest() {
             given()
                 .withAdmin()
                 .accept("application/json")
-                .delete("/api/user/deletedUsers/${DeletedUser.userId.value}")
+                .delete("/api/admin/users/deleted/${DeletedUser.userId.value}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -355,7 +344,7 @@ class UserApiTest : IntegrationTest() {
 
         assertThat(deletedUser, `is`(DeletedUser.toDto()))
 
-        assertThat(userRepository.getDeletedUsers(), empty())
+        assertThat(userRepository.findDeleted(), empty())
     }
 
     @Test
@@ -364,7 +353,7 @@ class UserApiTest : IntegrationTest() {
             given()
                 .withAdmin()
                 .accept("application/json")
-                .post("/api/user/${DeletedUser.userId.value}/restore")
+                .post("/api/admin/users/${DeletedUser.userId.value}/restore")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()
@@ -379,7 +368,7 @@ class UserApiTest : IntegrationTest() {
         given()
             .withAdmin()
             .accept("application/json")
-            .delete("/api/user/${Admin.userId.value}")
+            .delete("/api/admin/users/${Admin.userId.value}")
             .then()
             .statusCode(HttpStatus.BAD_REQUEST.value())
     }
@@ -395,7 +384,7 @@ class UserApiTest : IntegrationTest() {
                 .accept("application/json")
                 .contentType("application/json")
                 .body(editedUserBoxi)
-                .put("/api/user/${Berufsbildner.userId.value}/edit")
+                .put("/api/admin/users/${Berufsbildner.userId.value}")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract()

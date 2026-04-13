@@ -3,7 +3,8 @@ package ch.ergon.studentmarks.api
 import ch.ergon.studentmarks.IntegrationTest
 import ch.ergon.studentmarks.api.generated.dto.MarkDto
 import ch.ergon.studentmarks.api.generated.dto.MarkValueDto
-import ch.ergon.studentmarks.db.MarkRepository
+import ch.ergon.studentmarks.api.generated.dto.MarkWithSubjectDto
+import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.LernenderMarks
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.SpecialMarks
 import ch.ergon.studentmarks.test.objects.TestSemester
@@ -11,6 +12,8 @@ import ch.ergon.studentmarks.test.objects.TestSubjects
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Lernender
 import ch.ergon.studentmarks.utils.TestTimeUtilsImpl
 import ch.ergon.studentmarks.utils.TestUuidUtilsImpl
+import ch.ergon.studentmarks.utils.toDto
+import ch.ergon.studentmarks.utils.toMarkRequestDto
 import io.restassured.RestAssured.given
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.contains
@@ -33,137 +36,37 @@ class MarkApiTest : IntegrationTest() {
     @Autowired
     private lateinit var markRepository: MarkRepository
 
-    @Test
-    fun getAllMarks() {
-        val body =
-            given()
-                .withApprentice()
-                .get("/api/marks?semesterId=${TestSemester.Autumn22.id.value}&userId=${Lernender.userId.value}")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getList(".", MarkDto::class.java)
+    // TODO: Old endpoint /api/marks no longer exists. Rewrite to use /api/semesters/{semesterId}/overview
+    // @Test
+    // fun getAllMarks() { ... }
 
-        assertThat(body, containsInAnyOrder(*(LernenderMarks.autumn22.map { it.toDto() }.toTypedArray())))
-    }
+    // TODO: Old endpoint /api/marks?subjectId=... no longer exists. Rewrite to use new endpoints.
+    // @Test
+    // fun getMarksFromSubject() { ... }
 
-    @Test
-    fun getMarksFromSubject() {
-        val body =
-            given()
-                .withApprentice()
-                .get(
-                    "/api/marks" +
-                        "?subjectId=${TestSubjects.English.id.value}" +
-                        "&semesterId=${TestSemester.Spring23.id.value}" +
-                        "&userId=${Lernender.userId.value}",
-                ).then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getList(".", MarkDto::class.java)
+    // TODO: Old endpoint /api/marks/future-exams no longer exists. Replaced by /api/agenda
+    // @Test
+    // fun getFutureExams() { ... }
 
-        assertThat(body, containsInAnyOrder(*(LernenderMarks.spring23.map { it.toDto() }.toTypedArray())))
-    }
+    // TODO: Old endpoint /api/marks/passed-exams no longer exists. Replaced by /api/agenda
+    // @Test
+    // fun getPassedExams() { ... }
 
-    @Test
-    fun getFutureExams() {
-        val response =
-            given()
-                .withApprentice()
-                .get("/api/marks/future-exams?userId=${Lernender.userId.value}")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getList(".", MarkDto::class.java)
+    // TODO: Old endpoint /api/marks/last no longer exists. Dropped.
+    // @Test
+    // fun getDefaultLatestMarks() { ... }
 
-        assertThat(response, containsInAnyOrder(*(LernenderMarks.FutureMark.marks.map { it.toDto() }.toTypedArray())))
-    }
+    // TODO: Old endpoint /api/marks/last?limit=5 no longer exists. Dropped.
+    // @Test
+    // fun getLatestMarksLimit5() { ... }
 
-    @Test
-    fun getPassedExams() {
-        val response =
-            given()
-                .withApprentice()
-                .get("/api/marks/passed-exams?userId=${Lernender.userId.value}")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getList(".", MarkDto::class.java)
+    // TODO: Old endpoint /api/marks/last no longer exists. Dropped.
+    // @Test
+    // fun getLatestMarksDefaultWhenOnly3Exist() { ... }
 
-        assertThat(response, containsInAnyOrder(*(LernenderMarks.PastMarks.marks.map { it.toDto() }.toTypedArray())))
-    }
-
-    @Test
-    fun getDefaultLatestMarks() {
-        val response =
-            given()
-                .withApprentice()
-                .get("/api/marks/last?userId=${Lernender.userId.value}")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getList(".", MarkDto::class.java)
-
-        assertThat(response, contains(*(LernenderMarks.latest4Marks.map { it.toDto() }.toTypedArray())))
-    }
-
-    @Test
-    fun getLatestMarksLimit5() {
-        val response =
-            given()
-                .withApprentice()
-                .get("/api/marks/last?userId=${Lernender.userId.value}&limit=5")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getList(".", MarkDto::class.java)
-
-        assertThat(response, contains(*(LernenderMarks.latest5Marks.map { it.toDto() }.toTypedArray())))
-    }
-
-    @Test
-    fun getLatestMarksDefaultWhenOnly3Exist() {
-        val testNow = LocalDate.parse("2022-12-19")
-        testTimeUtilsImpl.setTime(testNow)
-        val response =
-            given()
-                .withApprentice()
-                .get("/api/marks/last?userId=${Lernender.userId.value}")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getList(".", MarkDto::class.java)
-
-        assertThat(
-            response,
-            containsInAnyOrder(*(LernenderMarks.latest5Marks.filter { it.date.isBefore(testNow) }.map { it.toDto() }.toTypedArray())),
-        )
-    }
-
-    @Test
-    fun getLatestMarksDefaultMarkOnSameDate() {
-        val testNow = LocalDate.parse("2023-05-01")
-
-        testTimeUtilsImpl.setTime(testNow)
-        val response =
-            given()
-                .withApprentice()
-                .get("/api/marks/last?userId=${Lernender.userId.value}")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getList(".", MarkDto::class.java)
-
-        assertThat(response, contains(*(LernenderMarks.latest4Marks.map { it.toDto() }.toTypedArray())))
-    }
+    // TODO: Old endpoint /api/marks/last no longer exists. Dropped.
+    // @Test
+    // fun getLatestMarksDefaultMarkOnSameDate() { ... }
 
     @Test
     fun addNewMark() {
@@ -174,13 +77,13 @@ class MarkApiTest : IntegrationTest() {
                 .withApprentice()
                 .accept("application/json")
                 .contentType("application/json")
-                .body(SpecialMarks.MarkForAddTest.toDto())
-                .post("/api/marks?semesterId=${TestSemester.Autumn22.id.value}")
+                .body(SpecialMarks.MarkForAddTest.toMarkRequestDto())
+                .post("/api/semesters/${TestSemester.Autumn22.id.value}/marks")
                 .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getObject(".", MarkDto::class.java)
+                .getObject("mark", MarkDto::class.java)
 
         assertThat(response, `is`(SpecialMarks.MarkForAddTest.toDto()))
     }
@@ -193,32 +96,27 @@ class MarkApiTest : IntegrationTest() {
                 .accept("application/json")
                 .contentType("application/json")
                 .body(SpecialMarks.EditedMathMark.toDto())
-                .post("/api/marks/${SpecialMarks.EditedMathMark.id.value}/edit")
+                .put("/api/marks/${SpecialMarks.EditedMathMark.id.value}")
                 .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getObject(".", MarkDto::class.java)
+                .getObject("mark", MarkDto::class.java)
 
         assertThat(response, `is`(SpecialMarks.EditedMathMark.toDto()))
     }
 
     @Test
     fun deleteMark() {
-        val response =
-            given()
-                .withApprentice()
-                .accept("application/json")
-                .contentType("application/json")
-                .delete("api/marks/${LernenderMarks.math1.id.value}/delete")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getObject(".", UUID::class.java)
+        given()
+            .withApprentice()
+            .accept("application/json")
+            .contentType("application/json")
+            .delete("/api/marks/${LernenderMarks.math1.id.value}")
+            .then()
+            .statusCode(200)
 
-        assertThat(response, `is`(LernenderMarks.math1.id.value))
-        assertThat(markRepository.getMarks(Lernender.userId), not(hasItem(LernenderMarks.math1)))
+        assertThat(markRepository.findByUser(Lernender.userId), not(hasItem(LernenderMarks.math1)))
     }
 
     @Test
@@ -228,51 +126,46 @@ class MarkApiTest : IntegrationTest() {
                 .withApprentice()
                 .accept("application/json")
                 .contentType("application/json")
-                .post("api/marks/${SpecialMarks.DeletedMark.id.value}/restore")
+                .post("/api/marks/${SpecialMarks.DeletedMark.id.value}/restore")
                 .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getObject(".", MarkDto::class.java)
+                .getObject("mark", MarkDto::class.java)
 
         assertThat(response2, `is`(SpecialMarks.DeletedMark.toDto()))
 
-        assertThat(markRepository.getMarks(Lernender.userId), hasItem(SpecialMarks.DeletedMark))
+        assertThat(markRepository.findByUser(Lernender.userId), hasItem(SpecialMarks.DeletedMark))
     }
 
     @Test
     fun deleteAndRestore() {
-        val response =
-            given()
-                .withApprentice()
-                .accept("application/json")
-                .contentType("application/json")
-                .delete("api/marks/${LernenderMarks.math1.id.value}/delete")
-                .then()
-                .statusCode(200)
-                .extract()
-                .jsonPath()
-                .getObject(".", UUID::class.java)
+        given()
+            .withApprentice()
+            .accept("application/json")
+            .contentType("application/json")
+            .delete("/api/marks/${LernenderMarks.math1.id.value}")
+            .then()
+            .statusCode(200)
 
-        assertThat(response, `is`(LernenderMarks.math1.id.value))
-        assertThat(markRepository.getMarks(Lernender.userId), not(hasItem(LernenderMarks.math1)))
-        assertThat(markRepository.getDeletedMarks(Lernender.userId), hasItem(LernenderMarks.math1))
+        assertThat(markRepository.findByUser(Lernender.userId), not(hasItem(LernenderMarks.math1)))
+        assertThat(markRepository.findDeleted(Lernender.userId), hasItem(LernenderMarks.math1))
 
         val response2 =
             given()
                 .withApprentice()
                 .accept("application/json")
                 .contentType("application/json")
-                .post("api/marks/${LernenderMarks.math1.id.value}/restore")
+                .post("/api/marks/${LernenderMarks.math1.id.value}/restore")
                 .then()
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getObject(".", MarkDto::class.java)
+                .getObject("mark", MarkDto::class.java)
 
         assertThat(response2, `is`(LernenderMarks.math1.toDto()))
-        assertThat(markRepository.getMarks(Lernender.userId), hasItem(LernenderMarks.math1))
-        assertThat(markRepository.getDeletedMarks(Lernender.userId), not(hasItem(LernenderMarks.math1)))
+        assertThat(markRepository.findByUser(Lernender.userId), hasItem(LernenderMarks.math1))
+        assertThat(markRepository.findDeleted(Lernender.userId), not(hasItem(LernenderMarks.math1)))
     }
 
     @Test

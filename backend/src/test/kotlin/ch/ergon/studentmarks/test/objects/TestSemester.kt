@@ -1,7 +1,7 @@
 package ch.ergon.studentmarks.test.objects
 
-import ch.ergon.studentmarks.domain.marks.SemesterId
-import ch.ergon.studentmarks.domain.semester.Semester
+import ch.ergon.studentmarks.domain.model.semester.Semester
+import ch.ergon.studentmarks.domain.model.semester.SemesterId
 import java.time.LocalDate
 import java.util.UUID
 
