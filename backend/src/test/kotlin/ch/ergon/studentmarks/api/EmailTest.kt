@@ -16,14 +16,13 @@ import ch.ergon.studentmarks.test.objects.TestMarks
 import ch.ergon.studentmarks.test.objects.TestSubjects
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Berufsbildner
 import ch.ergon.studentmarks.utils.TimeUtils
+import ch.ergon.studentmarks.utils.toSimpleUser
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyList
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.ArgumentMatchers.contains
 import org.mockito.Mockito.mock
-import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -91,6 +90,24 @@ class EmailTest : IntegrationTest() {
         markService.addNewMark(mark)
 
         verify(emailSender).sendMail(eq("Neue Note"), anyString(), anyList())
+        verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner.toSimpleUser())))
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"value\">${mark.value.value!!.format()}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(anyString(), contains("<span id=\"date\">${mark.date.format()}</span>"), anyList())
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"subject-name\">${TestSubjects.English.name}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"weight\">${mark.weight.format()}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(anyString(), contains("<span id=\"mark-name\">${mark.name}</span>"), anyList())
     }
 
     @Test
@@ -114,10 +131,62 @@ class EmailTest : IntegrationTest() {
     @Test
     @WithMockLehrling
     fun edite_mark_will_send_email_notification() {
+        val oldMark = TestMarks.Companion.LernenderMarks.math1
         val newMark = TestMarks.Companion.SpecialMarks.EditedMathMark
         markService.editMark(newMark)
 
+        verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner.toSimpleUser())))
         verify(emailSender).sendMail(eq("Note geändert"), anyString(), anyList())
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"old-date\">${oldMark.date.format()}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"old-subject-name\">${TestSubjects.Math.name}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"old-mark-name\">${oldMark.name}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"old-weight\">${oldMark.weight.format()}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"old-value\">${oldMark.value.value?.format()}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"new-date\">${newMark.date.format()}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"new-subject-name\">${TestSubjects.Math.name}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"new-mark-name\">${newMark.name}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"new-weight\">${newMark.weight.format()}</span>"),
+            anyList(),
+        )
+        verify(emailSender).sendMail(
+            anyString(),
+            contains("<span id=\"new-value\">${newMark.value.value?.format()}</span>"),
+            anyList(),
+        )
     }
 }
 

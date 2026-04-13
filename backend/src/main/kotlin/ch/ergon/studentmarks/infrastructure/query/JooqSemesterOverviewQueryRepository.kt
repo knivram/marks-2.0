@@ -1,5 +1,6 @@
 package ch.ergon.studentmarks.infrastructure.query
 
+import ch.ergon.studentmarks.application.query.SemesterOverviewQueryRepository
 import ch.ergon.studentmarks.application.query.model.MarkWithSubject
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkId
@@ -17,11 +18,11 @@ import org.springframework.stereotype.Repository
 @Repository
 class JooqSemesterOverviewQueryRepository(
     private val dsl: DSLContext,
-) {
-    fun getMarksWithSubjects(
+) : SemesterOverviewQueryRepository {
+    override fun getMarksWithSubjects(
         userId: UserId,
         semesterId: SemesterId,
-        subjectId: SubjectId? = null,
+        subjectId: SubjectId?,
     ): List<MarkWithSubject> {
         var query =
             dsl

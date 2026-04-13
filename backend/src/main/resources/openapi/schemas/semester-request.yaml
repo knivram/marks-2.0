@@ -8,5 +8,7 @@ properties:
     type: string
   startDate:
     type: string
+    format: date
   endDate:
     type: string
+    format: date

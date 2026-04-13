@@ -10,8 +10,6 @@ import java.time.LocalDate
 interface SemesterRepository {
     fun findAll(paginationParams: PaginationParams): PaginatedList<Semester>
 
-    fun count(): Int
-
     fun findById(semesterId: SemesterId): Semester
 
     fun save(semester: Semester): Semester

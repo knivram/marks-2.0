@@ -10,8 +10,8 @@ import ch.ergon.studentmarks.gen.Tables.USER
 import ch.ergon.studentmarks.infrastructure.repository.mapper.UserRecordMapper.toDB
 import ch.ergon.studentmarks.infrastructure.repository.mapper.UserRecordMapper.toSimpleUser
 import ch.ergon.studentmarks.infrastructure.repository.mapper.UserRecordMapper.toUser
-import ch.ergon.studentmarks.infrastructure.security.exeptions.UserAlreadyExistsException
-import ch.ergon.studentmarks.infrastructure.security.exeptions.UserNotFoundException
+import ch.ergon.studentmarks.domain.exception.UserAlreadyExistsException
+import ch.ergon.studentmarks.domain.exception.UserNotFoundException
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime

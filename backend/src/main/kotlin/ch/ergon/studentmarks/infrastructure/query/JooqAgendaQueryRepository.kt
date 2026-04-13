@@ -1,5 +1,6 @@
 package ch.ergon.studentmarks.infrastructure.query
 
+import ch.ergon.studentmarks.application.query.AgendaQueryRepository
 import ch.ergon.studentmarks.application.query.model.MarkWithSubject
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkId
@@ -18,8 +19,8 @@ import java.time.LocalDate
 @Repository
 class JooqAgendaQueryRepository(
     private val dsl: DSLContext,
-) {
-    fun getUpcomingExams(
+) : AgendaQueryRepository {
+    override fun getUpcomingExams(
         userId: UserId,
         asOf: LocalDate,
     ): List<MarkWithSubject> =
@@ -35,7 +36,7 @@ class JooqAgendaQueryRepository(
             .fetch()
             .map { it.toMarkWithSubject() }
 
-    fun getPastExamsWithoutGrade(
+    override fun getPastExamsWithoutGrade(
         userId: UserId,
         asOf: LocalDate,
     ): List<MarkWithSubject> =

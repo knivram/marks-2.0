@@ -141,7 +141,17 @@ class AdminController(
         apprenticeSupervisorPairDto.forEach {
             userService.updateApprenticeSupervisorConnection(it.toDomain())
         }
-        return ResponseEntity.ok(apprenticeSupervisorPairDto)
+        val supervisorId = UserId(apprenticeSupervisorPairDto.first().supervisor.userId)
+        val freshPairs = userService.getAllConnections().filter { it.supervisorId == supervisorId }
+        return ResponseEntity.ok(
+            freshPairs.map { pair ->
+                val apprentice = userService.getUser(pair.apprenticeId)
+                val supervisor = userService.getUser(pair.supervisorId)
+                ch.ergon.studentmarks.application.query.model
+                    .ApprenticeSupervisorPairWithUsers(pair, apprentice, supervisor)
+                    .toDto()
+            },
+        )
     }
 
     override fun adminDeleteConnection(connectionId: UUID): ResponseEntity<ApprenticeSupervisorPairDto> {

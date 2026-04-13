@@ -236,7 +236,7 @@ class UserApiTest : IntegrationTest() {
         val updatedConnection = TestConnections.connectionDtos.first().copy(emailNotification = false)
         val connections =
             given()
-                .withSupervisor()
+                .withAdmin()
                 .contentType("application/json")
                 .body(listOf(updatedConnection))
                 .put("/api/admin/connections")
@@ -376,7 +376,7 @@ class UserApiTest : IntegrationTest() {
     @Test
     fun edit_user_boxi() {
         val editedUserBoxi =
-            User(Berufsbildner.userId, userName = UserName("Boxi_new"), Berufsbildner.email, Berufsbildner.role).toDto()
+            User(Berufsbildner.userId, userName = UserName("boxi_new"), Berufsbildner.email, Berufsbildner.role).toDto()
 
         val editedUser =
             given()
@@ -391,6 +391,6 @@ class UserApiTest : IntegrationTest() {
                 .jsonPath()
                 .getObject(".", UserDto::class.java)
 
-        assertThat(editedUser, `is`(editedUser))
+        assertThat(editedUser, `is`(editedUserBoxi))
     }
 }

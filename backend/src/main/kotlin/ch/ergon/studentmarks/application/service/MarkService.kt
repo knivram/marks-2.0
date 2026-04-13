@@ -1,5 +1,6 @@
 package ch.ergon.studentmarks.application.service
 
+import ch.ergon.studentmarks.application.query.model.MarkWithSubject
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkId
 import ch.ergon.studentmarks.domain.model.mark.MarkValue
@@ -24,7 +25,7 @@ class MarkService(
     private val timeUtils: TimeUtils,
     private val emailNotificationService: EmailNotificationService,
 ) {
-    fun addNewMark(mark: Mark): Mark {
+    fun addNewMark(mark: Mark): MarkWithSubject {
         val apprentice = userService.getCurrentUser()
         val newMark = markRepository.save(apprentice.userId, mark)
         val subject = subjectRepository.findById(newMark.subjectId)
@@ -41,11 +42,11 @@ class MarkService(
             subjectName = subject.name,
             averageValue = average?.toInt() ?: 0,
         )
-        return newMark
+        return MarkWithSubject(newMark, subject)
     }
 
     @PreAuthorize("hasPermission(#mark.id, 'IS_OWNER_OF')")
-    fun editMark(mark: Mark): Mark {
+    fun editMark(mark: Mark): MarkWithSubject {
         val user = userService.getCurrentUser()
         val oldMark = markRepository.findById(mark.id)
         val oldSubject = subjectRepository.findById(oldMark.subjectId)
@@ -74,7 +75,7 @@ class MarkService(
                 newAverageValue = newAverage?.toInt() ?: 0,
             )
         }
-        return newMark
+        return MarkWithSubject(newMark, newSubject)
     }
 
     @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF') or hasRole('ROLE_ADMIN')")
@@ -83,8 +84,13 @@ class MarkService(
     }
 
     @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF') or hasRole('ROLE_ADMIN')")
-    fun restoreMark(markId: MarkId): Mark = markRepository.restore(markId)
+    fun restoreMark(markId: MarkId): MarkWithSubject {
+        val mark = markRepository.restore(markId)
+        val subject = subjectRepository.findById(mark.subjectId)
+        return MarkWithSubject(mark, subject)
+    }
 
+    @PreAuthorize("hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')")
     fun calculate(
         userId: UserId,
         semesterId: SemesterId,

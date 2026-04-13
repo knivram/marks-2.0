@@ -1,4 +1,4 @@
-package ch.ergon.studentmarks.infrastructure.security.exeptions
+package ch.ergon.studentmarks.domain.exception
 
 import org.springframework.http.HttpStatus
 

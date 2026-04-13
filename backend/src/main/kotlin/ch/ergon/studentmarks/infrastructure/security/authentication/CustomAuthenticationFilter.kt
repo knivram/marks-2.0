@@ -3,10 +3,10 @@ package ch.ergon.studentmarks.infrastructure.security.authentication
 import ch.ergon.studentmarks.application.service.UserService
 import ch.ergon.studentmarks.domain.model.user.Email
 import ch.ergon.studentmarks.infrastructure.logging.Logger
-import ch.ergon.studentmarks.infrastructure.security.exeptions.MailNotInSubjectException
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksException
-import ch.ergon.studentmarks.infrastructure.security.exeptions.SubjectNotInHeaderException
-import ch.ergon.studentmarks.infrastructure.security.exeptions.UserNotFoundException
+import ch.ergon.studentmarks.domain.exception.MailNotInSubjectException
+import ch.ergon.studentmarks.domain.exception.StudentMarksException
+import ch.ergon.studentmarks.domain.exception.SubjectNotInHeaderException
+import ch.ergon.studentmarks.domain.exception.UserNotFoundException
 import jakarta.servlet.FilterChain
 import jakarta.servlet.ServletException
 import jakarta.servlet.http.HttpServletRequest

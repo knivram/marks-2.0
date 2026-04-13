@@ -1,16 +1,16 @@
-package ch.ergon.studentmarks.infrastructure.security.exeptions
+package ch.ergon.studentmarks.domain.exception
 
 import ch.ergon.studentmarks.domain.model.mark.MarkId
 import ch.ergon.studentmarks.domain.model.subject.SubjectId
 import ch.ergon.studentmarks.domain.model.user.Email
 import ch.ergon.studentmarks.domain.model.user.UserName
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.MARK_NOT_FOUND
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.NO_MAIL_IN_SUBJECT
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.NO_SUBJECT
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.OWN_USER_NOT_DELETABLE
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.SUBJECT_NOT_FOUND
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.USER_EXISTS
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes.USER_NOT_FOUND
+import ch.ergon.studentmarks.domain.exception.StudentMarksExceptionCodes.MARK_NOT_FOUND
+import ch.ergon.studentmarks.domain.exception.StudentMarksExceptionCodes.NO_MAIL_IN_SUBJECT
+import ch.ergon.studentmarks.domain.exception.StudentMarksExceptionCodes.NO_SUBJECT
+import ch.ergon.studentmarks.domain.exception.StudentMarksExceptionCodes.OWN_USER_NOT_DELETABLE
+import ch.ergon.studentmarks.domain.exception.StudentMarksExceptionCodes.SUBJECT_NOT_FOUND
+import ch.ergon.studentmarks.domain.exception.StudentMarksExceptionCodes.USER_EXISTS
+import ch.ergon.studentmarks.domain.exception.StudentMarksExceptionCodes.USER_NOT_FOUND
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.HttpStatus.CONFLICT

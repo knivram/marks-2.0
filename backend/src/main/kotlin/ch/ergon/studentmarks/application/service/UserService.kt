@@ -8,7 +8,7 @@ import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.repository.ApprenticeSupervisorRepository
 import ch.ergon.studentmarks.domain.repository.UserRepository
-import ch.ergon.studentmarks.infrastructure.security.exeptions.DeleteOwnUserException
+import ch.ergon.studentmarks.domain.exception.DeleteOwnUserException
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
@@ -90,6 +90,7 @@ class UserService(
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun getAllConnections(): List<ApprenticeSupervisorPair> = apprenticeSupervisorRepository.findAll()
 
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun updateApprenticeSupervisorConnection(pair: ApprenticeSupervisorPair) {
         apprenticeSupervisorRepository.updateOrInsert(pair)
     }

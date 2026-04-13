@@ -1,7 +1,7 @@
 package ch.ergon.studentmarks.infrastructure.exception.hanling
 
-import ch.ergon.studentmarks.infrastructure.security.exeptions.AuthenticationFailedException
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksException
+import ch.ergon.studentmarks.domain.exception.AuthenticationFailedException
+import ch.ergon.studentmarks.domain.exception.StudentMarksException
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ControllerAdvice
 import org.springframework.web.bind.annotation.ExceptionHandler

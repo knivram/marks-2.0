@@ -31,8 +31,6 @@ class JooqSemesterRepository(
         return PaginatedList(total, semesters)
     }
 
-    override fun count(): Int = dsl.fetchCount(SEMESTER)
-
     override fun findById(semesterId: SemesterId): Semester =
         dsl
             .selectFrom(SEMESTER)
@@ -77,9 +75,12 @@ class JooqSemesterRepository(
                         .select(MARK.SEMESTER_ID)
                         .from(MARK)
                         .where(MARK.USER_ID.eq(userId.value))
+                        .andNot(MARK.DELETED)
                         .groupBy(MARK.SEMESTER_ID),
                 ),
             ).orderBy(SEMESTER.END_DATE.desc())
             .fetch()
             .map { it.toSemester() }
+
+   private fun count(): Int = dsl.fetchCount(SEMESTER)
 }

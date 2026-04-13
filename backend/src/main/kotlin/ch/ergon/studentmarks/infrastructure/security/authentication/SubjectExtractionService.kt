@@ -1,6 +1,6 @@
 package ch.ergon.studentmarks.infrastructure.security.authentication
 
-import ch.ergon.studentmarks.infrastructure.security.exeptions.MailNotInSubjectException
+import ch.ergon.studentmarks.domain.exception.MailNotInSubjectException
 import org.springframework.stereotype.Service
 
 @Service

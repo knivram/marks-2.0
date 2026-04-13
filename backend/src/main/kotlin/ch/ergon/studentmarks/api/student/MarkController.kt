@@ -8,7 +8,6 @@ import ch.ergon.studentmarks.api.generated.dto.MarkValueDto
 import ch.ergon.studentmarks.api.generated.dto.MarkWithSubjectDto
 import ch.ergon.studentmarks.api.generated.dto.UserDto
 import ch.ergon.studentmarks.api.mapper.toDto
-import ch.ergon.studentmarks.application.query.model.MarkWithSubject
 import ch.ergon.studentmarks.application.service.MarkService
 import ch.ergon.studentmarks.application.service.UserService
 import ch.ergon.studentmarks.domain.model.mark.Mark
@@ -17,7 +16,6 @@ import ch.ergon.studentmarks.domain.model.mark.MarkValue
 import ch.ergon.studentmarks.domain.model.semester.SemesterId
 import ch.ergon.studentmarks.domain.model.subject.SubjectId
 import ch.ergon.studentmarks.domain.model.user.UserId
-import ch.ergon.studentmarks.domain.repository.SubjectRepository
 import ch.ergon.studentmarks.utils.UuidUtils
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
@@ -27,7 +25,6 @@ import java.util.UUID
 class MarkController(
     private val markService: MarkService,
     private val userService: UserService,
-    private val subjectRepository: SubjectRepository,
     private val uuidUtils: UuidUtils,
 ) : StudentMarksApi,
     UserInfoApi {
@@ -45,9 +42,8 @@ class MarkController(
                 value = MarkValue(body.value),
                 semesterId = SemesterId(semesterId),
             )
-        val savedMark = markService.addNewMark(mark)
-        val subject = subjectRepository.findById(savedMark.subjectId)
-        return ResponseEntity.ok(MarkWithSubject(savedMark, subject).toDto())
+        val result = markService.addNewMark(mark)
+        return ResponseEntity.ok(result.toDto())
     }
 
     override fun editMark(
@@ -64,9 +60,8 @@ class MarkController(
                 value = MarkValue(markDto.value),
                 semesterId = SemesterId(markDto.semesterId),
             )
-        val updatedMark = markService.editMark(mark)
-        val subject = subjectRepository.findById(updatedMark.subjectId)
-        return ResponseEntity.ok(MarkWithSubject(updatedMark, subject).toDto())
+        val result = markService.editMark(mark)
+        return ResponseEntity.ok(result.toDto())
     }
 
     override fun deleteMark(markId: UUID): ResponseEntity<UUID> {
@@ -75,9 +70,8 @@ class MarkController(
     }
 
     override fun restoreMark(markId: UUID): ResponseEntity<MarkWithSubjectDto> {
-        val restoredMark = markService.restoreMark(MarkId(markId))
-        val subject = subjectRepository.findById(restoredMark.subjectId)
-        return ResponseEntity.ok(MarkWithSubject(restoredMark, subject).toDto())
+        val result = markService.restoreMark(MarkId(markId))
+        return ResponseEntity.ok(result.toDto())
     }
 
     override fun calculator(

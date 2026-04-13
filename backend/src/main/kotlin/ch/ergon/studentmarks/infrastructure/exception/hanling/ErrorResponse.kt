@@ -1,7 +1,7 @@
 package ch.ergon.studentmarks.infrastructure.exception.hanling
 
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksException
-import ch.ergon.studentmarks.infrastructure.security.exeptions.StudentMarksExceptionCodes
+import ch.ergon.studentmarks.domain.exception.StudentMarksException
+import ch.ergon.studentmarks.domain.exception.StudentMarksExceptionCodes
 
 data class ErrorResponse(
     val code: StudentMarksExceptionCodes,

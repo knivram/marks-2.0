@@ -13,13 +13,12 @@ import ch.ergon.studentmarks.domain.model.subject.Subject
 import ch.ergon.studentmarks.domain.model.user.SimpleUser
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.test.objects.TestSubjects
-import java.time.format.DateTimeFormatter
 
 fun Semester.toAddSemesterRequest(): SemesterRequestDto =
     SemesterRequestDto(
         semesterName = semesterName,
-        startDate = startDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
-        endDate = endDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd")),
+        startDate = startDate,
+        endDate = endDate,
     )
 
 fun Subject.toRequest(): SubjectRequestDto =

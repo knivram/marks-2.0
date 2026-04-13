@@ -8,8 +8,8 @@ import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.gen.Tables.MARK
 import ch.ergon.studentmarks.infrastructure.repository.mapper.MarkRecordMapper.toMark
-import ch.ergon.studentmarks.infrastructure.security.exeptions.MarkNotFoundException
-import ch.ergon.studentmarks.infrastructure.security.exeptions.UserNotFoundException
+import ch.ergon.studentmarks.domain.exception.MarkNotFoundException
+import ch.ergon.studentmarks.domain.exception.UserNotFoundException
 import org.jooq.DSLContext
 import org.jooq.impl.DSL.inline
 import org.springframework.stereotype.Repository
@@ -84,6 +84,7 @@ class JooqMarkRepository(
             .set(MARK.DATE, mark.date)
             .set(MARK.WEIGHT, mark.weight)
             .set(MARK.VALUE, mark.value.value)
+            .set(MARK.SEMESTER_ID, mark.semesterId.value)
             .where(MARK.ID.eq(mark.id.value))
             .execute()
 

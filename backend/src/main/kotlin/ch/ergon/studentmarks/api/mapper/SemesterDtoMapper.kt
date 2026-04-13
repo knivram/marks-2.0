@@ -6,7 +6,6 @@ import ch.ergon.studentmarks.api.generated.dto.SemesterRequestDto
 import ch.ergon.studentmarks.domain.model.semester.Semester
 import ch.ergon.studentmarks.domain.model.semester.SemesterId
 import ch.ergon.studentmarks.domain.model.shared.PaginatedList
-import java.time.LocalDate
 
 fun Semester.toDto(): SemesterDto =
     SemesterDto(
@@ -20,8 +19,8 @@ fun SemesterRequestDto.toDomain(semesterId: SemesterId): Semester =
     Semester(
         id = semesterId,
         semesterName = semesterName,
-        startDate = LocalDate.parse(startDate),
-        endDate = LocalDate.parse(endDate),
+        startDate = startDate,
+        endDate = endDate,
     )
 
 fun PaginatedList<Semester>.toPaginatedSemesterListDto(offset: Int): PaginatedSemesterListDto =

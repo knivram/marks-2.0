@@ -7,13 +7,12 @@ import ch.ergon.studentmarks.application.query.model.SubjectAverage
 import ch.ergon.studentmarks.application.query.model.SubjectWithMarks
 import ch.ergon.studentmarks.domain.model.semester.SemesterId
 import ch.ergon.studentmarks.domain.model.user.UserId
-import ch.ergon.studentmarks.infrastructure.query.JooqSemesterOverviewQueryRepository
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 
 @Service
 class SemesterOverviewQueryService(
-    private val queryRepository: JooqSemesterOverviewQueryRepository,
+    private val queryRepository: SemesterOverviewQueryRepository,
 ) {
     @PreAuthorize(
         "hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')",
