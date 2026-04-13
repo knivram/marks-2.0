@@ -2,7 +2,10 @@ package ch.ergon.studentmarks
 
 import ch.ergon.studentmarks.utils.TestTimeUtilsImpl
 import ch.ergon.studentmarks.utils.TestUuidUtilsImpl
+import com.fasterxml.jackson.databind.ObjectMapper
 import io.restassured.RestAssured
+import io.restassured.config.ObjectMapperConfig
+import io.restassured.config.RestAssuredConfig
 import org.flywaydb.core.Flyway
 import org.junit.jupiter.api.BeforeEach
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,9 +39,16 @@ class IntegrationTest {
     @Autowired
     private lateinit var testUuidUtilsImpl: TestUuidUtilsImpl
 
+    @Autowired
+    private lateinit var objectMapper: ObjectMapper
+
     @BeforeEach
     fun setBackendPort() {
         RestAssured.port = localServerPort!!
+        RestAssured.config =
+            RestAssuredConfig.config().objectMapperConfig(
+                ObjectMapperConfig().jackson2ObjectMapperFactory { _, _ -> objectMapper },
+            )
     }
 
     @BeforeEach

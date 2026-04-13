@@ -42,14 +42,4 @@ class SubjectRepoTest : IntegrationTest() {
         assertThat(subjects, containsInAnyOrder(*(SpecialTestSubjects.afterEditingSubject.toTypedArray())))
     }
 
-    // TODO: getAllSubjectsOfUser and getSubject methods no longer exist on SubjectRepository.
-    // SubjectOverview has been removed. Use SemesterOverviewQueryService instead.
-    // @Test
-    // fun get_all_subjectOverviews_of_student_and_semester() { ... }
-
-    // @Test
-    // fun get_semesterOverview_of_with_marks_without_values_return_0_as_average() { ... }
-
-    // @Test
-    // fun get_one_subjectOverview() { ... }
 }

@@ -1,9 +1,11 @@
 package ch.ergon.studentmarks.api
 
 import ch.ergon.studentmarks.IntegrationTest
+import ch.ergon.studentmarks.api.generated.dto.AgendaDto
 import ch.ergon.studentmarks.api.generated.dto.MarkDto
 import ch.ergon.studentmarks.api.generated.dto.MarkValueDto
 import ch.ergon.studentmarks.api.generated.dto.MarkWithSubjectDto
+import ch.ergon.studentmarks.api.generated.dto.SemesterOverviewDto
 import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.LernenderMarks
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.SpecialMarks
@@ -14,16 +16,16 @@ import ch.ergon.studentmarks.utils.TestTimeUtilsImpl
 import ch.ergon.studentmarks.utils.TestUuidUtilsImpl
 import ch.ergon.studentmarks.utils.toDto
 import ch.ergon.studentmarks.utils.toMarkRequestDto
+import ch.ergon.studentmarks.utils.toMarkWithSubjectDto
 import io.restassured.RestAssured.given
 import org.hamcrest.MatcherAssert.assertThat
-import org.hamcrest.Matchers.contains
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.hasItem
+import org.hamcrest.Matchers.hasSize
 import org.hamcrest.Matchers.`is`
 import org.hamcrest.Matchers.not
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import java.time.LocalDate
 import java.util.UUID
 
 class MarkApiTest : IntegrationTest() {
@@ -36,37 +38,64 @@ class MarkApiTest : IntegrationTest() {
     @Autowired
     private lateinit var markRepository: MarkRepository
 
-    // TODO: Old endpoint /api/marks no longer exists. Rewrite to use /api/semesters/{semesterId}/overview
-    // @Test
-    // fun getAllMarks() { ... }
+    @Test
+    fun getSemesterOverview() {
+        val response =
+            given()
+                .withApprentice()
+                .accept("application/json")
+                .get(
+                    "/api/semesters/${TestSemester.Autumn22.id.value}/overview" +
+                        "?userId=${Lernender.userId.value}",
+                ).then()
+                .statusCode(200)
+                .extract()
+                .`as`(SemesterOverviewDto::class.java)
 
-    // TODO: Old endpoint /api/marks?subjectId=... no longer exists. Rewrite to use new endpoints.
-    // @Test
-    // fun getMarksFromSubject() { ... }
+        // Autumn22 has math1, math2 (Math) and french2 (French) — all general subjects
+        val allMarks =
+            response.generalSubjects.flatMap { it.marks } +
+                response.vocationalSubjects.flatMap { it.marks }
 
-    // TODO: Old endpoint /api/marks/future-exams no longer exists. Replaced by /api/agenda
-    // @Test
-    // fun getFutureExams() { ... }
+        assertThat(
+            allMarks,
+            containsInAnyOrder(
+                *(LernenderMarks.autumn22.map { it.toDto() }.toTypedArray()),
+            ),
+        )
+        assertThat(response.vocationalSubjects, hasSize(0))
+    }
 
-    // TODO: Old endpoint /api/marks/passed-exams no longer exists. Replaced by /api/agenda
-    // @Test
-    // fun getPassedExams() { ... }
+    @Test
+    fun getAgenda() {
+        val response =
+            given()
+                .withApprentice()
+                .accept("application/json")
+                .get("/api/agenda?userId=${Lernender.userId.value}")
+                .then()
+                .statusCode(200)
+                .extract()
+                .jsonPath()
+                .getObject(".", AgendaDto::class.java)
 
-    // TODO: Old endpoint /api/marks/last no longer exists. Dropped.
-    // @Test
-    // fun getDefaultLatestMarks() { ... }
+        // Default time is 2023-05-31.
+        // FutureMark.marks (2023-12-02 and 2024-01-24) are upcoming exams
+        assertThat(
+            response.upcomingExams,
+            containsInAnyOrder(
+                *(LernenderMarks.FutureMark.marks.map { it.toMarkWithSubjectDto() }.toTypedArray()),
+            ),
+        )
 
-    // TODO: Old endpoint /api/marks/last?limit=5 no longer exists. Dropped.
-    // @Test
-    // fun getLatestMarksLimit5() { ... }
-
-    // TODO: Old endpoint /api/marks/last no longer exists. Dropped.
-    // @Test
-    // fun getLatestMarksDefaultWhenOnly3Exist() { ... }
-
-    // TODO: Old endpoint /api/marks/last no longer exists. Dropped.
-    // @Test
-    // fun getLatestMarksDefaultMarkOnSameDate() { ... }
+        // PastMarks (2023-04-04, null values) are past exams without grade
+        assertThat(
+            response.pastExamsWithoutGrade,
+            containsInAnyOrder(
+                *(LernenderMarks.PastMarks.marks.map { it.toMarkWithSubjectDto() }.toTypedArray()),
+            ),
+        )
+    }
 
     @Test
     fun addNewMark() {
