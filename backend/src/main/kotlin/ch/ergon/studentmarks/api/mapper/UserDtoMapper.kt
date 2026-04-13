@@ -1,14 +1,12 @@
 package ch.ergon.studentmarks.api.mapper
 
 import ch.ergon.studentmarks.api.generated.dto.ApprenticeSupervisorPairDto
-import ch.ergon.studentmarks.api.generated.dto.SimpleUserDto
 import ch.ergon.studentmarks.api.generated.dto.UserDto
 import ch.ergon.studentmarks.api.generated.dto.UserRoleDto
 import ch.ergon.studentmarks.application.response.ApprenticeSupervisorPairWithUsers
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPair
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPairId
 import ch.ergon.studentmarks.domain.model.user.Email
-import ch.ergon.studentmarks.domain.model.user.SimpleUser
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.model.user.UserName
@@ -41,20 +39,6 @@ fun UserDto.toDomain(): User =
         userId = UserId(userId),
         userName = UserName(userName),
         email = Email(email),
-        role = role.toDomain(),
-    )
-
-fun SimpleUser.toDto(): SimpleUserDto =
-    SimpleUserDto(
-        email = email.value,
-        userName = userName.value,
-        role = role.toDto(),
-    )
-
-fun SimpleUserDto.toDomain(): SimpleUser =
-    SimpleUser(
-        email = Email(email),
-        userName = UserName(userName),
         role = role.toDomain(),
     )
 

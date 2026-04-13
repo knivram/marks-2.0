@@ -1,21 +1,19 @@
 package ch.ergon.studentmarks.infrastructure.repository
 
 import ch.ergon.studentmarks.domain.model.user.Email
-import ch.ergon.studentmarks.domain.model.user.SimpleUser
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.repository.UserRepository
 import ch.ergon.studentmarks.gen.Tables.APPRENTICE_SUPERVISOR
 import ch.ergon.studentmarks.gen.Tables.USER
 import ch.ergon.studentmarks.infrastructure.repository.mapper.UserRecordMapper.toDB
-import ch.ergon.studentmarks.infrastructure.repository.mapper.UserRecordMapper.toSimpleUser
 import ch.ergon.studentmarks.infrastructure.repository.mapper.UserRecordMapper.toUser
 import ch.ergon.studentmarks.domain.exception.UserAlreadyExistsException
 import ch.ergon.studentmarks.domain.exception.UserNotFoundException
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
-import java.util.UUID
+
 import ch.ergon.studentmarks.gen.enums.UserRole as DBUserRole
 
 @Repository
@@ -58,22 +56,21 @@ class JooqUserRepository(
             .fetch()
             .map { it.toUser() }
 
-    override fun create(simpleUser: SimpleUser): User {
-        val userId = UUID.randomUUID()
+    override fun create(user: User): User {
         try {
             return dsl
                 .insertInto(USER)
-                .set(USER.ID, userId)
-                .set(USER.EMAIL, simpleUser.email.value.lowercase())
-                .set(USER.USERNAME, simpleUser.userName.value.lowercase())
-                .set(USER.ROLE, simpleUser.role.toDB())
+                .set(USER.ID, user.userId.value)
+                .set(USER.EMAIL, user.email.value)
+                .set(USER.USERNAME, user.userName.value)
+                .set(USER.ROLE, user.role.toDB())
                 .returning()
                 .fetchOne()!!
                 .toUser()
         } catch (e: Exception) {
             throw UserAlreadyExistsException(
-                simpleUser.email,
-                simpleUser.userName,
+                user.email,
+                user.userName,
             )
         }
     }
@@ -155,34 +152,34 @@ class JooqUserRepository(
         }
     }
 
-    override fun searchApprentices(searchQuery: String): List<SimpleUser> =
+    override fun searchApprentices(searchQuery: String): List<User> =
         dsl
             .selectFrom(USER)
             .where(USER.ROLE.eq(DBUserRole.APPRENTICE))
             .and(USER.EMAIL.likeIgnoreCase("%$searchQuery%"))
             .andNot(USER.DELETED)
             .fetch()
-            .map { it.toSimpleUser() }
+            .map { it.toUser() }
 
-    override fun searchSupervisors(searchQuery: String): List<SimpleUser> =
+    override fun searchSupervisors(searchQuery: String): List<User> =
         dsl
             .selectFrom(USER)
             .where(USER.ROLE.eq(DBUserRole.SUPERVISOR))
             .and(USER.EMAIL.likeIgnoreCase("%$searchQuery%"))
             .andNot(USER.DELETED)
             .fetch()
-            .map { it.toSimpleUser() }
+            .map { it.toUser() }
 
-    override fun findSupervisorsWithNotificationsForApprentice(apprenticeId: UserId): List<SimpleUser> =
+    override fun findSupervisorsWithNotificationsForApprentice(apprenticeId: UserId): List<User> =
         dsl
-            .select(USER.EMAIL, USER.USERNAME, USER.ROLE)
+            .select(USER.asterisk())
             .from(USER)
             .join(APPRENTICE_SUPERVISOR)
             .on(USER.ID.eq(APPRENTICE_SUPERVISOR.FK_SUPERVISOR))
             .where(APPRENTICE_SUPERVISOR.FK_APPRENTICE.eq(apprenticeId.value))
             .and(APPRENTICE_SUPERVISOR.EMAIL_NOTIFICATION)
             .andNot(USER.DELETED)
-            .groupBy(USER.EMAIL, USER.USERNAME, USER.ROLE)
+            .groupBy(USER.ID)
             .fetch()
-            .map { it.toSimpleUser() }
+            .map { it.toUser() }
 }

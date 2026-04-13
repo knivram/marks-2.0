@@ -27,7 +27,11 @@ post:
     content:
       application/json:
         schema:
-          $ref: "../../api.yaml#/components/schemas/SimpleUser"
+          $ref: "../../api.yaml#/components/schemas/UserCreateRequest"
   responses:
-    '204':
-      description: User created
+    '200':
+      description: Created user
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/User"

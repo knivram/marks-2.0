@@ -3,7 +3,6 @@ package ch.ergon.studentmarks.repository
 import ch.ergon.studentmarks.IntegrationTest
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPair
 import ch.ergon.studentmarks.domain.model.user.Email
-import ch.ergon.studentmarks.domain.model.user.SimpleUser
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserName
 import ch.ergon.studentmarks.domain.model.user.UserRole
@@ -18,7 +17,6 @@ import ch.ergon.studentmarks.test.objects.TestUser.Companion.Kevin
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Lernender
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Noah
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.UnusedUser
-import ch.ergon.studentmarks.utils.toSimpleUser
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
 import org.hamcrest.Matchers.containsInRelativeOrder
@@ -55,7 +53,7 @@ class UserRepoTest : IntegrationTest() {
         val result = userRepository.findSupervisorsWithNotificationsForApprentice(Lernender.userId)
 
         assertThat(result, hasSize(1))
-        assertThat(result, containsInAnyOrder(Berufsbildner.toSimpleUser()))
+        assertThat(result, containsInAnyOrder(Berufsbildner))
     }
 
     @Test
@@ -63,7 +61,7 @@ class UserRepoTest : IntegrationTest() {
         val result = userRepository.findSupervisorsWithNotificationsForApprentice(Kevin.userId)
 
         assertThat(result, hasSize(1))
-        assertThat(result, containsInAnyOrder(Noah.toSimpleUser()))
+        assertThat(result, containsInAnyOrder(Noah))
     }
 
     @Test
@@ -77,21 +75,21 @@ class UserRepoTest : IntegrationTest() {
     fun search_for_apprentice_without_query_returns_list_of_all_apprentice_mail() {
         val result = userRepository.searchApprentices("")
 
-        assertThat(result, containsInAnyOrder(*(TestUser.Apprentices.map { it.toSimpleUser() }.toTypedArray())))
+        assertThat(result, containsInAnyOrder(*(TestUser.Apprentices.toTypedArray())))
     }
 
     @Test
     fun search_for_apprentice_with_query_Marvin_returns_only_one_mail() {
         val result = userRepository.searchApprentices("Marvin")
 
-        assertThat(result, containsInAnyOrder(Lernender.toSimpleUser()))
+        assertThat(result, containsInAnyOrder(Lernender))
     }
 
     @Test
     fun search_for_supervisor_without_query_returns_list_of_all_supervisor_mail() {
         val result = userRepository.searchSupervisors("")
 
-        assertThat(result, containsInAnyOrder(*(TestUser.Supervisors.map { it.toSimpleUser() }.toTypedArray())))
+        assertThat(result, containsInAnyOrder(*(TestUser.Supervisors.toTypedArray())))
     }
 
     @Test
@@ -100,7 +98,7 @@ class UserRepoTest : IntegrationTest() {
 
         assertThat(
             result,
-            containsInAnyOrder(Berufsbildner.toSimpleUser()),
+            containsInAnyOrder(Berufsbildner),
         )
     }
 
@@ -112,7 +110,7 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun create_new_user() {
-        val newUser = SimpleUser(Email("marvin@ergon.ch"), UserName("kmarvin"), UserRole.APPRENTICE)
+        val newUser = User.create(Email("marvin@ergon.ch"), UserName("kmarvin"), UserRole.APPRENTICE)
         val user = userRepository.create(newUser)
         val result = userRepository.findAll()
 

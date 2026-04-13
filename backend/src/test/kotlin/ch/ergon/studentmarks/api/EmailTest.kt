@@ -16,7 +16,6 @@ import ch.ergon.studentmarks.test.objects.TestMarks
 import ch.ergon.studentmarks.test.objects.TestSubjects
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Berufsbildner
 import ch.ergon.studentmarks.utils.TimeUtils
-import ch.ergon.studentmarks.utils.toSimpleUser
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyList
@@ -90,7 +89,7 @@ class EmailTest : IntegrationTest() {
         markService.addNewMark(mark)
 
         verify(emailSender).sendMail(eq("Neue Note"), anyString(), anyList())
-        verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner.toSimpleUser())))
+        verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner)))
         verify(emailSender).sendMail(
             anyString(),
             contains("<span id=\"value\">${mark.value.value!!.format()}</span>"),
@@ -135,7 +134,7 @@ class EmailTest : IntegrationTest() {
         val newMark = TestMarks.Companion.SpecialMarks.EditedMathMark
         markService.editMark(newMark)
 
-        verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner.toSimpleUser())))
+        verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner)))
         verify(emailSender).sendMail(eq("Note geändert"), anyString(), anyList())
         verify(emailSender).sendMail(
             anyString(),

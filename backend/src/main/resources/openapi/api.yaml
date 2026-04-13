@@ -73,8 +73,8 @@ components:
   schemas:
     User:
       $ref: "./schemas/user.yaml"
-    SimpleUser:
-      $ref: "./schemas/simple-user.yaml"
+    UserCreateRequest:
+      $ref: "./schemas/user-create-request.yaml"
     UserRole:
       $ref: "./schemas/user-role.yaml"
     ApprenticeSupervisorPair:

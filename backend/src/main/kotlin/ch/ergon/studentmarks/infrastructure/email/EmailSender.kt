@@ -1,6 +1,6 @@
 package ch.ergon.studentmarks.infrastructure.email
 
-import ch.ergon.studentmarks.domain.model.user.SimpleUser
+import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.infrastructure.logging.Logger
 import jakarta.mail.internet.MimeBodyPart
 import jakarta.mail.internet.MimeMessage
@@ -23,7 +23,7 @@ class EmailSender(
     fun sendMail(
         subject: String,
         html: String,
-        receivers: List<SimpleUser>,
+        receivers: List<User>,
     ) {
         if (!emailIsEnabled) return
 

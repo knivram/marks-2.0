@@ -1,7 +1,6 @@
 package ch.ergon.studentmarks.infrastructure.repository.mapper
 
 import ch.ergon.studentmarks.domain.model.user.Email
-import ch.ergon.studentmarks.domain.model.user.SimpleUser
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.model.user.UserName
@@ -30,13 +29,6 @@ object UserRecordMapper {
             UserId(this[USER.ID]),
             UserName(this[USER.USERNAME]),
             Email(this[USER.EMAIL]),
-            this[USER.ROLE].toDomain(),
-        )
-
-    fun Record.toSimpleUser(): SimpleUser =
-        SimpleUser(
-            Email(this[USER.EMAIL]),
-            UserName(this[USER.USERNAME]),
             this[USER.ROLE].toDomain(),
         )
 }

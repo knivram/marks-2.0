@@ -3,7 +3,7 @@ package ch.ergon.studentmarks.api
 import ch.ergon.studentmarks.IntegrationTest
 import ch.ergon.studentmarks.api.generated.dto.ApprenticeConnectRequestDto
 import ch.ergon.studentmarks.api.generated.dto.ApprenticeSupervisorPairDto
-import ch.ergon.studentmarks.api.generated.dto.SimpleUserDto
+import ch.ergon.studentmarks.api.generated.dto.UserCreateRequestDto
 import ch.ergon.studentmarks.api.generated.dto.UserDto
 import ch.ergon.studentmarks.api.generated.dto.UserRoleDto
 import ch.ergon.studentmarks.api.mapper.toDto
@@ -17,7 +17,6 @@ import ch.ergon.studentmarks.test.objects.TestUser.Companion.Berufsbildner
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.DeletedUser
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Lernender
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.UserDtos
-import ch.ergon.studentmarks.utils.toSimpleUserDto
 import io.restassured.RestAssured.given
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.contains
@@ -88,9 +87,9 @@ class UserApiTest : IntegrationTest() {
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getList(".", SimpleUserDto::class.java)
+                .getList(".", UserDto::class.java)
 
-        val allApprentices = TestUser.Apprentices.map { it.toSimpleUserDto() }
+        val allApprentices = TestUser.Apprentices.map { it.toDto() }
 
         assertThat(response, containsInAnyOrder(*(allApprentices.toTypedArray())))
     }
@@ -105,9 +104,9 @@ class UserApiTest : IntegrationTest() {
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getList(".", SimpleUserDto::class.java)
+                .getList(".", UserDto::class.java)
 
-        assertThat(response, containsInAnyOrder(Lernender.toSimpleUserDto()))
+        assertThat(response, containsInAnyOrder(Lernender.toDto()))
     }
 
     @Test
@@ -120,9 +119,9 @@ class UserApiTest : IntegrationTest() {
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getList(".", SimpleUserDto::class.java)
+                .getList(".", UserDto::class.java)
 
-        val allSupervisors = TestUser.Supervisors.map { it.toSimpleUserDto() }
+        val allSupervisors = TestUser.Supervisors.map { it.toDto() }
 
         assertThat(response, containsInAnyOrder(*(allSupervisors.toTypedArray())))
     }
@@ -137,9 +136,9 @@ class UserApiTest : IntegrationTest() {
                 .statusCode(200)
                 .extract()
                 .jsonPath()
-                .getList(".", SimpleUserDto::class.java)
+                .getList(".", UserDto::class.java)
 
-        assertThat(response, containsInAnyOrder(Berufsbildner.toSimpleUserDto()))
+        assertThat(response, containsInAnyOrder(Berufsbildner.toDto()))
     }
 
     @Test
@@ -148,7 +147,7 @@ class UserApiTest : IntegrationTest() {
             .withAdmin()
             .accept("application/json")
             .contentType("application/json")
-            .body(SimpleUserDto(Lernender.email.value, Lernender.userName.value, UserRoleDto.APPRENTICE))
+            .body(UserCreateRequestDto(Lernender.email.value, Lernender.userName.value, UserRoleDto.APPRENTICE))
             .post("/api/admin/users")
             .then()
             .statusCode(HttpStatus.CONFLICT.value())

@@ -4,14 +4,11 @@ import ch.ergon.studentmarks.api.generated.dto.MarkDto
 import ch.ergon.studentmarks.api.generated.dto.MarkRequestDto
 import ch.ergon.studentmarks.api.generated.dto.MarkWithSubjectDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterRequestDto
-import ch.ergon.studentmarks.api.generated.dto.SimpleUserDto
 import ch.ergon.studentmarks.api.generated.dto.SubjectRequestDto
 import ch.ergon.studentmarks.api.mapper.toDto
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.semester.Semester
 import ch.ergon.studentmarks.domain.model.subject.Subject
-import ch.ergon.studentmarks.domain.model.user.SimpleUser
-import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.test.objects.TestSubjects
 
 fun Semester.toAddSemesterRequest(): SemesterRequestDto =
@@ -69,23 +66,3 @@ fun Mark.toMarkWithSubjectDto(): MarkWithSubjectDto {
         subject = subject.toDto(),
     )
 }
-
-/**
- * Test helper: converts a User to a SimpleUser domain object.
- */
-fun User.toSimpleUser(): SimpleUser =
-    SimpleUser(
-        email = email,
-        userName = userName,
-        role = role,
-    )
-
-/**
- * Test helper: converts a User to a SimpleUserDto.
- */
-fun User.toSimpleUserDto(): SimpleUserDto =
-    SimpleUserDto(
-        email = email.value,
-        userName = userName.value,
-        role = role.toDto(),
-    )

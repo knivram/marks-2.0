@@ -17,4 +17,4 @@ get:
           schema:
             type: array
             items:
-              $ref: "../../api.yaml#/components/schemas/SimpleUser"
+              $ref: "../../api.yaml#/components/schemas/User"

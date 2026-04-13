@@ -1,7 +1,6 @@
 package ch.ergon.studentmarks.domain.repository
 
 import ch.ergon.studentmarks.domain.model.user.Email
-import ch.ergon.studentmarks.domain.model.user.SimpleUser
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
 
@@ -14,7 +13,7 @@ interface UserRepository {
 
     fun findAll(searchQuery: String = ""): List<User>
 
-    fun create(simpleUser: SimpleUser): User
+    fun create(user: User): User
 
     fun update(
         userId: UserId,
@@ -31,9 +30,9 @@ interface UserRepository {
 
     fun findApprenticesForSupervisor(supervisor: User): List<User>
 
-    fun searchApprentices(searchQuery: String): List<SimpleUser>
+    fun searchApprentices(searchQuery: String): List<User>
 
-    fun searchSupervisors(searchQuery: String): List<SimpleUser>
+    fun searchSupervisors(searchQuery: String): List<User>
 
-    fun findSupervisorsWithNotificationsForApprentice(apprenticeId: UserId): List<SimpleUser>
+    fun findSupervisorsWithNotificationsForApprentice(apprenticeId: UserId): List<User>
 }

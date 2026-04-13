@@ -3,9 +3,10 @@ package ch.ergon.studentmarks.application.service
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPair
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPairId
 import ch.ergon.studentmarks.domain.model.user.Email
-import ch.ergon.studentmarks.domain.model.user.SimpleUser
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
+import ch.ergon.studentmarks.domain.model.user.UserName
+import ch.ergon.studentmarks.domain.model.user.UserRole
 import ch.ergon.studentmarks.domain.repository.ApprenticeSupervisorRepository
 import ch.ergon.studentmarks.domain.repository.UserRepository
 import ch.ergon.studentmarks.domain.exception.DeleteOwnUserException
@@ -40,8 +41,9 @@ class UserService(
     fun getUser(userId: UserId): User = userRepository.findById(userId)
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun addUser(simpleUser: SimpleUser) {
-        userRepository.create(simpleUser)
+    fun addUser(email: Email, userName: UserName, role: UserRole): User {
+        val user = User.create(email, userName, role)
+        return userRepository.create(user)
     }
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
@@ -78,10 +80,10 @@ class UserService(
     fun getApprentice(supervisorId: UserId): List<User> = userRepository.findApprenticesForSupervisor(getUser(supervisorId))
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun getMatchingApprentice(searchQuery: String): List<SimpleUser> = userRepository.searchApprentices(searchQuery)
+    fun getMatchingApprentice(searchQuery: String): List<User> = userRepository.searchApprentices(searchQuery)
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun getMatchingSupervisor(searchQuery: String): List<SimpleUser> = userRepository.searchSupervisors(searchQuery)
+    fun getMatchingSupervisor(searchQuery: String): List<User> = userRepository.searchSupervisors(searchQuery)
 
     @PreAuthorize("hasPermission(#supervisorId, 'IS_CURRENT_USER')")
     fun getApprenticeSupervisorPairs(supervisorId: UserId): List<ApprenticeSupervisorPair> =
@@ -104,6 +106,6 @@ class UserService(
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun deleteDeletedUser(userId: UserId): User = userRepository.permanentlyDelete(userId)
 
-    fun getNotificationEmailListForApprentice(apprenticeId: UserId): List<SimpleUser> =
+    fun getNotificationEmailListForApprentice(apprenticeId: UserId): List<User> =
         userRepository.findSupervisorsWithNotificationsForApprentice(apprenticeId)
 }

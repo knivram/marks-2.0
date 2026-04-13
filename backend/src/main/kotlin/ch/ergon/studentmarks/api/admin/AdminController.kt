@@ -6,9 +6,9 @@ import ch.ergon.studentmarks.api.generated.dto.ApprenticeSupervisorPairDto
 import ch.ergon.studentmarks.api.generated.dto.PaginatedSemesterListDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterRequestDto
-import ch.ergon.studentmarks.api.generated.dto.SimpleUserDto
 import ch.ergon.studentmarks.api.generated.dto.SubjectDto
 import ch.ergon.studentmarks.api.generated.dto.SubjectRequestDto
+import ch.ergon.studentmarks.api.generated.dto.UserCreateRequestDto
 import ch.ergon.studentmarks.api.generated.dto.UserDto
 import ch.ergon.studentmarks.api.mapper.toDomain
 import ch.ergon.studentmarks.api.mapper.toDto
@@ -22,6 +22,7 @@ import ch.ergon.studentmarks.domain.model.subject.SubjectId
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPairId
 import ch.ergon.studentmarks.domain.model.user.Email
 import ch.ergon.studentmarks.domain.model.user.UserId
+import ch.ergon.studentmarks.domain.model.user.UserName
 import ch.ergon.studentmarks.utils.UuidUtils
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.RestController
@@ -72,9 +73,13 @@ class AdminController(
     override fun adminReturnAllUsers(searchQuery: String): ResponseEntity<List<UserDto>> =
         ResponseEntity.ok(userService.getAllUser(searchQuery).map { it.toDto() })
 
-    override fun adminAddUser(body: SimpleUserDto): ResponseEntity<Unit> {
-        userService.addUser(body.toDomain())
-        return ResponseEntity.noContent().build()
+    override fun adminAddUser(body: UserCreateRequestDto): ResponseEntity<UserDto> {
+        val user = userService.addUser(
+            email = Email(body.email),
+            userName = UserName(body.userName),
+            role = body.role.toDomain(),
+        )
+        return ResponseEntity.ok(user.toDto())
     }
 
     override fun adminEditUser(
@@ -170,9 +175,9 @@ class AdminController(
 
     // --- Search ---
 
-    override fun adminSearchApprentices(searchQuery: String): ResponseEntity<List<SimpleUserDto>> =
+    override fun adminSearchApprentices(searchQuery: String): ResponseEntity<List<UserDto>> =
         ResponseEntity.ok(userService.getMatchingApprentice(searchQuery).map { it.toDto() })
 
-    override fun adminSearchSupervisors(searchQuery: String): ResponseEntity<List<SimpleUserDto>> =
+    override fun adminSearchSupervisors(searchQuery: String): ResponseEntity<List<UserDto>> =
         ResponseEntity.ok(userService.getMatchingSupervisor(searchQuery).map { it.toDto() })
 }

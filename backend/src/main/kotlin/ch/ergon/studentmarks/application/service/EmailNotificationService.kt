@@ -2,7 +2,6 @@ package ch.ergon.studentmarks.application.service
 
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkAverage
-import ch.ergon.studentmarks.domain.model.user.SimpleUser
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.infrastructure.email.EmailSender
 import ch.ergon.studentmarks.infrastructure.logging.Logger
@@ -32,7 +31,7 @@ class EmailNotificationService(
     ) {
         if (mark.value.value == null) return
 
-        val supervisors: List<SimpleUser> = userService.getNotificationEmailListForApprentice(apprentice.userId)
+        val supervisors: List<User> = userService.getNotificationEmailListForApprentice(apprentice.userId)
         if (supervisors.isEmpty()) return
 
         val context = Context()
@@ -66,7 +65,7 @@ class EmailNotificationService(
         oldAverageValue: Int,
         newAverageValue: Int,
     ) {
-        val supervisors: List<SimpleUser> = userService.getNotificationEmailListForApprentice(apprentice.userId)
+        val supervisors: List<User> = userService.getNotificationEmailListForApprentice(apprentice.userId)
         if (supervisors.isEmpty()) return
 
         val context = Context()
