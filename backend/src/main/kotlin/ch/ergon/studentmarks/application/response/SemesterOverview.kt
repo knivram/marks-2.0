@@ -1,4 +1,4 @@
-package ch.ergon.studentmarks.application.query.model
+package ch.ergon.studentmarks.application.response
 
 data class SemesterOverview(
     val vocationalSubjects: List<SubjectWithMarks>,

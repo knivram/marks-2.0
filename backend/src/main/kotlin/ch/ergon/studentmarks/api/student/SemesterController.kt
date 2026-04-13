@@ -9,8 +9,7 @@ import ch.ergon.studentmarks.api.generated.dto.SemesterDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterOverviewDto
 import ch.ergon.studentmarks.api.mapper.toDto
 import ch.ergon.studentmarks.api.mapper.toPaginatedSemesterListDto
-import ch.ergon.studentmarks.application.query.AgendaQueryService
-import ch.ergon.studentmarks.application.query.SemesterOverviewQueryService
+import ch.ergon.studentmarks.application.service.MarkService
 import ch.ergon.studentmarks.application.service.SemesterService
 import ch.ergon.studentmarks.application.service.UserService
 import ch.ergon.studentmarks.domain.model.semester.SemesterId
@@ -23,8 +22,7 @@ import java.util.UUID
 @RestController
 class SemesterController(
     private val semesterService: SemesterService,
-    private val overviewQueryService: SemesterOverviewQueryService,
-    private val agendaQueryService: AgendaQueryService,
+    private val markService: MarkService,
     private val userService: UserService,
 ) : StudentSemestersApi,
     AgendaApi {
@@ -47,7 +45,7 @@ class SemesterController(
         userId: UUID?,
     ): ResponseEntity<SemesterOverviewDto> {
         val resolvedUserId = userService.resolveUserId(userId?.let { UserId(it) })
-        val overview = overviewQueryService.getSemesterOverview(resolvedUserId, SemesterId(semesterId))
+        val overview = markService.getSemesterOverview(resolvedUserId, SemesterId(semesterId))
         return ResponseEntity.ok(overview.toDto())
     }
 
@@ -56,13 +54,13 @@ class SemesterController(
         userId: UUID?,
     ): ResponseEntity<DashboardAveragesDto> {
         val resolvedUserId = userService.resolveUserId(userId?.let { UserId(it) })
-        val averages = overviewQueryService.getDashboardAverages(resolvedUserId, SemesterId(semesterId))
+        val averages = markService.getDashboardAverages(resolvedUserId, SemesterId(semesterId))
         return ResponseEntity.ok(averages.toDto())
     }
 
     override fun getAgenda(userId: UUID?): ResponseEntity<AgendaDto> {
         val resolvedUserId = userService.resolveUserId(userId?.let { UserId(it) })
-        val agenda = agendaQueryService.getAgenda(resolvedUserId)
+        val agenda = markService.getAgenda(resolvedUserId)
         return ResponseEntity.ok(agenda.toDto())
     }
 }

@@ -1,4 +1,4 @@
-package ch.ergon.studentmarks.application.query.model
+package ch.ergon.studentmarks.application.response
 
 data class DashboardAverages(
     val vocationalSubjects: List<SubjectAverage>,

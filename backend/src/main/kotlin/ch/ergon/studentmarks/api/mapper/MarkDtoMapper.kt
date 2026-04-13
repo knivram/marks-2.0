@@ -8,12 +8,12 @@ import ch.ergon.studentmarks.api.generated.dto.MarkWithSubjectDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterOverviewDto
 import ch.ergon.studentmarks.api.generated.dto.SubjectAverage1Dto
 import ch.ergon.studentmarks.api.generated.dto.SubjectWithMarks1Dto
-import ch.ergon.studentmarks.application.query.model.Agenda
-import ch.ergon.studentmarks.application.query.model.DashboardAverages
-import ch.ergon.studentmarks.application.query.model.MarkWithSubject
-import ch.ergon.studentmarks.application.query.model.SemesterOverview
-import ch.ergon.studentmarks.application.query.model.SubjectAverage
-import ch.ergon.studentmarks.application.query.model.SubjectWithMarks
+import ch.ergon.studentmarks.application.response.Agenda
+import ch.ergon.studentmarks.application.response.DashboardAverages
+import ch.ergon.studentmarks.application.response.MarkWithSubject
+import ch.ergon.studentmarks.application.response.SemesterOverview
+import ch.ergon.studentmarks.application.response.SubjectAverage
+import ch.ergon.studentmarks.application.response.SubjectWithMarks
 import ch.ergon.studentmarks.domain.model.mark.MarkValue
 import org.openapitools.jackson.nullable.JsonNullable
 

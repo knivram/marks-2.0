@@ -1,4 +1,4 @@
-package ch.ergon.studentmarks.application.query.model
+package ch.ergon.studentmarks.application.response
 
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.subject.Subject

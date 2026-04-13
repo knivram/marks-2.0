@@ -1,18 +1,24 @@
 package ch.ergon.studentmarks.infrastructure.repository
 
+import ch.ergon.studentmarks.application.response.MarkWithSubject
+import ch.ergon.studentmarks.domain.exception.MarkNotFoundException
+import ch.ergon.studentmarks.domain.exception.UserNotFoundException
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkId
+import ch.ergon.studentmarks.domain.model.mark.MarkValue
 import ch.ergon.studentmarks.domain.model.semester.SemesterId
+import ch.ergon.studentmarks.domain.model.subject.Subject
 import ch.ergon.studentmarks.domain.model.subject.SubjectId
 import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.gen.Tables.MARK
+import ch.ergon.studentmarks.gen.Tables.SUBJECT
 import ch.ergon.studentmarks.infrastructure.repository.mapper.MarkRecordMapper.toMark
-import ch.ergon.studentmarks.domain.exception.MarkNotFoundException
-import ch.ergon.studentmarks.domain.exception.UserNotFoundException
 import org.jooq.DSLContext
+import org.jooq.Record
 import org.jooq.impl.DSL.inline
 import org.springframework.stereotype.Repository
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Repository
@@ -148,4 +154,83 @@ class JooqMarkRepository(
             .where(MARK.DELETED_TIME.lessThan(olderThan))
             .execute()
     }
+
+    override fun findWithSubjects(
+        userId: UserId,
+        semesterId: SemesterId,
+        subjectId: SubjectId?,
+    ): List<MarkWithSubject> {
+        var query =
+            dsl
+                .select(MARK.asterisk(), SUBJECT.asterisk())
+                .from(MARK)
+                .join(SUBJECT)
+                .on(MARK.SUBJECT_ID.eq(SUBJECT.ID))
+                .where(MARK.USER_ID.eq(userId.value))
+                .and(MARK.SEMESTER_ID.eq(semesterId.value))
+                .andNot(MARK.DELETED)
+
+        if (subjectId != null) {
+            query = query.and(MARK.SUBJECT_ID.eq(subjectId.value))
+        }
+
+        return query
+            .orderBy(SUBJECT.NAME, MARK.DATE)
+            .fetch()
+            .map { it.toMarkWithSubject() }
+    }
+
+    override fun findUpcomingExams(
+        userId: UserId,
+        asOf: LocalDate,
+    ): List<MarkWithSubject> =
+        dsl
+            .select(MARK.asterisk(), SUBJECT.asterisk())
+            .from(MARK)
+            .join(SUBJECT)
+            .on(MARK.SUBJECT_ID.eq(SUBJECT.ID))
+            .where(MARK.USER_ID.eq(userId.value))
+            .and(MARK.DATE.greaterOrEqual(asOf))
+            .andNot(MARK.DELETED)
+            .orderBy(MARK.DATE)
+            .fetch()
+            .map { it.toMarkWithSubject() }
+
+    override fun findPastExamsWithoutGrade(
+        userId: UserId,
+        asOf: LocalDate,
+    ): List<MarkWithSubject> =
+        dsl
+            .select(MARK.asterisk(), SUBJECT.asterisk())
+            .from(MARK)
+            .join(SUBJECT)
+            .on(MARK.SUBJECT_ID.eq(SUBJECT.ID))
+            .where(MARK.USER_ID.eq(userId.value))
+            .and(MARK.VALUE.isNull)
+            .and(MARK.DATE.lessThan(asOf))
+            .andNot(MARK.DELETED)
+            .orderBy(MARK.DATE)
+            .fetch()
+            .map { it.toMarkWithSubject() }
+
+    private fun Record.toMarkWithSubject(): MarkWithSubject =
+        MarkWithSubject(
+            mark =
+                Mark(
+                    id = MarkId(this[MARK.ID]),
+                    name = this[MARK.NAME],
+                    subjectId = SubjectId(this[MARK.SUBJECT_ID]),
+                    date = this[MARK.DATE],
+                    weight = this[MARK.WEIGHT],
+                    value = MarkValue(this[MARK.VALUE]),
+                    semesterId = SemesterId(this[MARK.SEMESTER_ID]),
+                ),
+            subject =
+                Subject(
+                    id = SubjectId(this[SUBJECT.ID]),
+                    name = this[SUBJECT.NAME],
+                    isVocationalModule = this[SUBJECT.IS_VOCATIONAL_MODULE],
+                    description = this[SUBJECT.DESCRIPTION],
+                ),
+        )
 }

@@ -4,7 +4,7 @@ import ch.ergon.studentmarks.api.generated.dto.ApprenticeSupervisorPairDto
 import ch.ergon.studentmarks.api.generated.dto.SimpleUserDto
 import ch.ergon.studentmarks.api.generated.dto.UserDto
 import ch.ergon.studentmarks.api.generated.dto.UserRoleDto
-import ch.ergon.studentmarks.application.query.model.ApprenticeSupervisorPairWithUsers
+import ch.ergon.studentmarks.application.response.ApprenticeSupervisorPairWithUsers
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPair
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPairId
 import ch.ergon.studentmarks.domain.model.user.Email

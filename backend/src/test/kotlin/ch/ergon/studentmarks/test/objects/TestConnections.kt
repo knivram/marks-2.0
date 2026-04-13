@@ -1,7 +1,7 @@
 package ch.ergon.studentmarks.test.objects
 
 import ch.ergon.studentmarks.api.mapper.toDto
-import ch.ergon.studentmarks.application.query.model.ApprenticeSupervisorPairWithUsers
+import ch.ergon.studentmarks.application.response.ApprenticeSupervisorPairWithUsers
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPair
 
 class TestConnections {

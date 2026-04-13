@@ -1,6 +1,11 @@
 package ch.ergon.studentmarks.application.service
 
-import ch.ergon.studentmarks.application.query.model.MarkWithSubject
+import ch.ergon.studentmarks.application.response.Agenda
+import ch.ergon.studentmarks.application.response.DashboardAverages
+import ch.ergon.studentmarks.application.response.MarkWithSubject
+import ch.ergon.studentmarks.application.response.SemesterOverview
+import ch.ergon.studentmarks.application.response.SubjectAverage
+import ch.ergon.studentmarks.application.response.SubjectWithMarks
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkId
 import ch.ergon.studentmarks.domain.model.mark.MarkValue
@@ -30,11 +35,8 @@ class MarkService(
         val newMark = markRepository.save(apprentice.userId, mark)
         val subject = subjectRepository.findById(newMark.subjectId)
 
-        // Calculate average for the email notification
         val allMarksForSubject = markRepository.findByUser(apprentice.userId, newMark.semesterId, newMark.subjectId)
-        val average =
-            ch.ergon.studentmarks.application.query.AverageCalculator
-                .weightedAverage(allMarksForSubject)
+        val average = AverageCalculator.weightedAverage(allMarksForSubject)
 
         emailNotificationService.sendAddMarkEmail(
             apprentice = apprentice,
@@ -52,17 +54,13 @@ class MarkService(
         val oldSubject = subjectRepository.findById(oldMark.subjectId)
 
         val oldMarksForSubject = markRepository.findByUser(user.userId, oldMark.semesterId, oldMark.subjectId)
-        val oldAverage =
-            ch.ergon.studentmarks.application.query.AverageCalculator
-                .weightedAverage(oldMarksForSubject)
+        val oldAverage = AverageCalculator.weightedAverage(oldMarksForSubject)
 
         val newMark = markRepository.update(user.userId, mark)
         val newSubject = subjectRepository.findById(newMark.subjectId)
 
         val newMarksForSubject = markRepository.findByUser(user.userId, newMark.semesterId, newMark.subjectId)
-        val newAverage =
-            ch.ergon.studentmarks.application.query.AverageCalculator
-                .weightedAverage(newMarksForSubject)
+        val newAverage = AverageCalculator.weightedAverage(newMarksForSubject)
 
         if (newMark.value !== oldMark.value) {
             emailNotificationService.sendEditMarkEmail(
@@ -114,6 +112,73 @@ class MarkService(
         val neededMark = (goalTotalMarks - sumWeightedValues) / goalWeight
 
         return MarkValue((neededMark * 1000).toInt())
+    }
+
+    @PreAuthorize(
+        "hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')",
+    )
+    fun getAgenda(userId: UserId): Agenda =
+        Agenda(
+            pastExamsWithoutGrade = markRepository.findPastExamsWithoutGrade(userId, timeUtils.now()),
+            upcomingExams = markRepository.findUpcomingExams(userId, timeUtils.now()),
+        )
+
+    @PreAuthorize(
+        "hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')",
+    )
+    fun getSemesterOverview(
+        userId: UserId,
+        semesterId: SemesterId,
+    ): SemesterOverview {
+        val marksWithSubjects = markRepository.findWithSubjects(userId, semesterId)
+        val bySubject = marksWithSubjects.groupBy { it.subject }
+
+        val subjectViews =
+            bySubject.map { (subject, items) ->
+                val marks = items.map { it.mark }
+                SubjectWithMarks(
+                    subject = subject,
+                    average = AverageCalculator.weightedAverage(marks),
+                    marks = marks,
+                )
+            }
+
+        val (vocational, general) = subjectViews.partition { it.subject.isVocationalModule }
+
+        return SemesterOverview(
+            vocationalSubjects = vocational,
+            generalSubjects = general,
+            vocationalAverage = AverageCalculator.groupAverage(vocational.map { it.average }),
+            generalAverage = AverageCalculator.groupAverage(general.map { it.average }),
+        )
+    }
+
+    @PreAuthorize(
+        "hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')",
+    )
+    fun getDashboardAverages(
+        userId: UserId,
+        semesterId: SemesterId,
+    ): DashboardAverages {
+        val marksWithSubjects = markRepository.findWithSubjects(userId, semesterId)
+        val bySubject = marksWithSubjects.groupBy { it.subject }
+
+        val subjectAverages =
+            bySubject.map { (subject, items) ->
+                SubjectAverage(
+                    subject = subject,
+                    average = AverageCalculator.weightedAverage(items.map { it.mark }),
+                )
+            }
+
+        val (vocational, general) = subjectAverages.partition { it.subject.isVocationalModule }
+
+        return DashboardAverages(
+            vocationalSubjects = vocational,
+            generalSubjects = general,
+            vocationalAverage = AverageCalculator.groupAverage(vocational.map { it.average }),
+            generalAverage = AverageCalculator.groupAverage(general.map { it.average }),
+        )
     }
 
     @Scheduled(fixedRate = 3_600_000)

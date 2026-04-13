@@ -107,7 +107,7 @@ class AdminController(
             pairs.map { pair ->
                 val apprentice = userService.getUser(pair.apprenticeId)
                 val supervisor = userService.getUser(pair.supervisorId)
-                ch.ergon.studentmarks.application.query.model
+                ch.ergon.studentmarks.application.response
                     .ApprenticeSupervisorPairWithUsers(
                         pair,
                         apprentice,
@@ -126,7 +126,7 @@ class AdminController(
         val apprentice = userService.getUser(pair.apprenticeId)
         val supervisor = userService.getUser(pair.supervisorId)
         return ResponseEntity.ok(
-            ch.ergon.studentmarks.application.query.model
+            ch.ergon.studentmarks.application.response
                 .ApprenticeSupervisorPairWithUsers(
                     pair,
                     apprentice,
@@ -147,7 +147,7 @@ class AdminController(
             freshPairs.map { pair ->
                 val apprentice = userService.getUser(pair.apprenticeId)
                 val supervisor = userService.getUser(pair.supervisorId)
-                ch.ergon.studentmarks.application.query.model
+                ch.ergon.studentmarks.application.response
                     .ApprenticeSupervisorPairWithUsers(pair, apprentice, supervisor)
                     .toDto()
             },
@@ -159,7 +159,7 @@ class AdminController(
         val apprentice = userService.getUser(pair.apprenticeId)
         val supervisor = userService.getUser(pair.supervisorId)
         return ResponseEntity.ok(
-            ch.ergon.studentmarks.application.query.model
+            ch.ergon.studentmarks.application.response
                 .ApprenticeSupervisorPairWithUsers(
                     pair,
                     apprentice,
