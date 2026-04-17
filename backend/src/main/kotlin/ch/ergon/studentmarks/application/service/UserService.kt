@@ -34,11 +34,11 @@ class UserService(
     fun resolveUserId(userId: UserId?): UserId = userId ?: getCurrentUser().userId
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun getAllUser(searchQuery: String): List<User> = userRepository.findAll(searchQuery)
+    fun getAllUser(searchQuery: String): List<User> = userRepository.getAll(searchQuery)
 
-    fun getUserByEmail(email: Email): User = userRepository.findByEmail(email)
+    fun getUserByEmail(email: Email): User = userRepository.getByEmail(email)
 
-    fun getUser(userId: UserId): User = userRepository.findById(userId)
+    fun getUser(userId: UserId): User = userRepository.getById(userId)
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun addUser(email: Email, userName: UserName, role: UserRole): User {
@@ -90,7 +90,7 @@ class UserService(
         apprenticeSupervisorRepository.findBySupervisor(supervisorId, getUser(supervisorId).isAdmin)
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun getAllConnections(): List<ApprenticeSupervisorPair> = apprenticeSupervisorRepository.findAll()
+    fun getAllConnections(): List<ApprenticeSupervisorPair> = apprenticeSupervisorRepository.getAll()
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun updateApprenticeSupervisorConnection(pair: ApprenticeSupervisorPair) {

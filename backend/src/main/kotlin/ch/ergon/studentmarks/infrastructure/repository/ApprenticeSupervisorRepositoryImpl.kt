@@ -99,7 +99,7 @@ class ApprenticeSupervisorRepositoryImpl(
             }
     }
 
-    override fun findAll(): List<ApprenticeSupervisorPair> {
+    override fun getAll(): List<ApprenticeSupervisorPair> {
         val result =
             dsl
                 .select(

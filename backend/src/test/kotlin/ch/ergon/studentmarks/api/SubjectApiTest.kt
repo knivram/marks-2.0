@@ -63,7 +63,7 @@ class SubjectApiTest : IntegrationTest() {
 
         assertThat(response, `is`(SpecialTestSubjects.AddSubject.toDto()))
 
-        val subjects = subjectRepository.findAll()
+        val subjects = subjectRepository.getAll()
 
         assertThat(subjects, containsInAnyOrder(*(SpecialTestSubjects.afterAddingSubject.toTypedArray())))
     }
@@ -84,7 +84,7 @@ class SubjectApiTest : IntegrationTest() {
 
         assertThat(response, `is`(SpecialTestSubjects.EditSubject.toDto()))
 
-        val subjects = subjectRepository.findAll()
+        val subjects = subjectRepository.getAll()
 
         assertThat(subjects, containsInAnyOrder(*(SpecialTestSubjects.afterEditingSubject.toTypedArray())))
     }

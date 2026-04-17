@@ -22,21 +22,21 @@ class SemesterRepoTest : IntegrationTest() {
 
     @Test
     fun getAllSemester() {
-        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
+        val semesters = semesterRepository.getAll(PaginationParams(0, 100))
 
         assertThat(semesters.pageEntries, `is`(TestSemester.semesters))
     }
 
     @Test
     fun get_semesters_with_limit() {
-        val semesters = semesterRepository.findAll(PaginationParams(0, 2))
+        val semesters = semesterRepository.getAll(PaginationParams(0, 2))
 
         assertThat(semesters.pageEntries, `is`(TestSemester.semesters.subList(0, 2)))
     }
 
     @Test
     fun get_semesters_with_limit_and_offset() {
-        val semesters = semesterRepository.findAll(PaginationParams(2, 2))
+        val semesters = semesterRepository.getAll(PaginationParams(2, 2))
 
         assertThat(semesters.pageEntries, `is`(TestSemester.semesters.subList(2, 4)))
     }
@@ -47,7 +47,7 @@ class SemesterRepoTest : IntegrationTest() {
 
         assertThat(semester, `is`(SpecialTestSemesters.AddSemester))
 
-        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
+        val semesters = semesterRepository.getAll(PaginationParams(0, 100))
 
         assertThat(semesters.pageEntries, `is`(SpecialTestSemesters.semestersAfterAdding))
     }
@@ -58,7 +58,7 @@ class SemesterRepoTest : IntegrationTest() {
 
         assertThat(semester, `is`(SpecialTestSemesters.EditSemester))
 
-        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
+        val semesters = semesterRepository.getAll(PaginationParams(0, 100))
 
         assertThat(semesters.pageEntries, `is`(SpecialTestSemesters.semestersAfterEditing))
     }

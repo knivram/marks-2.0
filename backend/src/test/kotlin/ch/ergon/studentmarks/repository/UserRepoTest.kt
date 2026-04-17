@@ -35,7 +35,7 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun getUser() {
-        val result = userRepository.findByEmail(Lernender.email)
+        val result = userRepository.getByEmail(Lernender.email)
 
         assertThat(result, `is`(Lernender))
     }
@@ -104,7 +104,7 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun get_all_users() {
-        val result = userRepository.findAll()
+        val result = userRepository.getAll()
         assertThat(result, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
     }
 
@@ -112,7 +112,7 @@ class UserRepoTest : IntegrationTest() {
     fun create_new_user() {
         val newUser = User.create(Email("marvin@ergon.ch"), UserName("kmarvin"), UserRole.APPRENTICE)
         val user = userRepository.create(newUser)
-        val result = userRepository.findAll()
+        val result = userRepository.getAll()
 
         assertThat(result, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray()), user))
     }
@@ -125,12 +125,12 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun delete_user() {
-        val usersBefore = userRepository.findAll()
+        val usersBefore = userRepository.getAll()
         assertThat(usersBefore, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
 
         userRepository.softDelete(UnusedUser.userId)
 
-        val users = userRepository.findAll()
+        val users = userRepository.getAll()
         val deletedUsers = userRepository.findDeleted()
         val testUsersWithoutDeletedOne = TestUser.AllUsers.filter { it.userId != UnusedUser.userId }
 
@@ -154,18 +154,18 @@ class UserRepoTest : IntegrationTest() {
         val deletedUsers = userRepository.findDeleted()
         assertThat(deletedUsers, empty())
 
-        val users = userRepository.findAll()
+        val users = userRepository.getAll()
         assertThat(users, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray()), DeletedUser))
     }
 
     @Test
     fun delete_and_restore_after() {
-        var users = userRepository.findAll()
+        var users = userRepository.getAll()
         assertThat(users, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
 
         userRepository.softDelete(UnusedUser.userId)
 
-        users = userRepository.findAll()
+        users = userRepository.getAll()
 
         val testUsersWithoutDeletedOne = TestUser.AllUsers.filter { it.userId != UnusedUser.userId }
 
@@ -173,7 +173,7 @@ class UserRepoTest : IntegrationTest() {
 
         userRepository.restore(UnusedUser.userId)
 
-        users = userRepository.findAll()
+        users = userRepository.getAll()
         assertThat(users, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
     }
 
@@ -184,7 +184,7 @@ class UserRepoTest : IntegrationTest() {
 
         userRepository.update(editedUserBoxi.userId, editedUserBoxi)
 
-        val user = userRepository.findById(Berufsbildner.userId)
+        val user = userRepository.getById(Berufsbildner.userId)
 
         assertThat(user.userName, `is`(editedUserBoxi.userName))
     }
@@ -212,7 +212,7 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun load_all_apprentice_supervisor_connections() {
-        val result = apprenticeSupervisorRepository.findAll()
+        val result = apprenticeSupervisorRepository.getAll()
 
         assertThat(result, containsInAnyOrder(*(TestConnections.connections.toTypedArray())))
     }
@@ -221,7 +221,7 @@ class UserRepoTest : IntegrationTest() {
     fun connect_apprentice_to_supervisor() {
         val connection = apprenticeSupervisorRepository.connect(Lernender.userId, Admin.userId)
 
-        val result = apprenticeSupervisorRepository.findAll()
+        val result = apprenticeSupervisorRepository.getAll()
 
         assertThat(
             result,
@@ -236,7 +236,7 @@ class UserRepoTest : IntegrationTest() {
     fun delete_apprenticeSupervisor_connection() {
         apprenticeSupervisorRepository.delete(TestConnections.connection1.id)
 
-        val result = apprenticeSupervisorRepository.findAll()
+        val result = apprenticeSupervisorRepository.getAll()
 
         val connectionListWithoutDeletedOne =
             TestConnections.connections.filter { it.id != TestConnections.connection1.id }

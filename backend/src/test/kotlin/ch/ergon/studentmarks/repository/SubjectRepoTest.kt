@@ -16,7 +16,7 @@ class SubjectRepoTest : IntegrationTest() {
 
     @Test
     fun getAllSubjects() {
-        val response = subjectRepository.findAll()
+        val response = subjectRepository.getAll()
 
         assertThat(response, containsInAnyOrder(*(TestSubjects.subjects.toTypedArray())))
     }
@@ -27,7 +27,7 @@ class SubjectRepoTest : IntegrationTest() {
 
         assertThat(response, `is`(SpecialTestSubjects.AddSubject))
 
-        val subjects = subjectRepository.findAll()
+        val subjects = subjectRepository.getAll()
         assertThat(subjects, containsInAnyOrder(*(SpecialTestSubjects.afterAddingSubject.toTypedArray())))
     }
 
@@ -37,7 +37,7 @@ class SubjectRepoTest : IntegrationTest() {
 
         assertThat(subject, `is`(SpecialTestSubjects.EditSubject))
 
-        val subjects = subjectRepository.findAll()
+        val subjects = subjectRepository.getAll()
 
         assertThat(subjects, containsInAnyOrder(*(SpecialTestSubjects.afterEditingSubject.toTypedArray())))
     }

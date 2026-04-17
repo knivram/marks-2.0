@@ -82,7 +82,7 @@ class UserServiceTest : IntegrationTest() {
         val marks = markRepository.findByUser(UnusedUser.userId)
         assertThat(marks, containsInAnyOrder(*(UnusedUserMarks.marks.toTypedArray())))
 
-        val users = userRepository.findAll()
+        val users = userRepository.getAll()
 
         assertThat(users, containsInAnyOrder(*(TestUser.AllUsers.toTypedArray())))
     }

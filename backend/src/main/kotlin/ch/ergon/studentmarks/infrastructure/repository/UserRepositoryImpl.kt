@@ -20,7 +20,7 @@ import ch.ergon.studentmarks.gen.enums.UserRole as DBUserRole
 class UserRepositoryImpl(
     private val dsl: DSLContext,
 ) : UserRepository {
-    override fun findById(userId: UserId): User =
+    override fun getById(userId: UserId): User =
         dsl
             .selectFrom(USER)
             .where(USER.ID.eq(userId.value))
@@ -29,7 +29,7 @@ class UserRepositoryImpl(
             ?.toUser()
             ?: throw UserNotFoundException(userId.value.toString())
 
-    override fun findByEmail(email: Email): User =
+    override fun getByEmail(email: Email): User =
         dsl
             .selectFrom(USER)
             .where(USER.EMAIL.eq(email.value))
@@ -38,7 +38,7 @@ class UserRepositoryImpl(
             ?.toUser()
             ?: throw UserNotFoundException(email.value)
 
-    override fun findByEmailOrNull(email: Email): User? =
+    override fun findByEmail(email: Email): User? =
         dsl
             .selectFrom(USER)
             .where(USER.EMAIL.eq(email.value))
@@ -46,7 +46,7 @@ class UserRepositoryImpl(
             .fetchOne()
             ?.toUser()
 
-    override fun findAll(searchQuery: String): List<User> =
+    override fun getAll(searchQuery: String): List<User> =
         dsl
             .select(USER.asterisk())
             .from(USER)

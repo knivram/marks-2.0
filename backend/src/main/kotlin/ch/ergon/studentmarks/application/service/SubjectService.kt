@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service
 class SubjectService(
     private val subjectRepository: SubjectRepository,
 ) {
-    fun getAllSubjects(): List<Subject> = subjectRepository.findAll()
+    fun getAllSubjects(): List<Subject> = subjectRepository.getAll()
 
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     fun editSubject(subject: Subject): Subject = subjectRepository.update(subject)

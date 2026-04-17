@@ -4,9 +4,9 @@ import ch.ergon.studentmarks.domain.model.subject.Subject
 import ch.ergon.studentmarks.domain.model.subject.SubjectId
 
 interface SubjectRepository {
-    fun findAll(): List<Subject>
+    fun getAll(): List<Subject>
 
-    fun findById(subjectId: SubjectId): Subject
+    fun getById(subjectId: SubjectId): Subject
 
     fun save(subject: Subject): Subject
 

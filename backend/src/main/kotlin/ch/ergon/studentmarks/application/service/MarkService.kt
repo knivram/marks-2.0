@@ -33,7 +33,7 @@ class MarkService(
     fun addNewMark(mark: Mark): MarkWithSubject {
         val apprentice = userService.getCurrentUser()
         val newMark = markRepository.save(apprentice.userId, mark)
-        val subject = subjectRepository.findById(newMark.subjectId)
+        val subject = subjectRepository.getById(newMark.subjectId)
 
         val allMarksForSubject = markRepository.findByUser(apprentice.userId, newMark.semesterId, newMark.subjectId)
         val average = AverageCalculator.weightedAverage(allMarksForSubject)
@@ -50,14 +50,14 @@ class MarkService(
     @PreAuthorize("hasPermission(#mark.id, 'IS_OWNER_OF')")
     fun editMark(mark: Mark): MarkWithSubject {
         val user = userService.getCurrentUser()
-        val oldMark = markRepository.findById(mark.id)
-        val oldSubject = subjectRepository.findById(oldMark.subjectId)
+        val oldMark = markRepository.getById(mark.id)
+        val oldSubject = subjectRepository.getById(oldMark.subjectId)
 
         val oldMarksForSubject = markRepository.findByUser(user.userId, oldMark.semesterId, oldMark.subjectId)
         val oldAverage = AverageCalculator.weightedAverage(oldMarksForSubject)
 
         val newMark = markRepository.update(user.userId, mark)
-        val newSubject = subjectRepository.findById(newMark.subjectId)
+        val newSubject = subjectRepository.getById(newMark.subjectId)
 
         val newMarksForSubject = markRepository.findByUser(user.userId, newMark.semesterId, newMark.subjectId)
         val newAverage = AverageCalculator.weightedAverage(newMarksForSubject)
@@ -84,7 +84,7 @@ class MarkService(
     @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF') or hasRole('ROLE_ADMIN')")
     fun restoreMark(markId: MarkId): MarkWithSubject {
         val mark = markRepository.restore(markId)
-        val subject = subjectRepository.findById(mark.subjectId)
+        val subject = subjectRepository.getById(mark.subjectId)
         return MarkWithSubject(mark, subject)
     }
 

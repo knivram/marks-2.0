@@ -14,7 +14,7 @@ class SemesterService(
     private val semesterRepository: SemesterRepository,
     private val timeUtils: TimeUtils,
 ) {
-    fun getAllSemester(paginationParams: PaginationParams): PaginatedList<Semester> = semesterRepository.findAll(paginationParams)
+    fun getAllSemester(paginationParams: PaginationParams): PaginatedList<Semester> = semesterRepository.getAll(paginationParams)
 
     @PreAuthorize(
         "hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')",

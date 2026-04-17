@@ -5,13 +5,13 @@ import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
 
 interface UserRepository {
-    fun findById(userId: UserId): User
+    fun getById(userId: UserId): User
 
-    fun findByEmail(email: Email): User
+    fun getByEmail(email: Email): User
 
-    fun findByEmailOrNull(email: Email): User?
+    fun findByEmail(email: Email): User?
 
-    fun findAll(searchQuery: String = ""): List<User>
+    fun getAll(searchQuery: String = ""): List<User>
 
     fun create(user: User): User
 

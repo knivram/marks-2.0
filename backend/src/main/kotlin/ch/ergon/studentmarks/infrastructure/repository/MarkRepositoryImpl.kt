@@ -25,7 +25,7 @@ import java.time.LocalDateTime
 class MarkRepositoryImpl(
     private val dsl: DSLContext,
 ) : MarkRepository {
-    override fun findById(markId: MarkId): Mark =
+    override fun getById(markId: MarkId): Mark =
         dsl
             .selectFrom(MARK)
             .where(MARK.ID.eq(markId.value))
@@ -74,7 +74,7 @@ class MarkRepositoryImpl(
             .set(MARK.SEMESTER_ID, mark.semesterId.value)
             .execute()
 
-        return findById(mark.id)
+        return getById(mark.id)
     }
 
     override fun update(
@@ -94,7 +94,7 @@ class MarkRepositoryImpl(
             .where(MARK.ID.eq(mark.id.value))
             .execute()
 
-        return findById(mark.id)
+        return getById(mark.id)
     }
 
     override fun softDelete(markId: MarkId) {
@@ -125,7 +125,7 @@ class MarkRepositoryImpl(
             .returning(MARK.asterisk())
             .fetchOne()!!
 
-        return findById(markId)
+        return getById(markId)
     }
 
     override fun findDeleted(userId: UserId): List<Mark> =

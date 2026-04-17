@@ -105,7 +105,7 @@ class SemesterApiTest : IntegrationTest() {
 
         assertThat(semester, `is`(SpecialTestSemesters.AddSemester))
 
-        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
+        val semesters = semesterRepository.getAll(PaginationParams(0, 100))
 
         assertThat(semesters.pageEntries, `is`(SpecialTestSemesters.semestersAfterAdding))
     }
@@ -127,7 +127,7 @@ class SemesterApiTest : IntegrationTest() {
 
         assertThat(semester, `is`(SpecialTestSemesters.EditSemester))
 
-        val semesters = semesterRepository.findAll(PaginationParams(0, 100))
+        val semesters = semesterRepository.getAll(PaginationParams(0, 100))
 
         assertThat(semesters.pageEntries, `is`(SpecialTestSemesters.semestersAfterEditing))
     }

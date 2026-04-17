@@ -17,7 +17,7 @@ import java.time.LocalDate
 class SemesterRepositoryImpl(
     private val dsl: DSLContext,
 ) : SemesterRepository {
-    override fun findAll(paginationParams: PaginationParams): PaginatedList<Semester> {
+    override fun getAll(paginationParams: PaginationParams): PaginatedList<Semester> {
         val semesters =
             dsl
                 .selectFrom(SEMESTER)
@@ -31,7 +31,7 @@ class SemesterRepositoryImpl(
         return PaginatedList(total, semesters)
     }
 
-    override fun findById(semesterId: SemesterId): Semester =
+    override fun getById(semesterId: SemesterId): Semester =
         dsl
             .selectFrom(SEMESTER)
             .where(SEMESTER.ID.eq(semesterId.value))

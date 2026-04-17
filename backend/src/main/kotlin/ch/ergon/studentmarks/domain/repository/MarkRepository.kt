@@ -10,7 +10,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface MarkRepository {
-    fun findById(markId: MarkId): Mark
+    fun getById(markId: MarkId): Mark
 
     fun findByUser(
         userId: UserId,

@@ -8,9 +8,9 @@ import ch.ergon.studentmarks.domain.model.user.UserId
 import java.time.LocalDate
 
 interface SemesterRepository {
-    fun findAll(paginationParams: PaginationParams): PaginatedList<Semester>
+    fun getAll(paginationParams: PaginationParams): PaginatedList<Semester>
 
-    fun findById(semesterId: SemesterId): Semester
+    fun getById(semesterId: SemesterId): Semester
 
     fun save(semester: Semester): Semester
 

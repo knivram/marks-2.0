@@ -13,14 +13,14 @@ import org.springframework.stereotype.Repository
 class SubjectRepositoryImpl(
     private val dsl: DSLContext,
 ) : SubjectRepository {
-    override fun findAll(): List<Subject> =
+    override fun getAll(): List<Subject> =
         dsl
             .selectFrom(SUBJECT)
             .orderBy(SUBJECT.NAME)
             .fetch()
             .map { it.toSubject() }
 
-    override fun findById(subjectId: SubjectId): Subject =
+    override fun getById(subjectId: SubjectId): Subject =
         dsl
             .selectFrom(SUBJECT)
             .where(SUBJECT.ID.eq(subjectId.value))
