@@ -1,6 +1,6 @@
 delete:
   tags: [Admin]
-  operationId: adminDeleteConnection
+  operationId: deleteConnection
   summary: Delete an apprentice-supervisor connection
   parameters:
     - name: connectionId

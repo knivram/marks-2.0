@@ -1,6 +1,6 @@
 put:
   tags: [Admin]
-  operationId: adminEditSubject
+  operationId: editSubject
   summary: Edit an existing subject
   parameters:
     - name: subjectId

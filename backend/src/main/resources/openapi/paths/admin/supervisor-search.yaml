@@ -1,6 +1,6 @@
 get:
   tags: [Admin]
-  operationId: adminSearchSupervisors
+  operationId: searchSupervisors
   summary: Search for supervisors by email
   parameters:
     - name: searchQuery

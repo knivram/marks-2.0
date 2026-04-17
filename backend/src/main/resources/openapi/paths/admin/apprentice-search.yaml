@@ -1,6 +1,6 @@
 get:
   tags: [Admin]
-  operationId: adminSearchApprentices
+  operationId: searchApprentices
   summary: Search for apprentices by email
   parameters:
     - name: searchQuery

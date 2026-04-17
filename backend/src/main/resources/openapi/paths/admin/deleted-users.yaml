@@ -1,6 +1,6 @@
 get:
   tags: [Admin]
-  operationId: adminGetDeletedUsers
+  operationId: getDeletedUsers
   summary: Get all soft-deleted users
   responses:
     '200':

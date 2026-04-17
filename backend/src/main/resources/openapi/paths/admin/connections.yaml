@@ -1,6 +1,6 @@
 get:
   tags: [Admin]
-  operationId: adminGetConnections
+  operationId: getConnections
   summary: Get apprentice-supervisor connections
   parameters:
     - name: supervisor-id
@@ -20,7 +20,7 @@ get:
               $ref: "../../api.yaml#/components/schemas/ApprenticeSupervisorPair"
 post:
   tags: [Admin]
-  operationId: adminConnect
+  operationId: connect
   summary: Connect apprentice to supervisor
   requestBody:
     required: true
@@ -37,7 +37,7 @@ post:
             $ref: "../../api.yaml#/components/schemas/ApprenticeSupervisorPair"
 put:
   tags: [Admin]
-  operationId: adminUpdateConnections
+  operationId: updateConnections
   summary: Update multiple apprentice-supervisor connections
   requestBody:
     required: true

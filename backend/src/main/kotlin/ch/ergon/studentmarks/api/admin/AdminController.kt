@@ -37,22 +37,22 @@ class AdminController(
 ) : AdminApi {
     // --- Subjects ---
 
-    override fun adminGetAllSubjects(): ResponseEntity<List<SubjectDto>> =
+    override fun getAllSubjects(): ResponseEntity<List<SubjectDto>> =
         ResponseEntity.ok(subjectService.getAllSubjects().map { it.toDto() })
 
-    override fun adminAddSubject(body: SubjectRequestDto): ResponseEntity<SubjectDto> {
+    override fun addSubject(body: SubjectRequestDto): ResponseEntity<SubjectDto> {
         val subject = body.toDomain(SubjectId(uuidUtils.randomUUID()))
         return ResponseEntity.ok(subjectService.addSubject(subject).toDto())
     }
 
-    override fun adminEditSubject(
+    override fun editSubject(
         subjectId: UUID,
         body: SubjectRequestDto,
     ): ResponseEntity<SubjectDto> = ResponseEntity.ok(subjectService.editSubject(body.toDomain(SubjectId(subjectId))).toDto())
 
     // --- Semesters ---
 
-    override fun adminGetAllSemesters(
+    override fun getAllSemesters(
         offset: Int,
         limit: Int,
     ): ResponseEntity<PaginatedSemesterListDto> {
@@ -60,20 +60,20 @@ class AdminController(
         return ResponseEntity.ok(paginatedList.toPaginatedSemesterListDto(offset))
     }
 
-    override fun adminAddSemester(body: SemesterRequestDto): ResponseEntity<SemesterDto> =
+    override fun addSemester(body: SemesterRequestDto): ResponseEntity<SemesterDto> =
         ResponseEntity.ok(semesterService.addSemester(body.toDomain(SemesterId(uuidUtils.randomUUID()))).toDto())
 
-    override fun adminEditSemester(
+    override fun editSemester(
         semesterId: UUID,
         body: SemesterRequestDto,
     ): ResponseEntity<SemesterDto> = ResponseEntity.ok(semesterService.editSemester(body.toDomain(SemesterId(semesterId))).toDto())
 
     // --- Users ---
 
-    override fun adminReturnAllUsers(searchQuery: String): ResponseEntity<List<UserDto>> =
+    override fun returnAllUsers(searchQuery: String): ResponseEntity<List<UserDto>> =
         ResponseEntity.ok(userService.getAllUser(searchQuery).map { it.toDto() })
 
-    override fun adminAddUser(body: UserCreateRequestDto): ResponseEntity<UserDto> {
+    override fun addUser(body: UserCreateRequestDto): ResponseEntity<UserDto> {
         val user = userService.addUser(
             email = Email(body.email),
             userName = UserName(body.userName),
@@ -82,24 +82,24 @@ class AdminController(
         return ResponseEntity.ok(user.toDto())
     }
 
-    override fun adminEditUser(
+    override fun editUser(
         userId: UUID,
         userDto: UserDto,
     ): ResponseEntity<UserDto> = ResponseEntity.ok(userService.editUser(UserId(userId), userDto.toDomain()).toDto())
 
-    override fun adminDeleteUser(userId: UUID): ResponseEntity<UserDto> = ResponseEntity.ok(userService.deleteUser(UserId(userId)).toDto())
+    override fun deleteUser(userId: UUID): ResponseEntity<UserDto> = ResponseEntity.ok(userService.deleteUser(UserId(userId)).toDto())
 
-    override fun adminRestoreUser(userId: UUID): ResponseEntity<UserDto> =
+    override fun restoreUser(userId: UUID): ResponseEntity<UserDto> =
         ResponseEntity.ok(userService.restoreUser(UserId(userId)).toDto())
 
-    override fun adminGetDeletedUsers(): ResponseEntity<List<UserDto>> = ResponseEntity.ok(userService.getDeletedUsers().map { it.toDto() })
+    override fun getDeletedUsers(): ResponseEntity<List<UserDto>> = ResponseEntity.ok(userService.getDeletedUsers().map { it.toDto() })
 
-    override fun adminDeleteDeletedUser(userId: UUID): ResponseEntity<UserDto> =
+    override fun deleteDeletedUser(userId: UUID): ResponseEntity<UserDto> =
         ResponseEntity.ok(userService.deleteDeletedUser(UserId(userId)).toDto())
 
     // --- Connections ---
 
-    override fun adminGetConnections(supervisorId: String): ResponseEntity<List<ApprenticeSupervisorPairDto>> {
+    override fun getConnections(supervisorId: String): ResponseEntity<List<ApprenticeSupervisorPairDto>> {
         val pairs =
             if (supervisorId.isBlank()) {
                 userService.getAllConnections()
@@ -122,7 +122,7 @@ class AdminController(
         )
     }
 
-    override fun adminConnect(body: ApprenticeConnectRequestDto): ResponseEntity<ApprenticeSupervisorPairDto> {
+    override fun connect(body: ApprenticeConnectRequestDto): ResponseEntity<ApprenticeSupervisorPairDto> {
         val pair =
             userService.connectApprenticeToSupervisor(
                 Email(body.apprenticeEmail),
@@ -140,7 +140,7 @@ class AdminController(
         )
     }
 
-    override fun adminUpdateConnections(
+    override fun updateConnections(
         apprenticeSupervisorPairDto: List<ApprenticeSupervisorPairDto>,
     ): ResponseEntity<List<ApprenticeSupervisorPairDto>> {
         apprenticeSupervisorPairDto.forEach {
@@ -159,7 +159,7 @@ class AdminController(
         )
     }
 
-    override fun adminDeleteConnection(connectionId: UUID): ResponseEntity<ApprenticeSupervisorPairDto> {
+    override fun deleteConnection(connectionId: UUID): ResponseEntity<ApprenticeSupervisorPairDto> {
         val pair = userService.deleteConnection(ApprenticeSupervisorPairId(connectionId))
         val apprentice = userService.getUser(pair.apprenticeId)
         val supervisor = userService.getUser(pair.supervisorId)
@@ -175,9 +175,9 @@ class AdminController(
 
     // --- Search ---
 
-    override fun adminSearchApprentices(searchQuery: String): ResponseEntity<List<UserDto>> =
+    override fun searchApprentices(searchQuery: String): ResponseEntity<List<UserDto>> =
         ResponseEntity.ok(userService.getMatchingApprentice(searchQuery).map { it.toDto() })
 
-    override fun adminSearchSupervisors(searchQuery: String): ResponseEntity<List<UserDto>> =
+    override fun searchSupervisors(searchQuery: String): ResponseEntity<List<UserDto>> =
         ResponseEntity.ok(userService.getMatchingSupervisor(searchQuery).map { it.toDto() })
 }

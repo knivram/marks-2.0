@@ -1,6 +1,6 @@
 get:
   tags: [Admin]
-  operationId: adminGetAllSubjects
+  operationId: getAllSubjects
   summary: Get all subjects
   responses:
     '200':
@@ -13,7 +13,7 @@ get:
               $ref: "../../api.yaml#/components/schemas/Subject"
 post:
   tags: [Admin]
-  operationId: adminAddSubject
+  operationId: addSubject
   summary: Create a new subject
   requestBody:
     required: true

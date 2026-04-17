@@ -1,6 +1,6 @@
 get:
   tags: [Admin]
-  operationId: adminReturnAllUsers
+  operationId: returnAllUsers
   summary: Get all users with optional search
   parameters:
     - name: searchQuery
@@ -20,7 +20,7 @@ get:
               $ref: "../../api.yaml#/components/schemas/User"
 post:
   tags: [Admin]
-  operationId: adminAddUser
+  operationId: addUser
   summary: Create a new user
   requestBody:
     required: true

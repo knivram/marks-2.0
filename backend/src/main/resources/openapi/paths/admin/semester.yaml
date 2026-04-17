@@ -1,6 +1,6 @@
 put:
   tags: [Admin]
-  operationId: adminEditSemester
+  operationId: editSemester
   summary: Edit an existing semester
   parameters:
     - name: semesterId

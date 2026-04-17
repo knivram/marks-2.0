@@ -1,6 +1,6 @@
 put:
   tags: [Admin]
-  operationId: adminEditUser
+  operationId: editUser
   summary: Edit an existing user
   parameters:
     - name: userId
@@ -24,7 +24,7 @@ put:
             $ref: "../../api.yaml#/components/schemas/User"
 delete:
   tags: [Admin]
-  operationId: adminDeleteUser
+  operationId: deleteUser
   summary: Soft delete a user
   parameters:
     - name: userId

@@ -1,6 +1,6 @@
 delete:
   tags: [Admin]
-  operationId: adminDeleteDeletedUser
+  operationId: deleteDeletedUser
   summary: Permanently delete a soft-deleted user
   parameters:
     - name: userId
