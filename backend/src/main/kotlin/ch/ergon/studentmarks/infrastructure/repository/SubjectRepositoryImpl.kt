@@ -10,7 +10,7 @@ import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 
 @Repository
-class JooqSubjectRepository(
+class SubjectRepositoryImpl(
     private val dsl: DSLContext,
 ) : SubjectRepository {
     override fun findAll(): List<Subject> =

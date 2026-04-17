@@ -14,7 +14,7 @@ import org.springframework.stereotype.Repository
 import java.time.LocalDate
 
 @Repository
-class JooqSemesterRepository(
+class SemesterRepositoryImpl(
     private val dsl: DSLContext,
 ) : SemesterRepository {
     override fun findAll(paginationParams: PaginationParams): PaginatedList<Semester> {

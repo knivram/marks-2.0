@@ -17,7 +17,7 @@ import java.time.LocalDateTime
 import ch.ergon.studentmarks.gen.enums.UserRole as DBUserRole
 
 @Repository
-class JooqUserRepository(
+class UserRepositoryImpl(
     private val dsl: DSLContext,
 ) : UserRepository {
     override fun findById(userId: UserId): User =

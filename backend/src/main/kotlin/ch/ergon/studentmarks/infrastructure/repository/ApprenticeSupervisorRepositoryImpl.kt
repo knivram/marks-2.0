@@ -14,7 +14,7 @@ import java.util.UUID
 import ch.ergon.studentmarks.gen.enums.UserRole as DBUserRole
 
 @Repository
-class JooqApprenticeSupervisorRepository(
+class ApprenticeSupervisorRepositoryImpl(
     private val dsl: DSLContext,
     private val uuidUtils: UuidUtils,
 ) : ApprenticeSupervisorRepository {

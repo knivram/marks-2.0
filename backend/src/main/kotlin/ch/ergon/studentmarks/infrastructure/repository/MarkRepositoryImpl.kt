@@ -22,7 +22,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Repository
-class JooqMarkRepository(
+class MarkRepositoryImpl(
     private val dsl: DSLContext,
 ) : MarkRepository {
     override fun findById(markId: MarkId): Mark =
