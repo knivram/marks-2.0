@@ -1,0 +1,13 @@
+type: object
+required:
+  - pastExamsWithoutGrade
+  - upcomingExams
+properties:
+  pastExamsWithoutGrade:
+    type: array
+    items:
+      $ref: "../../api.yaml#/components/schemas/MarkWithSubject"
+  upcomingExams:
+    type: array
+    items:
+      $ref: "../../api.yaml#/components/schemas/MarkWithSubject"

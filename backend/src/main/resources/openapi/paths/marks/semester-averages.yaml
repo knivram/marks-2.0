@@ -1,0 +1,24 @@
+get:
+  tags: [Marks]
+  operationId: getSemesterAverages
+  summary: Get dashboard averages for a semester
+  parameters:
+    - name: semesterId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+    - name: userId
+      in: query
+      required: false
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: Dashboard averages
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/DashboardAverages"

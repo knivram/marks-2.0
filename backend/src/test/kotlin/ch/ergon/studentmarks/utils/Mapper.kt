@@ -53,6 +53,7 @@ fun Mark.toMarkRequestDto(): MarkRequestDto =
         date = date,
         weight = weight,
         value = value.value,
+        semesterId = semesterId.value,
     )
 
 /**

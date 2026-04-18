@@ -16,6 +16,7 @@ import ch.ergon.studentmarks.test.objects.TestMarks
 import ch.ergon.studentmarks.test.objects.TestSubjects
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Berufsbildner
 import ch.ergon.studentmarks.utils.TimeUtils
+import ch.ergon.studentmarks.utils.UuidUtils
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyList
@@ -54,6 +55,9 @@ class EmailTest : IntegrationTest() {
     @Autowired
     private lateinit var templateEngine: TemplateEngine
 
+    @Autowired
+    private lateinit var uuidUtils: UuidUtils
+
     @BeforeEach
     fun initMockData() {
         emailSender = mock(EmailSender::class.java)
@@ -70,6 +74,7 @@ class EmailTest : IntegrationTest() {
                 userService = userService,
                 timeUtils = timeUtils,
                 emailNotificationService = emailNotificationService,
+                uuidUtils = uuidUtils,
             )
     }
 
@@ -86,7 +91,14 @@ class EmailTest : IntegrationTest() {
                 MarkValue(5450),
                 SemesterId("e9b6a70e-87cd-464b-97a6-bd15c611bcdd"),
             )
-        markService.addNewMark(mark)
+        markService.addNewMark(
+            name = mark.name,
+            subjectId = mark.subjectId,
+            date = mark.date,
+            weight = mark.weight,
+            value = mark.value,
+            semesterId = mark.semesterId,
+        )
 
         verify(emailSender).sendMail(eq("Neue Note"), anyString(), anyList())
         verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner)))
@@ -122,7 +134,14 @@ class EmailTest : IntegrationTest() {
                 MarkValue(null),
                 SemesterId("e9b6a70e-87cd-464b-97a6-bd15c611bcdd"),
             )
-        markService.addNewMark(mark)
+        markService.addNewMark(
+            name = mark.name,
+            subjectId = mark.subjectId,
+            date = mark.date,
+            weight = mark.weight,
+            value = mark.value,
+            semesterId = mark.semesterId,
+        )
 
         verifyNoInteractions(emailSender)
     }
@@ -132,7 +151,15 @@ class EmailTest : IntegrationTest() {
     fun edite_mark_will_send_email_notification() {
         val oldMark = TestMarks.Companion.LernenderMarks.math1
         val newMark = TestMarks.Companion.SpecialMarks.EditedMathMark
-        markService.editMark(newMark)
+        markService.editMark(
+            markId = newMark.id,
+            name = newMark.name,
+            subjectId = newMark.subjectId,
+            date = newMark.date,
+            weight = newMark.weight,
+            value = newMark.value,
+            semesterId = newMark.semesterId,
+        )
 
         verify(emailSender).sendMail(anyString(), anyString(), eq(listOf(Berufsbildner)))
         verify(emailSender).sendMail(eq("Note geändert"), anyString(), anyList())

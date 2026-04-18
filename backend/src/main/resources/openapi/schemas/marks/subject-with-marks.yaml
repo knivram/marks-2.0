@@ -1,0 +1,15 @@
+type: object
+required:
+  - subject
+  - marks
+properties:
+  subject:
+    $ref: "../../api.yaml#/components/schemas/Subject"
+  average:
+    type: number
+    format: double
+    nullable: true
+  marks:
+    type: array
+    items:
+      $ref: "../../api.yaml#/components/schemas/Mark"

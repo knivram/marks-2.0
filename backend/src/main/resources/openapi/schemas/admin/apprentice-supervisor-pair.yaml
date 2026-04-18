@@ -1,0 +1,16 @@
+type: object
+required:
+  - id
+  - apprentice
+  - supervisor
+  - emailNotification
+properties:
+  id:
+    type: string
+    format: uuid
+  apprentice:
+    $ref: "../../api.yaml#/components/schemas/User"
+  supervisor:
+    $ref: "../../api.yaml#/components/schemas/User"
+  emailNotification:
+    type: boolean

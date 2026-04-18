@@ -15,10 +15,12 @@ import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.domain.repository.SubjectRepository
 import ch.ergon.studentmarks.utils.TimeUtils
+import ch.ergon.studentmarks.utils.UuidUtils
 import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service
@@ -29,9 +31,26 @@ class MarkService(
     private val userService: UserService,
     private val timeUtils: TimeUtils,
     private val emailNotificationService: EmailNotificationService,
+    private val uuidUtils: UuidUtils,
 ) {
-    fun addNewMark(mark: Mark): MarkWithSubject {
+    fun addNewMark(
+        name: String,
+        subjectId: SubjectId,
+        date: LocalDate,
+        weight: Int,
+        value: MarkValue,
+        semesterId: SemesterId,
+    ): MarkWithSubject {
         val apprentice = userService.getCurrentUser()
+        val mark = Mark(
+            id = MarkId(uuidUtils.randomUUID()),
+            name = name,
+            subjectId = subjectId,
+            date = date,
+            weight = weight,
+            value = value,
+            semesterId = semesterId,
+        )
         val newMark = markRepository.save(apprentice.userId, mark)
         val subject = subjectRepository.getById(newMark.subjectId)
 
@@ -47,15 +66,31 @@ class MarkService(
         return MarkWithSubject(newMark, subject)
     }
 
-    @PreAuthorize("hasPermission(#mark.id, 'IS_OWNER_OF')")
-    fun editMark(mark: Mark): MarkWithSubject {
+    @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF')")
+    fun editMark(
+        markId: MarkId,
+        name: String,
+        subjectId: SubjectId,
+        date: LocalDate,
+        weight: Int,
+        value: MarkValue,
+        semesterId: SemesterId,
+    ): MarkWithSubject {
         val user = userService.getCurrentUser()
-        val oldMark = markRepository.getById(mark.id)
+        val oldMark = markRepository.getById(markId)
         val oldSubject = subjectRepository.getById(oldMark.subjectId)
 
         val oldMarksForSubject = markRepository.findByUser(user.userId, oldMark.semesterId, oldMark.subjectId)
         val oldAverage = AverageCalculator.weightedAverage(oldMarksForSubject)
 
+        val mark = oldMark.copy(
+            name = name,
+            subjectId = subjectId,
+            date = date,
+            weight = weight,
+            value = value,
+            semesterId = semesterId,
+        )
         val newMark = markRepository.update(user.userId, mark)
         val newSubject = subjectRepository.getById(newMark.subjectId)
 

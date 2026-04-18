@@ -1,0 +1,25 @@
+type: object
+required:
+  - name
+  - subjectId
+  - date
+  - weight
+  - value
+  - semesterId
+properties:
+  name:
+    type: string
+  subjectId:
+    type: string
+    format: uuid
+  date:
+    type: string
+    format: date
+  weight:
+    type: integer
+  value:
+    type: integer
+    nullable: true
+  semesterId:
+    type: string
+    format: uuid

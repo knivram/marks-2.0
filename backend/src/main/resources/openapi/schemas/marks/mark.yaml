@@ -1,0 +1,28 @@
+type: object
+required:
+  - id
+  - name
+  - subject
+  - date
+  - weight
+  - value
+  - semesterId
+properties:
+  id:
+    type: string
+    format: uuid
+  name:
+    type: string
+  subject:
+    $ref: "../../api.yaml#/components/schemas/Subject"
+  date:
+    type: string
+    format: date
+  weight:
+    type: integer
+  value:
+    type: integer
+    nullable: true
+  semesterId:
+    type: string
+    format: uuid

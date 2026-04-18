@@ -1,0 +1,43 @@
+put:
+  tags: [Marks]
+  operationId: editMark
+  summary: Edit an existing mark
+  parameters:
+    - name: markId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../api.yaml#/components/schemas/MarkRequest"
+  responses:
+    '200':
+      description: Updated mark with subject
+      content:
+        application/json:
+          schema:
+            $ref: "../../api.yaml#/components/schemas/MarkWithSubjectResponse"
+delete:
+  tags: [Marks]
+  operationId: deleteMark
+  summary: Soft delete a mark
+  parameters:
+    - name: markId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+  responses:
+    '200':
+      description: ID of deleted mark
+      content:
+        application/json:
+          schema:
+            type: string
+            format: uuid

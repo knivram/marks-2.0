@@ -1,0 +1,21 @@
+type: object
+required:
+  - vocationalSubjects
+  - generalSubjects
+properties:
+  vocationalSubjects:
+    type: array
+    items:
+      $ref: "../../api.yaml#/components/schemas/SubjectAverage"
+  generalSubjects:
+    type: array
+    items:
+      $ref: "../../api.yaml#/components/schemas/SubjectAverage"
+  vocationalAverage:
+    type: number
+    format: double
+    nullable: true
+  generalAverage:
+    type: number
+    format: double
+    nullable: true

@@ -1,6 +1,6 @@
 get:
   tags: [Semesters]
-  operationId: getAllSemester
+  operationId: getAllSemesters
   summary: Get all semesters (paginated)
   parameters:
     - name: offset
@@ -22,20 +22,3 @@ get:
         application/json:
           schema:
             $ref: "../../api.yaml#/components/schemas/PaginatedSemesterList"
-post:
-  tags: [Semesters]
-  operationId: addSemester
-  summary: Create a new semester
-  requestBody:
-    required: true
-    content:
-      application/json:
-        schema:
-          $ref: "../../api.yaml#/components/schemas/SemesterRequest"
-  responses:
-    '200':
-      description: Created semester
-      content:
-        application/json:
-          schema:
-            $ref: "../../api.yaml#/components/schemas/Semester"

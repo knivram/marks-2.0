@@ -5,7 +5,7 @@ import ch.ergon.studentmarks.api.withSupervisor
 import ch.ergon.studentmarks.infrastructure.security.authentication.SUBJECT_HEADER_NAME
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.SpecialMarks
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Lernender
-import ch.ergon.studentmarks.utils.toDto
+import ch.ergon.studentmarks.utils.toMarkRequestDto
 import io.restassured.RestAssured
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpStatus
@@ -41,7 +41,7 @@ class PermissionTest : IntegrationTest() {
             .given()
             .withSupervisor()
             .contentType("application/json")
-            .body(SpecialMarks.EditedMathMark.toDto())
+            .body(SpecialMarks.EditedMathMark.toMarkRequestDto())
             .put("/api/marks/${SpecialMarks.EditedMathMark.id.value}")
             .then()
             .statusCode(HttpStatus.FORBIDDEN.value())

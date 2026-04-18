@@ -1,0 +1,11 @@
+# TODO: Remove this allOf wrapper once the swagger-parser / openapi-generator
+# duplication bug is fixed. See https://github.com/swagger-api/swagger-parser
+# (and mirrored issues at openapitools/openapi-generator). Today, because
+# MarkWithSubject is referenced from both direct path responses (addMark,
+# editMark, restoreMark) AND nested inside Agenda, the generator emits a
+# duplicate MarkWithSubject1Dto alongside MarkWithSubjectDto. Wrapping the
+# path-response usage with a distinct named component (MarkWithSubjectResponse)
+# sidesteps the collision — paths bind to MarkWithSubjectResponseDto while
+# Agenda keeps using MarkWithSubjectDto.
+allOf:
+  - $ref: "../../api.yaml#/components/schemas/MarkWithSubject"

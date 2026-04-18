@@ -1,0 +1,14 @@
+type: object
+required:
+  - totalEntries
+  - offset
+  - list
+properties:
+  totalEntries:
+    type: integer
+  offset:
+    type: integer
+  list:
+    type: array
+    items:
+      $ref: "../../api.yaml#/components/schemas/Semester"
