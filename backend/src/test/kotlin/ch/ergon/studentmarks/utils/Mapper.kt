@@ -2,7 +2,6 @@ package ch.ergon.studentmarks.utils
 
 import ch.ergon.studentmarks.api.generated.dto.MarkDto
 import ch.ergon.studentmarks.api.generated.dto.MarkRequestDto
-import ch.ergon.studentmarks.api.generated.dto.MarkWithSubjectDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterRequestDto
 import ch.ergon.studentmarks.api.generated.dto.SubjectRequestDto
 import ch.ergon.studentmarks.api.mapper.toDto
@@ -55,15 +54,3 @@ fun Mark.toMarkRequestDto(): MarkRequestDto =
         value = value.value,
         semesterId = semesterId.value,
     )
-
-/**
- * Test helper: converts a Mark domain object to a MarkWithSubjectDto.
- */
-fun Mark.toMarkWithSubjectDto(): MarkWithSubjectDto {
-    val subject = subjectLookup.getValue(subjectId)
-    val markDto = toDto()
-    return MarkWithSubjectDto(
-        mark = markDto,
-        subject = subject.toDto(),
-    )
-}

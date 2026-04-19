@@ -1,6 +1,7 @@
 package ch.ergon.studentmarks.api
 
 import ch.ergon.studentmarks.IntegrationTest
+import ch.ergon.studentmarks.application.query.MarkQueryRepository
 import ch.ergon.studentmarks.application.service.EmailNotificationService
 import ch.ergon.studentmarks.application.service.MarkService
 import ch.ergon.studentmarks.application.service.UserService
@@ -47,6 +48,9 @@ class EmailTest : IntegrationTest() {
     private lateinit var markRepository: MarkRepository
 
     @Autowired
+    private lateinit var markQueryRepository: MarkQueryRepository
+
+    @Autowired
     private lateinit var subjectRepository: SubjectRepository
 
     @Autowired
@@ -70,6 +74,7 @@ class EmailTest : IntegrationTest() {
         markService =
             MarkService(
                 markRepository = markRepository,
+                markQueryRepository = markQueryRepository,
                 subjectRepository = subjectRepository,
                 userService = userService,
                 timeUtils = timeUtils,

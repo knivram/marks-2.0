@@ -1,12 +1,10 @@
 package ch.ergon.studentmarks.domain.repository
 
-import ch.ergon.studentmarks.application.response.MarkWithSubject
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkId
 import ch.ergon.studentmarks.domain.model.semester.SemesterId
 import ch.ergon.studentmarks.domain.model.subject.SubjectId
 import ch.ergon.studentmarks.domain.model.user.UserId
-import java.time.LocalDate
 import java.time.LocalDateTime
 
 interface MarkRepository {
@@ -39,20 +37,4 @@ interface MarkRepository {
     fun getOwnerUserId(markId: MarkId): UserId
 
     fun deleteExpiredSoftDeleted(olderThan: LocalDateTime)
-
-    fun findWithSubjects(
-        userId: UserId,
-        semesterId: SemesterId,
-        subjectId: SubjectId? = null,
-    ): List<MarkWithSubject>
-
-    fun findUpcomingExams(
-        userId: UserId,
-        asOf: LocalDate,
-    ): List<MarkWithSubject>
-
-    fun findPastExamsWithoutGrade(
-        userId: UserId,
-        asOf: LocalDate,
-    ): List<MarkWithSubject>
 }

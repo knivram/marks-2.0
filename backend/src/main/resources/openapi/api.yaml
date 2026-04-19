@@ -76,15 +76,6 @@ components:
       $ref: "./schemas/marks/mark-request.yaml"
     MarkValue:
       $ref: "./schemas/marks/mark-value.yaml"
-    MarkWithSubject:
-      $ref: "./schemas/marks/mark-with-subject.yaml"
-    # TODO: Drop MarkWithSubjectResponse and bind paths directly to
-    # MarkWithSubject once the swagger-parser / openapi-generator duplicate
-    # schema bug is fixed. Today, referencing MarkWithSubject both from a
-    # path response and from inside Agenda (via api.yaml refs) makes the
-    # generator emit a spurious MarkWithSubject1Dto.
-    MarkWithSubjectResponse:
-      $ref: "./schemas/marks/mark-with-subject-response.yaml"
     SubjectWithMarks:
       $ref: "./schemas/marks/subject-with-marks.yaml"
     SubjectAverage:

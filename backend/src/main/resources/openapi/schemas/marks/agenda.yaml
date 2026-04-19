@@ -6,8 +6,8 @@ properties:
   pastExamsWithoutGrade:
     type: array
     items:
-      $ref: "../../api.yaml#/components/schemas/MarkWithSubject"
+      $ref: "../../api.yaml#/components/schemas/Mark"
   upcomingExams:
     type: array
     items:
-      $ref: "../../api.yaml#/components/schemas/MarkWithSubject"
+      $ref: "../../api.yaml#/components/schemas/Mark"

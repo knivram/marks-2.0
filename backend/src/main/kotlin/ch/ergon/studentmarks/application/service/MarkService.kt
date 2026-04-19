@@ -1,8 +1,9 @@
 package ch.ergon.studentmarks.application.service
 
+import ch.ergon.studentmarks.application.query.MarkQueryRepository
+import ch.ergon.studentmarks.application.query.MarkView
 import ch.ergon.studentmarks.application.response.Agenda
 import ch.ergon.studentmarks.application.response.DashboardAverages
-import ch.ergon.studentmarks.application.response.MarkWithSubject
 import ch.ergon.studentmarks.application.response.SemesterOverview
 import ch.ergon.studentmarks.application.response.SubjectAverage
 import ch.ergon.studentmarks.application.response.SubjectWithMarks
@@ -27,6 +28,7 @@ import java.time.LocalDateTime
 @EnableScheduling
 class MarkService(
     private val markRepository: MarkRepository,
+    private val markQueryRepository: MarkQueryRepository,
     private val subjectRepository: SubjectRepository,
     private val userService: UserService,
     private val timeUtils: TimeUtils,
@@ -40,7 +42,7 @@ class MarkService(
         weight: Int,
         value: MarkValue,
         semesterId: SemesterId,
-    ): MarkWithSubject {
+    ): MarkView {
         val apprentice = userService.getCurrentUser()
         val mark = Mark(
             id = MarkId(uuidUtils.randomUUID()),
@@ -52,7 +54,7 @@ class MarkService(
             semesterId = semesterId,
         )
         val newMark = markRepository.save(apprentice.userId, mark)
-        val subject = subjectRepository.getById(newMark.subjectId)
+        val markView = markQueryRepository.getById(newMark.id)
 
         val allMarksForSubject = markRepository.findByUser(apprentice.userId, newMark.semesterId, newMark.subjectId)
         val average = AverageCalculator.weightedAverage(allMarksForSubject)
@@ -60,10 +62,10 @@ class MarkService(
         emailNotificationService.sendAddMarkEmail(
             apprentice = apprentice,
             mark = newMark,
-            subjectName = subject.name,
+            subjectName = markView.subject.name,
             averageValue = average?.toInt() ?: 0,
         )
-        return MarkWithSubject(newMark, subject)
+        return markView
     }
 
     @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF')")
@@ -75,7 +77,7 @@ class MarkService(
         weight: Int,
         value: MarkValue,
         semesterId: SemesterId,
-    ): MarkWithSubject {
+    ): MarkView {
         val user = userService.getCurrentUser()
         val oldMark = markRepository.getById(markId)
         val oldSubject = subjectRepository.getById(oldMark.subjectId)
@@ -92,7 +94,7 @@ class MarkService(
             semesterId = semesterId,
         )
         val newMark = markRepository.update(user.userId, mark)
-        val newSubject = subjectRepository.getById(newMark.subjectId)
+        val newMarkView = markQueryRepository.getById(newMark.id)
 
         val newMarksForSubject = markRepository.findByUser(user.userId, newMark.semesterId, newMark.subjectId)
         val newAverage = AverageCalculator.weightedAverage(newMarksForSubject)
@@ -102,13 +104,13 @@ class MarkService(
                 apprentice = user,
                 newMark = newMark,
                 oldMark = oldMark,
-                newSubjectName = newSubject.name,
+                newSubjectName = newMarkView.subject.name,
                 oldSubjectName = oldSubject.name,
                 oldAverageValue = oldAverage?.toInt() ?: 0,
                 newAverageValue = newAverage?.toInt() ?: 0,
             )
         }
-        return MarkWithSubject(newMark, newSubject)
+        return newMarkView
     }
 
     @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF') or hasRole('ROLE_ADMIN')")
@@ -117,10 +119,9 @@ class MarkService(
     }
 
     @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF') or hasRole('ROLE_ADMIN')")
-    fun restoreMark(markId: MarkId): MarkWithSubject {
+    fun restoreMark(markId: MarkId): MarkView {
         val mark = markRepository.restore(markId)
-        val subject = subjectRepository.getById(mark.subjectId)
-        return MarkWithSubject(mark, subject)
+        return markQueryRepository.getById(mark.id)
     }
 
     @PreAuthorize("hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')")
@@ -154,8 +155,8 @@ class MarkService(
     )
     fun getAgenda(userId: UserId): Agenda =
         Agenda(
-            pastExamsWithoutGrade = markRepository.findPastExamsWithoutGrade(userId, timeUtils.now()),
-            upcomingExams = markRepository.findUpcomingExams(userId, timeUtils.now()),
+            pastExamsWithoutGrade = markQueryRepository.findPastExamsWithoutGrade(userId, timeUtils.now()),
+            upcomingExams = markQueryRepository.findUpcomingExams(userId, timeUtils.now()),
         )
 
     @PreAuthorize(
@@ -165,16 +166,15 @@ class MarkService(
         userId: UserId,
         semesterId: SemesterId,
     ): SemesterOverview {
-        val marksWithSubjects = markRepository.findWithSubjects(userId, semesterId)
-        val bySubject = marksWithSubjects.groupBy { it.subject }
+        val markViews = markQueryRepository.findByUser(userId, semesterId)
+        val bySubject = markViews.groupBy { it.subject }
 
         val subjectViews =
             bySubject.map { (subject, items) ->
-                val marks = items.map { it.mark }
                 SubjectWithMarks(
                     subject = subject,
-                    average = AverageCalculator.weightedAverage(marks),
-                    marks = marks,
+                    average = AverageCalculator.weightedAverage(items.map { it.toMark() }),
+                    marks = items,
                 )
             }
 
@@ -195,14 +195,14 @@ class MarkService(
         userId: UserId,
         semesterId: SemesterId,
     ): DashboardAverages {
-        val marksWithSubjects = markRepository.findWithSubjects(userId, semesterId)
-        val bySubject = marksWithSubjects.groupBy { it.subject }
+        val markViews = markQueryRepository.findByUser(userId, semesterId)
+        val bySubject = markViews.groupBy { it.subject }
 
         val subjectAverages =
             bySubject.map { (subject, items) ->
                 SubjectAverage(
                     subject = subject,
-                    average = AverageCalculator.weightedAverage(items.map { it.mark }),
+                    average = AverageCalculator.weightedAverage(items.map { it.toMark() }),
                 )
             }
 

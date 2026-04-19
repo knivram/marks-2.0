@@ -1,6 +1,7 @@
 package ch.ergon.studentmarks.repository
 
 import ch.ergon.studentmarks.IntegrationTest
+import ch.ergon.studentmarks.application.query.MarkQueryRepository
 import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.LernenderMarks
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.SpecialMarks
@@ -20,6 +21,9 @@ import org.springframework.beans.factory.annotation.Autowired
 class MarkRepoTest : IntegrationTest() {
     @Autowired
     private lateinit var markRepository: MarkRepository
+
+    @Autowired
+    private lateinit var markQueryRepository: MarkQueryRepository
 
     @Autowired
     private lateinit var testTimeUtilsImpl: TestTimeUtilsImpl
@@ -62,10 +66,10 @@ class MarkRepoTest : IntegrationTest() {
     @Test
     fun getUpcomingExams() {
         // Default time is 2023-05-31. FutureMark.marks have dates 2023-12-02 and 2024-01-24.
-        val upcomingExams = markRepository.findUpcomingExams(Lernender.userId, testTimeUtilsImpl.now())
+        val upcomingExams = markQueryRepository.findUpcomingExams(Lernender.userId, testTimeUtilsImpl.now())
 
         assertThat(
-            upcomingExams.map { it.mark },
+            upcomingExams.map { it.toMark() },
             containsInAnyOrder(*(LernenderMarks.FutureMark.marks.toTypedArray())),
         )
     }
@@ -73,10 +77,10 @@ class MarkRepoTest : IntegrationTest() {
     @Test
     fun getPastExamsWithoutGrade() {
         // Default time is 2023-05-31. PastMarks have date 2023-04-04 and null values.
-        val pastExams = markRepository.findPastExamsWithoutGrade(Lernender.userId, testTimeUtilsImpl.now())
+        val pastExams = markQueryRepository.findPastExamsWithoutGrade(Lernender.userId, testTimeUtilsImpl.now())
 
         assertThat(
-            pastExams.map { it.mark },
+            pastExams.map { it.toMark() },
             containsInAnyOrder(*(LernenderMarks.PastMarks.marks.toTypedArray())),
         )
     }

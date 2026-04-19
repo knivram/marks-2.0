@@ -1,9 +1,0 @@
-type: object
-required:
-  - mark
-  - subject
-properties:
-  mark:
-    $ref: "../../api.yaml#/components/schemas/Mark"
-  subject:
-    $ref: "../../api.yaml#/components/schemas/Subject"

@@ -4,7 +4,6 @@ import ch.ergon.studentmarks.IntegrationTest
 import ch.ergon.studentmarks.api.generated.dto.AgendaDto
 import ch.ergon.studentmarks.api.generated.dto.MarkDto
 import ch.ergon.studentmarks.api.generated.dto.MarkValueDto
-import ch.ergon.studentmarks.api.generated.dto.MarkWithSubjectDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterOverviewDto
 import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.test.objects.TestMarks.Companion.LernenderMarks
@@ -16,7 +15,6 @@ import ch.ergon.studentmarks.utils.TestTimeUtilsImpl
 import ch.ergon.studentmarks.utils.TestUuidUtilsImpl
 import ch.ergon.studentmarks.utils.toDto
 import ch.ergon.studentmarks.utils.toMarkRequestDto
-import ch.ergon.studentmarks.utils.toMarkWithSubjectDto
 import io.restassured.RestAssured.given
 import org.hamcrest.MatcherAssert.assertThat
 import org.hamcrest.Matchers.containsInAnyOrder
@@ -84,7 +82,7 @@ class MarkApiTest : IntegrationTest() {
         assertThat(
             response.upcomingExams,
             containsInAnyOrder(
-                *(LernenderMarks.FutureMark.marks.map { it.toMarkWithSubjectDto() }.toTypedArray()),
+                *(LernenderMarks.FutureMark.marks.map { it.toDto() }.toTypedArray()),
             ),
         )
 
@@ -92,7 +90,7 @@ class MarkApiTest : IntegrationTest() {
         assertThat(
             response.pastExamsWithoutGrade,
             containsInAnyOrder(
-                *(LernenderMarks.PastMarks.marks.map { it.toMarkWithSubjectDto() }.toTypedArray()),
+                *(LernenderMarks.PastMarks.marks.map { it.toDto() }.toTypedArray()),
             ),
         )
     }
@@ -111,8 +109,7 @@ class MarkApiTest : IntegrationTest() {
                 .then()
                 .statusCode(200)
                 .extract()
-                .jsonPath()
-                .getObject("mark", MarkDto::class.java)
+                .`as`(MarkDto::class.java)
 
         assertThat(response, `is`(SpecialMarks.MarkForAddTest.toDto()))
     }
@@ -129,8 +126,7 @@ class MarkApiTest : IntegrationTest() {
                 .then()
                 .statusCode(200)
                 .extract()
-                .jsonPath()
-                .getObject("mark", MarkDto::class.java)
+                .`as`(MarkDto::class.java)
 
         assertThat(response, `is`(SpecialMarks.EditedMathMark.toDto()))
     }
@@ -159,8 +155,7 @@ class MarkApiTest : IntegrationTest() {
                 .then()
                 .statusCode(200)
                 .extract()
-                .jsonPath()
-                .getObject("mark", MarkDto::class.java)
+                .`as`(MarkDto::class.java)
 
         assertThat(response2, `is`(SpecialMarks.DeletedMark.toDto()))
 
@@ -189,8 +184,7 @@ class MarkApiTest : IntegrationTest() {
                 .then()
                 .statusCode(200)
                 .extract()
-                .jsonPath()
-                .getObject("mark", MarkDto::class.java)
+                .`as`(MarkDto::class.java)
 
         assertThat(response2, `is`(LernenderMarks.math1.toDto()))
         assertThat(markRepository.findByUser(Lernender.userId), hasItem(LernenderMarks.math1))

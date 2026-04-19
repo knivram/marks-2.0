@@ -11,8 +11,8 @@ post:
         format: uuid
   responses:
     '200':
-      description: Restored mark with subject
+      description: Restored mark
       content:
         application/json:
           schema:
-            $ref: "../../api.yaml#/components/schemas/MarkWithSubjectResponse"
+            $ref: "../../api.yaml#/components/schemas/Mark"

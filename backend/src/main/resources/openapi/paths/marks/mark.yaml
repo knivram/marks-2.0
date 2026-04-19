@@ -17,11 +17,11 @@ put:
           $ref: "../../api.yaml#/components/schemas/MarkRequest"
   responses:
     '200':
-      description: Updated mark with subject
+      description: Updated mark
       content:
         application/json:
           schema:
-            $ref: "../../api.yaml#/components/schemas/MarkWithSubjectResponse"
+            $ref: "../../api.yaml#/components/schemas/Mark"
 delete:
   tags: [Marks]
   operationId: deleteMark
