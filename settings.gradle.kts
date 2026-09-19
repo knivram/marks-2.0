@@ -1,5 +1,3 @@
-include("backend")
-
 pluginManagement {
     repositories {
         maven { url = uri("https://repo.spring.io/milestone") }
@@ -12,5 +10,10 @@ pluginManagement {
             }
         }
     }
+    includeBuild("gradle/plugins/marks-openapi")
 }
+
 rootProject.name = "studentmarks"
+
+include("backend")
+include("openapi")

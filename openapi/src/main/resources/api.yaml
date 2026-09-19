@@ -1,0 +1,180 @@
+openapi: 3.0.3
+info:
+  title: Student Marks API
+  description: Demo API for student marks management
+  version: 1.0.0
+servers:
+  - url: /api
+    description: Backend API server
+
+tags:
+  - name: Users
+    description: User management endpoints
+  - name: Semesters
+    description: Semester management endpoints
+
+paths:
+  /user/info:
+    get:
+      tags:
+        - Users
+      operationId: getCurrentUser
+      summary: Get current logged-in user
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        '401':
+          description: Unauthorized
+
+  /user:
+    get:
+      tags:
+        - Users
+      operationId: getAllUsers
+      summary: Get all users
+      parameters:
+        - name: searchQuery
+          in: query
+          required: false
+          schema:
+            type: string
+            default: ""
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+
+    post:
+      tags:
+        - Users
+      operationId: createUser
+      summary: Create a new user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateUserRequest'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+
+  /semesters:
+    get:
+      tags:
+        - Semesters
+      operationId: getAllSemesters
+      summary: Get all semesters with pagination
+      parameters:
+        - name: offset
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 0
+        - name: limit
+          in: query
+          required: false
+          schema:
+            type: integer
+            default: 20
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedSemesterList'
+
+components:
+  schemas:
+    User:
+      type: object
+      required:
+        - userId
+        - userName
+        - email
+        - role
+      properties:
+        userId:
+          type: string
+          format: uuid
+        userName:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    UserRole:
+      type: string
+      enum:
+        - ADMIN
+        - APPRENTICE
+        - SUPERVISOR
+
+    CreateUserRequest:
+      type: object
+      required:
+        - userName
+        - email
+        - role
+      properties:
+        userName:
+          type: string
+        email:
+          type: string
+          format: email
+        role:
+          $ref: '#/components/schemas/UserRole'
+
+    Semester:
+      type: object
+      required:
+        - id
+        - name
+        - startDate
+        - endDate
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    PaginatedSemesterList:
+      type: object
+      required:
+        - items
+        - total
+        - offset
+        - limit
+      properties:
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/Semester'
+        total:
+          type: integer
+        offset:
+          type: integer
+        limit:
+          type: integer

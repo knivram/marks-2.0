@@ -1,0 +1,17 @@
+.gitignore
+.npmignore
+.openapi-generator-ignore
+api.ts
+api/semesters-api.ts
+api/users-api.ts
+base.ts
+common.ts
+configuration.ts
+dto/create-user-request-dto.ts
+dto/index.ts
+dto/paginated-semester-list-dto.ts
+dto/semester-dto.ts
+dto/user-dto.ts
+dto/user-role-dto.ts
+git_push.sh
+index.ts
