@@ -82,7 +82,11 @@ class MarkApiTest : IntegrationTest() {
         assertThat(
             response.upcomingExams,
             containsInAnyOrder(
-                *(LernenderMarks.FutureMark.marks.map { it.toDto() }.toTypedArray()),
+                *(
+                    LernenderMarks.FutureMark.marks
+                        .map { it.toDto() }
+                        .toTypedArray()
+                ),
             ),
         )
 
@@ -90,7 +94,11 @@ class MarkApiTest : IntegrationTest() {
         assertThat(
             response.pastExamsWithoutGrade,
             containsInAnyOrder(
-                *(LernenderMarks.PastMarks.marks.map { it.toDto() }.toTypedArray()),
+                *(
+                    LernenderMarks.PastMarks.marks
+                        .map { it.toDto() }
+                        .toTypedArray()
+                ),
             ),
         )
     }

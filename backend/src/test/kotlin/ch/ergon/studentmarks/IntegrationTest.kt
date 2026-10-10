@@ -12,18 +12,43 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.testcontainers.containers.PostgreSQLContainer
+import java.net.Socket
 import java.util.UUID
+import kotlin.time.Duration.Companion.seconds
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 class IntegrationTest {
     companion object {
-        init {
+        private val postgres =
             PostgreSQLContainer("postgres:14").apply {
                 start()
-                System.setProperty("spring.datasource.url", jdbcUrl)
-                System.setProperty("spring.datasource.username", username)
-                System.setProperty("spring.datasource.password", password)
             }
+
+        init {
+            waitUntilPortIsReachable(postgres.host, postgres.firstMappedPort)
+            System.setProperty("spring.datasource.url", postgres.jdbcUrl)
+            System.setProperty("spring.datasource.username", postgres.username)
+            System.setProperty("spring.datasource.password", postgres.password)
+        }
+
+        private fun waitUntilPortIsReachable(
+            host: String,
+            port: Int,
+            timeoutSeconds: Int = 10,
+        ) {
+            val deadline = System.currentTimeMillis() + timeoutSeconds.seconds.inWholeMilliseconds
+            var lastFailure: Exception? = null
+
+            while (System.currentTimeMillis() < deadline) {
+                try {
+                    Socket(host, port).use { return }
+                } catch (e: Exception) {
+                    lastFailure = e
+                    Thread.sleep(100)
+                }
+            }
+
+            throw IllegalStateException("PostgreSQL test container on $host:$port did not become reachable in time", lastFailure)
         }
     }
 

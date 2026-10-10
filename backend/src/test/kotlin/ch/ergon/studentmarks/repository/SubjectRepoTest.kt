@@ -41,5 +41,4 @@ class SubjectRepoTest : IntegrationTest() {
 
         assertThat(subjects, containsInAnyOrder(*(SpecialTestSubjects.afterEditingSubject.toTypedArray())))
     }
-
 }

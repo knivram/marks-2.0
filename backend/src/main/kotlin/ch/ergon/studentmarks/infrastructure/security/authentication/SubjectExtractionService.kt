@@ -3,6 +3,7 @@ package ch.ergon.studentmarks.infrastructure.security.authentication
 import ch.ergon.studentmarks.domain.exception.MailNotInSubjectException
 import org.springframework.stereotype.Service
 
+// TODO: Shouldn't be a service
 @Service
 class SubjectExtractionService {
     fun extractMailFromSubject(subject: String): String {

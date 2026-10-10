@@ -7,6 +7,12 @@ import ch.ergon.studentmarks.application.response.DashboardAverages
 import ch.ergon.studentmarks.application.response.SemesterOverview
 import ch.ergon.studentmarks.application.response.SubjectAverage
 import ch.ergon.studentmarks.application.response.SubjectWithMarks
+import ch.ergon.studentmarks.application.security.HasMarkCreatePermission
+import ch.ergon.studentmarks.application.security.HasMarkDeletePermission
+import ch.ergon.studentmarks.application.security.HasMarkEditPermission
+import ch.ergon.studentmarks.application.security.HasMarkPurgePermission
+import ch.ergon.studentmarks.application.security.HasStudentDataReadPermission
+import ch.ergon.studentmarks.application.security.TargetId
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkId
 import ch.ergon.studentmarks.domain.model.mark.MarkValue
@@ -17,15 +23,12 @@ import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.domain.repository.SubjectRepository
 import ch.ergon.studentmarks.utils.TimeUtils
 import ch.ergon.studentmarks.utils.UuidUtils
-import org.springframework.scheduling.annotation.EnableScheduling
 import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Service
-@EnableScheduling
 class MarkService(
     private val markRepository: MarkRepository,
     private val markQueryRepository: MarkQueryRepository,
@@ -35,7 +38,9 @@ class MarkService(
     private val emailNotificationService: EmailNotificationService,
     private val uuidUtils: UuidUtils,
 ) {
+    @HasMarkCreatePermission
     fun addNewMark(
+        @TargetId userId: UserId,
         name: String,
         subjectId: SubjectId,
         date: LocalDate,
@@ -43,16 +48,17 @@ class MarkService(
         value: MarkValue,
         semesterId: SemesterId,
     ): MarkView {
-        val apprentice = userService.getCurrentUser()
-        val mark = Mark(
-            id = MarkId(uuidUtils.randomUUID()),
-            name = name,
-            subjectId = subjectId,
-            date = date,
-            weight = weight,
-            value = value,
-            semesterId = semesterId,
-        )
+        val apprentice = userService.getUser(userId)
+        val mark =
+            Mark(
+                id = MarkId(uuidUtils.randomUUID()),
+                name = name,
+                subjectId = subjectId,
+                date = date,
+                weight = weight,
+                value = value,
+                semesterId = semesterId,
+            )
         val newMark = markRepository.save(apprentice.userId, mark)
         val markView = markQueryRepository.getById(newMark.id)
 
@@ -68,9 +74,9 @@ class MarkService(
         return markView
     }
 
-    @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF')")
+    @HasMarkEditPermission
     fun editMark(
-        markId: MarkId,
+        @TargetId markId: MarkId,
         name: String,
         subjectId: SubjectId,
         date: LocalDate,
@@ -78,30 +84,34 @@ class MarkService(
         value: MarkValue,
         semesterId: SemesterId,
     ): MarkView {
-        val user = userService.getCurrentUser()
+        // TODO: Consider optimizing the calls here!
         val oldMark = markRepository.getById(markId)
+        val markOwnerId = markRepository.getOwnerUserId(markId)
+        val apprentice = userService.getUser(markOwnerId)
         val oldSubject = subjectRepository.getById(oldMark.subjectId)
 
-        val oldMarksForSubject = markRepository.findByUser(user.userId, oldMark.semesterId, oldMark.subjectId)
+        val oldMarksForSubject = markRepository.findByUser(apprentice.userId, oldMark.semesterId, oldMark.subjectId)
         val oldAverage = AverageCalculator.weightedAverage(oldMarksForSubject)
 
-        val mark = oldMark.copy(
-            name = name,
-            subjectId = subjectId,
-            date = date,
-            weight = weight,
-            value = value,
-            semesterId = semesterId,
-        )
-        val newMark = markRepository.update(user.userId, mark)
+        val mark =
+            oldMark.copy(
+                name = name,
+                subjectId = subjectId,
+                date = date,
+                weight = weight,
+                value = value,
+                semesterId = semesterId,
+            )
+        val newMark = markRepository.update(apprentice.userId, mark)
         val newMarkView = markQueryRepository.getById(newMark.id)
 
-        val newMarksForSubject = markRepository.findByUser(user.userId, newMark.semesterId, newMark.subjectId)
+        val newMarksForSubject = markRepository.findByUser(apprentice.userId, newMark.semesterId, newMark.subjectId)
         val newAverage = AverageCalculator.weightedAverage(newMarksForSubject)
 
-        if (newMark.value !== oldMark.value) {
+        if (newMark.value != oldMark.value) {
+            // TODO: Consider using spring events and moving full calculation into the notification service
             emailNotificationService.sendEditMarkEmail(
-                apprentice = user,
+                apprentice = apprentice,
                 newMark = newMark,
                 oldMark = oldMark,
                 newSubjectName = newMarkView.subject.name,
@@ -113,20 +123,24 @@ class MarkService(
         return newMarkView
     }
 
-    @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF') or hasRole('ROLE_ADMIN')")
-    fun deleteMark(markId: MarkId) {
+    @HasMarkDeletePermission
+    fun deleteMark(
+        @TargetId markId: MarkId,
+    ) {
         markRepository.softDelete(markId)
     }
 
-    @PreAuthorize("hasPermission(#markId, 'IS_OWNER_OF') or hasRole('ROLE_ADMIN')")
-    fun restoreMark(markId: MarkId): MarkView {
+    @HasMarkDeletePermission
+    fun restoreMark(
+        @TargetId markId: MarkId,
+    ): MarkView {
         val mark = markRepository.restore(markId)
         return markQueryRepository.getById(mark.id)
     }
 
-    @PreAuthorize("hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')")
+    @HasStudentDataReadPermission
     fun calculate(
-        userId: UserId,
+        @TargetId userId: UserId,
         semesterId: SemesterId,
         subjectId: SubjectId,
         goal: MarkValue,
@@ -150,20 +164,18 @@ class MarkService(
         return MarkValue((neededMark * 1000).toInt())
     }
 
-    @PreAuthorize(
-        "hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')",
-    )
-    fun getAgenda(userId: UserId): Agenda =
+    @HasStudentDataReadPermission
+    fun getAgenda(
+        @TargetId userId: UserId,
+    ): Agenda =
         Agenda(
             pastExamsWithoutGrade = markQueryRepository.findPastExamsWithoutGrade(userId, timeUtils.now()),
             upcomingExams = markQueryRepository.findUpcomingExams(userId, timeUtils.now()),
         )
 
-    @PreAuthorize(
-        "hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')",
-    )
+    @HasStudentDataReadPermission
     fun getSemesterOverview(
-        userId: UserId,
+        @TargetId userId: UserId,
         semesterId: SemesterId,
     ): SemesterOverview {
         val markViews = markQueryRepository.findByUser(userId, semesterId)
@@ -188,11 +200,9 @@ class MarkService(
         )
     }
 
-    @PreAuthorize(
-        "hasPermission(#userId, 'IS_CURRENT_USER') or hasPermission(#userId, 'IS_SUPERVISOR_OF') or hasRole('ROLE_ADMIN')",
-    )
+    @HasStudentDataReadPermission
     fun getDashboardAverages(
-        userId: UserId,
+        @TargetId userId: UserId,
         semesterId: SemesterId,
     ): DashboardAverages {
         val markViews = markQueryRepository.findByUser(userId, semesterId)
@@ -216,6 +226,8 @@ class MarkService(
         )
     }
 
+    @HasMarkPurgePermission
+    // TODO: Use cron annotation and put it into application.yaml
     @Scheduled(fixedRate = 3_600_000)
     fun deleteAllExpiredMarks() {
         val expiredTimeEnd = LocalDateTime.now().minusMinutes(30)

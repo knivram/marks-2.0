@@ -1,4 +1,6 @@
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.UserDetailsServiceAutoConfiguration
   datasource:
     url: 'jdbc:postgresql://${POSTGRES_HOST:localhost:3134}/marks_system'
     username: '${DB_USERNAME:student_marks}'

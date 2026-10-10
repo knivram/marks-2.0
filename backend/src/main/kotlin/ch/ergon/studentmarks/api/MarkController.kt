@@ -8,8 +8,8 @@ import ch.ergon.studentmarks.api.generated.dto.MarkRequestDto
 import ch.ergon.studentmarks.api.generated.dto.MarkValueDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterOverviewDto
 import ch.ergon.studentmarks.api.mapper.toDto
+import ch.ergon.studentmarks.application.security.ActingUserProvider
 import ch.ergon.studentmarks.application.service.MarkService
-import ch.ergon.studentmarks.application.service.UserService
 import ch.ergon.studentmarks.domain.model.mark.MarkId
 import ch.ergon.studentmarks.domain.model.mark.MarkValue
 import ch.ergon.studentmarks.domain.model.semester.SemesterId
@@ -22,11 +22,12 @@ import java.util.UUID
 @RestController
 class MarkController(
     private val markService: MarkService,
-    private val userService: UserService,
+    private val actingUserProvider: ActingUserProvider,
 ) : MarksApi {
     override fun addMark(body: MarkRequestDto): ResponseEntity<MarkDto> {
         val result =
             markService.addNewMark(
+                userId = currentUserId(),
                 name = body.name,
                 subjectId = SubjectId(body.subjectId),
                 date = body.date,
@@ -71,7 +72,7 @@ class MarkController(
         examWeight: Int,
         userId: UUID?,
     ): ResponseEntity<MarkValueDto> {
-        val resolvedUserId = userService.resolveUserId(userId?.let { UserId(it) })
+        val resolvedUserId = userId?.let { UserId(it) } ?: currentUserId()
         val result =
             markService.calculate(
                 resolvedUserId,
@@ -84,7 +85,7 @@ class MarkController(
     }
 
     override fun getAgenda(userId: UUID?): ResponseEntity<AgendaDto> {
-        val resolvedUserId = userService.resolveUserId(userId?.let { UserId(it) })
+        val resolvedUserId = userId?.let { UserId(it) } ?: currentUserId()
         val agenda = markService.getAgenda(resolvedUserId)
         return ResponseEntity.ok(agenda.toDto())
     }
@@ -93,7 +94,7 @@ class MarkController(
         semesterId: UUID,
         userId: UUID?,
     ): ResponseEntity<SemesterOverviewDto> {
-        val resolvedUserId = userService.resolveUserId(userId?.let { UserId(it) })
+        val resolvedUserId = userId?.let { UserId(it) } ?: currentUserId()
         val overview = markService.getSemesterOverview(resolvedUserId, SemesterId(semesterId))
         return ResponseEntity.ok(overview.toDto())
     }
@@ -102,8 +103,11 @@ class MarkController(
         semesterId: UUID,
         userId: UUID?,
     ): ResponseEntity<DashboardAveragesDto> {
-        val resolvedUserId = userService.resolveUserId(userId?.let { UserId(it) })
+        val resolvedUserId = userId?.let { UserId(it) } ?: currentUserId()
         val averages = markService.getDashboardAverages(resolvedUserId, SemesterId(semesterId))
         return ResponseEntity.ok(averages.toDto())
     }
+
+    // TODO: Make userIds required and remove this.
+    private fun currentUserId(): UserId = actingUserProvider.actingPerson.user.userId
 }

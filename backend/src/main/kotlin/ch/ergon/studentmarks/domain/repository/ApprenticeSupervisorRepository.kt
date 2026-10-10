@@ -15,6 +15,11 @@ interface ApprenticeSupervisorRepository {
         includeUnconnectedForAdmin: Boolean,
     ): List<ApprenticeSupervisorPair>
 
+    fun isConnected(
+        apprenticeId: UserId,
+        supervisorId: UserId,
+    ): Boolean
+
     fun getAll(): List<ApprenticeSupervisorPair>
 
     fun updateOrInsert(pair: ApprenticeSupervisorPair)

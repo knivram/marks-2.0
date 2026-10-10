@@ -1,8 +1,10 @@
 package ch.ergon.studentmarks.application.service
 
+import ch.ergon.studentmarks.application.security.HasNotificationSendPermission
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkAverage
 import ch.ergon.studentmarks.domain.model.user.User
+import ch.ergon.studentmarks.domain.repository.UserRepository
 import ch.ergon.studentmarks.infrastructure.email.EmailSender
 import ch.ergon.studentmarks.infrastructure.logging.Logger
 import org.springframework.scheduling.annotation.Async
@@ -17,12 +19,13 @@ import java.time.format.DateTimeFormatter
 @Service
 class EmailNotificationService(
     private val templateEngine: TemplateEngine,
-    private val userService: UserService,
+    private val userRepository: UserRepository,
     private val emailSender: EmailSender,
 ) {
     companion object : Logger
 
     @Async
+    @HasNotificationSendPermission
     fun sendAddMarkEmail(
         apprentice: User,
         mark: Mark,
@@ -31,12 +34,13 @@ class EmailNotificationService(
     ) {
         if (mark.value.value == null) return
 
-        val supervisors: List<User> = userService.getNotificationEmailListForApprentice(apprentice.userId)
+        val supervisors: List<User> = userRepository.findSupervisorsWithNotificationsForApprentice(apprentice.userId)
         if (supervisors.isEmpty()) return
 
         val context = Context()
         context.setVariables(
             mapOf(
+                // TODO: Use consts
                 "userName" to apprentice.userName.value,
                 "date" to mark.date.format(),
                 "subjectName" to subjectName,
@@ -56,6 +60,7 @@ class EmailNotificationService(
     }
 
     @Async
+    @HasNotificationSendPermission
     fun sendEditMarkEmail(
         apprentice: User,
         newMark: Mark,
@@ -65,12 +70,13 @@ class EmailNotificationService(
         oldAverageValue: Int,
         newAverageValue: Int,
     ) {
-        val supervisors: List<User> = userService.getNotificationEmailListForApprentice(apprentice.userId)
+        val supervisors: List<User> = userRepository.findSupervisorsWithNotificationsForApprentice(apprentice.userId)
         if (supervisors.isEmpty()) return
 
         val context = Context()
         context.setVariables(
             mapOf(
+                // TODO: Use consts
                 "userName" to apprentice.userName.value,
                 "oldAverage" to MarkAverage(oldAverageValue).toFormattedString(),
                 "newAverage" to MarkAverage(newAverageValue).toFormattedString(),

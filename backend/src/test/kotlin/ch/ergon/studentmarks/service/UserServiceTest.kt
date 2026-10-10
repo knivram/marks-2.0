@@ -1,6 +1,7 @@
 package ch.ergon.studentmarks.service
 
 import ch.ergon.studentmarks.IntegrationTest
+import ch.ergon.studentmarks.application.security.ActingUserProvider
 import ch.ergon.studentmarks.application.service.UserService
 import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.domain.repository.UserRepository
@@ -24,12 +25,17 @@ import org.hamcrest.Matchers.empty
 import org.hamcrest.Matchers.hasSize
 import org.hamcrest.Matchers.`is`
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.assertThrows
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.security.access.AccessDeniedException
 import java.util.UUID
 
 class UserServiceTest : IntegrationTest() {
     @Autowired
     private lateinit var userService: UserService
+
+    @Autowired
+    private lateinit var actingUserProvider: ActingUserProvider
 
     @Autowired
     private lateinit var markRepository: MarkRepository
@@ -59,8 +65,8 @@ class UserServiceTest : IntegrationTest() {
 
     @Test
     @WithMockLehrling
-    fun getCurrentUser_returns_current_user() {
-        val currentUser = userService.getCurrentUser()
+    fun acting_person_is_the_authenticated_user() {
+        val currentUser = actingUserProvider.actingPerson.user
 
         assertThat(currentUser, `is`(Lernender))
     }
@@ -99,10 +105,7 @@ class UserServiceTest : IntegrationTest() {
 
     @Test
     @WithMockBerufsbildner
-    fun get_apprentice_supervisor_connections_for_supervisor() {
-        val connections = userService.getApprenticeSupervisorPairs(Berufsbildner.userId)
-
-        assertThat(connections, hasSize(1))
-        assertThat(connections, containsInAnyOrder(TestConnections.connection1))
+    fun supervisor_cannot_get_apprentice_supervisor_connections() {
+        assertThrows<AccessDeniedException> { userService.getApprenticeSupervisorPairs(Berufsbildner.userId) }
     }
 }

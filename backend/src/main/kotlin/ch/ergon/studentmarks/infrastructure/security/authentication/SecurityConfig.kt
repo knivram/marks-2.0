@@ -1,9 +1,8 @@
 package ch.ergon.studentmarks.infrastructure.security.authentication
 
+import jakarta.servlet.DispatcherType
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.http.SessionCreationPolicy.STATELESS
 import org.springframework.security.web.SecurityFilterChain
@@ -11,29 +10,26 @@ import org.springframework.security.web.authentication.www.BasicAuthenticationFi
 
 @Configuration
 class SecurityConfig(
-    private val customAuthenticationFilter: CustomAuthenticationFilter,
-    private val provider: CustomAuthenticationProvider,
+    private val subjectHeaderAuthenticationFilter: SubjectHeaderAuthenticationFilter,
+    private val userLogFilter: UserLogFilter,
 ) {
     @Bean
-    @Throws(Exception::class)
-    fun filterChain(
-        http: HttpSecurity,
-        userLogFilter: UserLogFilter,
-    ): SecurityFilterChain? {
+    fun filterChain(http: HttpSecurity): SecurityFilterChain {
         http
             .httpBasic { it.disable() }
             .csrf { it.disable() }
             .formLogin { it.disable() }
             .logout { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(STATELESS) }
-            .authenticationProvider(provider)
-            .addFilterBefore(customAuthenticationFilter, BasicAuthenticationFilter::class.java)
-            .addFilterAfter(userLogFilter, customAuthenticationFilter::class.java)
+            .authorizeHttpRequests {
+                // Spring Security authorizes the ERROR dispatch too, but the subject header filter does not run on it, so the
+                // forward to /error would be rejected and every unhandled exception would surface as a bodiless 403.
+                // TODO: Consider an ExceptionControllerAdvice that turns every exception into a response instead, so no
+                //  request ever reaches the error dispatch.
+                it.dispatcherTypeMatchers(DispatcherType.ERROR).permitAll()
+                it.anyRequest().authenticated()
+            }.addFilterBefore(subjectHeaderAuthenticationFilter, BasicAuthenticationFilter::class.java)
+            .addFilterAfter(userLogFilter, SubjectHeaderAuthenticationFilter::class.java)
         return http.build()
     }
-
-    @Bean
-    @Throws(Exception::class)
-    fun authenticationManager(authenticationConfiguration: AuthenticationConfiguration): AuthenticationManager? =
-        authenticationConfiguration.authenticationManager
 }

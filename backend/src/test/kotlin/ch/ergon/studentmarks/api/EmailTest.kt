@@ -11,11 +11,13 @@ import ch.ergon.studentmarks.domain.model.mark.MarkValue
 import ch.ergon.studentmarks.domain.model.semester.SemesterId
 import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.domain.repository.SubjectRepository
+import ch.ergon.studentmarks.domain.repository.UserRepository
 import ch.ergon.studentmarks.infrastructure.email.EmailSender
 import ch.ergon.studentmarks.security.context.WithMockLehrling
 import ch.ergon.studentmarks.test.objects.TestMarks
 import ch.ergon.studentmarks.test.objects.TestSubjects
 import ch.ergon.studentmarks.test.objects.TestUser.Companion.Berufsbildner
+import ch.ergon.studentmarks.test.objects.TestUser.Companion.Lernender
 import ch.ergon.studentmarks.utils.TimeUtils
 import ch.ergon.studentmarks.utils.UuidUtils
 import org.junit.jupiter.api.BeforeEach
@@ -45,6 +47,9 @@ class EmailTest : IntegrationTest() {
     private lateinit var userService: UserService
 
     @Autowired
+    private lateinit var userRepository: UserRepository
+
+    @Autowired
     private lateinit var markRepository: MarkRepository
 
     @Autowired
@@ -68,7 +73,7 @@ class EmailTest : IntegrationTest() {
         emailNotificationService =
             EmailNotificationService(
                 templateEngine,
-                userService,
+                userRepository,
                 emailSender,
             )
         markService =
@@ -97,6 +102,7 @@ class EmailTest : IntegrationTest() {
                 SemesterId("e9b6a70e-87cd-464b-97a6-bd15c611bcdd"),
             )
         markService.addNewMark(
+            userId = Lernender.userId,
             name = mark.name,
             subjectId = mark.subjectId,
             date = mark.date,
@@ -140,6 +146,7 @@ class EmailTest : IntegrationTest() {
                 SemesterId("e9b6a70e-87cd-464b-97a6-bd15c611bcdd"),
             )
         markService.addNewMark(
+            userId = Lernender.userId,
             name = mark.name,
             subjectId = mark.subjectId,
             date = mark.date,

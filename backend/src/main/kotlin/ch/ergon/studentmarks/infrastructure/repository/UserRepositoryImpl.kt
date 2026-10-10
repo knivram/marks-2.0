@@ -1,5 +1,7 @@
 package ch.ergon.studentmarks.infrastructure.repository
 
+import ch.ergon.studentmarks.domain.exception.UserAlreadyExistsException
+import ch.ergon.studentmarks.domain.exception.UserNotFoundException
 import ch.ergon.studentmarks.domain.model.user.Email
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
@@ -8,12 +10,9 @@ import ch.ergon.studentmarks.gen.Tables.APPRENTICE_SUPERVISOR
 import ch.ergon.studentmarks.gen.Tables.USER
 import ch.ergon.studentmarks.infrastructure.repository.mapper.UserRecordMapper.toDB
 import ch.ergon.studentmarks.infrastructure.repository.mapper.UserRecordMapper.toUser
-import ch.ergon.studentmarks.domain.exception.UserAlreadyExistsException
-import ch.ergon.studentmarks.domain.exception.UserNotFoundException
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
-
 import ch.ergon.studentmarks.gen.enums.UserRole as DBUserRole
 
 @Repository
@@ -82,9 +81,10 @@ class UserRepositoryImpl(
         dsl
             .update(USER)
             .set(USER.USERNAME, user.userName.value.lowercase())
-            .set(USER.EMAIL, user.email.value.lowercase())
+            .set(USER.EMAIL, user.email.value)
             .set(USER.ROLE, user.role.toDB())
             .where(USER.ID.eq(userId.value))
+            .andNot(USER.DELETED)
             .returning()
             .fetchOne()
             ?.toUser()
@@ -96,6 +96,7 @@ class UserRepositoryImpl(
             .set(USER.DELETED, true)
             .set(USER.DELETED_TIME, LocalDateTime.now())
             .where(USER.ID.eq(userId.value))
+            .andNot(USER.DELETED)
             .returning()
             .fetchOne()
             ?.toUser()
@@ -107,6 +108,7 @@ class UserRepositoryImpl(
             .set(USER.DELETED, false)
             .setNull(USER.DELETED_TIME)
             .where(USER.ID.eq(userId.value))
+            .and(USER.DELETED)
             .returning()
             .fetchOne()
             ?.toUser()
@@ -129,6 +131,7 @@ class UserRepositoryImpl(
             ?.toUser()
             ?: throw UserNotFoundException(userId.value.toString())
 
+    // TODO: Remove the isAdmin check
     override fun findApprenticesForSupervisor(supervisor: User): List<User> {
         if (supervisor.isAdmin) {
             return dsl
@@ -137,19 +140,19 @@ class UserRepositoryImpl(
                 .andNot(USER.DELETED)
                 .fetch()
                 .map { it.toUser() }
-        } else {
-            return dsl
-                .select(USER.asterisk())
-                .from(USER)
-                .join(APPRENTICE_SUPERVISOR)
-                .on(USER.ID.eq(APPRENTICE_SUPERVISOR.FK_APPRENTICE))
-                .where(APPRENTICE_SUPERVISOR.FK_SUPERVISOR.eq(supervisor.userId.value))
-                .andNot(USER.DELETED)
-                .groupBy(USER.ID)
-                .orderBy(USER.USERNAME)
-                .fetch()
-                .map { it.toUser() }
         }
+
+        return dsl
+            .select(USER.asterisk())
+            .from(USER)
+            .join(APPRENTICE_SUPERVISOR)
+            .on(USER.ID.eq(APPRENTICE_SUPERVISOR.FK_APPRENTICE))
+            .where(APPRENTICE_SUPERVISOR.FK_SUPERVISOR.eq(supervisor.userId.value))
+            .andNot(USER.DELETED)
+            .groupBy(USER.ID)
+            .orderBy(USER.USERNAME)
+            .fetch()
+            .map { it.toUser() }
     }
 
     override fun searchApprentices(searchQuery: String): List<User> =

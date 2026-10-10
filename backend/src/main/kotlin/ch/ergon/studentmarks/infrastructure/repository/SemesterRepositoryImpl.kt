@@ -82,5 +82,5 @@ class SemesterRepositoryImpl(
             .fetch()
             .map { it.toSemester() }
 
-   private fun count(): Int = dsl.fetchCount(SEMESTER)
+    private fun count(): Int = dsl.fetchCount(SEMESTER)
 }

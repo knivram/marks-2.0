@@ -38,6 +38,17 @@ class ApprenticeSupervisorRepositoryImpl(
                 )
             }
 
+    override fun isConnected(
+        apprenticeId: UserId,
+        supervisorId: UserId,
+    ): Boolean =
+        dsl.fetchExists(
+            APPRENTICE_SUPERVISOR,
+            APPRENTICE_SUPERVISOR.FK_APPRENTICE
+                .eq(apprenticeId.value)
+                .and(APPRENTICE_SUPERVISOR.FK_SUPERVISOR.eq(supervisorId.value)),
+        )
+
     override fun findBySupervisor(
         supervisorId: UserId,
         includeUnconnectedForAdmin: Boolean,

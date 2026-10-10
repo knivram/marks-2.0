@@ -9,6 +9,5 @@ enum class StudentMarksExceptionCodes {
     OWN_USER_NOT_DELETABLE,
 
     //  SECURITY
-    NO_SUBJECT,
     NO_MAIL_IN_SUBJECT,
 }

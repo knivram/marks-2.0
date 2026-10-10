@@ -1,34 +1,34 @@
 package ch.ergon.studentmarks.infrastructure.repository.mapper
 
 import ch.ergon.studentmarks.domain.model.user.Email
+import ch.ergon.studentmarks.domain.model.user.Role
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.model.user.UserName
-import ch.ergon.studentmarks.domain.model.user.UserRole
 import ch.ergon.studentmarks.gen.Tables.USER
 import org.jooq.Record
 import ch.ergon.studentmarks.gen.enums.UserRole as DBUserRole
 
 object UserRecordMapper {
-    fun DBUserRole.toDomain(): UserRole =
+    fun DBUserRole.toDomain(): Role =
         when (this) {
-            DBUserRole.ADMIN -> UserRole.ADMIN
-            DBUserRole.SUPERVISOR -> UserRole.SUPERVISOR
-            DBUserRole.APPRENTICE -> UserRole.APPRENTICE
+            DBUserRole.ADMIN -> Role.ADMIN
+            DBUserRole.SUPERVISOR -> Role.SUPERVISOR
+            DBUserRole.APPRENTICE -> Role.APPRENTICE
         }
 
-    fun UserRole.toDB(): DBUserRole =
+    fun Role.toDB(): DBUserRole =
         when (this) {
-            UserRole.ADMIN -> DBUserRole.ADMIN
-            UserRole.SUPERVISOR -> DBUserRole.SUPERVISOR
-            UserRole.APPRENTICE -> DBUserRole.APPRENTICE
+            Role.ADMIN -> DBUserRole.ADMIN
+            Role.SUPERVISOR -> DBUserRole.SUPERVISOR
+            Role.APPRENTICE -> DBUserRole.APPRENTICE
         }
 
     fun Record.toUser(): User =
         User(
             UserId(this[USER.ID]),
             UserName(this[USER.USERNAME]),
-            Email(this[USER.EMAIL]),
+            Email.create(this[USER.EMAIL]),
             this[USER.ROLE].toDomain(),
         )
 }

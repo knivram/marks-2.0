@@ -1,24 +1,19 @@
 package ch.ergon.studentmarks.security.context
 
-import ch.ergon.studentmarks.application.service.UserService
+import ch.ergon.studentmarks.application.security.ActingPerson
 import ch.ergon.studentmarks.domain.model.user.Email
-import ch.ergon.studentmarks.infrastructure.security.authentication.CustomAuthentication
-import org.springframework.context.annotation.Lazy
-import org.springframework.security.authentication.AuthenticationManager
-import org.springframework.security.core.Authentication
+import ch.ergon.studentmarks.domain.repository.UserRepository
+import ch.ergon.studentmarks.infrastructure.security.authentication.PersonAuthentication
 import org.springframework.security.core.context.SecurityContext
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.test.context.support.WithSecurityContextFactory
 
 class WithMockCustomUserSecurityContextFactory(
-    @Lazy private var manager: AuthenticationManager,
-    private val userService: UserService,
+    private val userRepository: UserRepository,
 ) : WithSecurityContextFactory<WithMockCustomUser> {
     override fun createSecurityContext(customUser: WithMockCustomUser): SecurityContext {
         val context = SecurityContextHolder.createEmptyContext()
-        val customAuthentication = CustomAuthentication(userService.getUserByEmail(Email(customUser.email)))
-        val auth: Authentication = manager.authenticate(customAuthentication)
-        context.authentication = auth
+        context.authentication = PersonAuthentication(ActingPerson(userRepository.getByEmail(Email.create(customUser.email))))
         return context
     }
 }

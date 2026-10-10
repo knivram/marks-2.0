@@ -13,10 +13,7 @@ import java.util.UUID
 class UserController(
     private val userService: UserService,
 ) : UsersApi {
-    override fun userInfo(): ResponseEntity<UserDto> {
-        val user = userService.getCurrentUser()
-        return ResponseEntity.ok(user.toDto())
-    }
+    override fun userInfo(): ResponseEntity<UserDto> = ResponseEntity.ok(userService.getCurrentUser().toDto())
 
     override fun getApprentice(id: UUID): ResponseEntity<List<UserDto>> {
         val apprentices = userService.getApprentice(UserId(id))

@@ -7,23 +7,24 @@ import ch.ergon.studentmarks.application.response.ApprenticeSupervisorPairWithUs
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPair
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPairId
 import ch.ergon.studentmarks.domain.model.user.Email
+import ch.ergon.studentmarks.domain.model.user.Role
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.model.user.UserName
-import ch.ergon.studentmarks.domain.model.user.UserRole
 
-fun UserRole.toDto(): UserRoleDto =
+// TODO Consider konvert
+fun Role.toDto(): UserRoleDto =
     when (this) {
-        UserRole.ADMIN -> UserRoleDto.ADMIN
-        UserRole.SUPERVISOR -> UserRoleDto.SUPERVISOR
-        UserRole.APPRENTICE -> UserRoleDto.APPRENTICE
+        Role.ADMIN -> UserRoleDto.ADMIN
+        Role.SUPERVISOR -> UserRoleDto.SUPERVISOR
+        Role.APPRENTICE -> UserRoleDto.APPRENTICE
     }
 
-fun UserRoleDto.toDomain(): UserRole =
+fun UserRoleDto.toDomain(): Role =
     when (this) {
-        UserRoleDto.ADMIN -> UserRole.ADMIN
-        UserRoleDto.SUPERVISOR -> UserRole.SUPERVISOR
-        UserRoleDto.APPRENTICE -> UserRole.APPRENTICE
+        UserRoleDto.ADMIN -> Role.ADMIN
+        UserRoleDto.SUPERVISOR -> Role.SUPERVISOR
+        UserRoleDto.APPRENTICE -> Role.APPRENTICE
     }
 
 fun User.toDto(): UserDto =
@@ -38,7 +39,7 @@ fun UserDto.toDomain(): User =
     User(
         userId = UserId(userId),
         userName = UserName(userName),
-        email = Email(email),
+        email = Email.create(email),
         role = role.toDomain(),
     )
 

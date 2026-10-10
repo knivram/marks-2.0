@@ -61,8 +61,10 @@ class PermissionTest : IntegrationTest() {
     fun unknownUserCannotExec() {
         RestAssured
             .given()
-            .header("X-Forwarded-Mail", "unknown.user@gmail.com")
-            .get("/api/user/info")
+            .header(
+                SUBJECT_HEADER_NAME,
+                "emailAddress%3Dunknown.user%40gmail.com%2CCN%3DUnknown%20User%2COU%3DIT%2CO%3DErgon%20Informatik%20AG%2CL%3DZuerich%2CST%3DZuerich%2CC%3DCH",
+            ).get("/api/user/info")
             .then()
             .statusCode(HttpStatus.UNAUTHORIZED.value())
     }

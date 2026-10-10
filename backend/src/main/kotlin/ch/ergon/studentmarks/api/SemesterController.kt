@@ -5,8 +5,8 @@ import ch.ergon.studentmarks.api.generated.dto.PaginatedSemesterListDto
 import ch.ergon.studentmarks.api.generated.dto.SemesterDto
 import ch.ergon.studentmarks.api.mapper.toDto
 import ch.ergon.studentmarks.api.mapper.toPaginatedSemesterListDto
+import ch.ergon.studentmarks.application.security.ActingUserProvider
 import ch.ergon.studentmarks.application.service.SemesterService
-import ch.ergon.studentmarks.application.service.UserService
 import ch.ergon.studentmarks.domain.model.shared.PaginationParams
 import ch.ergon.studentmarks.domain.model.user.UserId
 import org.springframework.http.ResponseEntity
@@ -16,7 +16,7 @@ import java.util.UUID
 @RestController
 class SemesterController(
     private val semesterService: SemesterService,
-    private val userService: UserService,
+    private val actingUserProvider: ActingUserProvider,
 ) : SemestersApi {
     override fun getAllSemesters(
         offset: Int,
@@ -27,7 +27,8 @@ class SemesterController(
     }
 
     override fun getRelevantSemesters(userId: UUID?): ResponseEntity<List<SemesterDto>> {
-        val resolvedUserId = userService.resolveUserId(userId?.let { UserId(it) })
+        // TODO: Make userId required
+        val resolvedUserId = userId?.let { UserId(it) } ?: actingUserProvider.actingPerson.user.userId
         val semesters = semesterService.getAllRelevantSemester(resolvedUserId)
         return ResponseEntity.ok(semesters.map { it.toDto() })
     }

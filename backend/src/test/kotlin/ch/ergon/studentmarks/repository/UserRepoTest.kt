@@ -3,9 +3,9 @@ package ch.ergon.studentmarks.repository
 import ch.ergon.studentmarks.IntegrationTest
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPair
 import ch.ergon.studentmarks.domain.model.user.Email
+import ch.ergon.studentmarks.domain.model.user.Role
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserName
-import ch.ergon.studentmarks.domain.model.user.UserRole
 import ch.ergon.studentmarks.domain.repository.ApprenticeSupervisorRepository
 import ch.ergon.studentmarks.domain.repository.UserRepository
 import ch.ergon.studentmarks.test.objects.TestConnections
@@ -110,7 +110,7 @@ class UserRepoTest : IntegrationTest() {
 
     @Test
     fun create_new_user() {
-        val newUser = User.create(Email("marvin@ergon.ch"), UserName("kmarvin"), UserRole.APPRENTICE)
+        val newUser = User.create(Email.create("marvin@ergon.ch"), UserName("kmarvin"), Role.APPRENTICE)
         val user = userRepository.create(newUser)
         val result = userRepository.getAll()
 

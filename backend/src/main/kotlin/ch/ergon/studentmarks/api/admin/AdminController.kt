@@ -37,8 +37,7 @@ class AdminController(
 ) : AdminApi {
     // --- Subjects ---
 
-    override fun getAllSubjects(): ResponseEntity<List<SubjectDto>> =
-        ResponseEntity.ok(subjectService.getAllSubjects().map { it.toDto() })
+    override fun getAllSubjects(): ResponseEntity<List<SubjectDto>> = ResponseEntity.ok(subjectService.getAllSubjects().map { it.toDto() })
 
     override fun addSubject(body: SubjectRequestDto): ResponseEntity<SubjectDto> {
         val subject = body.toDomain(SubjectId(uuidUtils.randomUUID()))
@@ -74,11 +73,12 @@ class AdminController(
         ResponseEntity.ok(userService.getAllUser(searchQuery).map { it.toDto() })
 
     override fun addUser(body: UserCreateRequestDto): ResponseEntity<UserDto> {
-        val user = userService.addUser(
-            email = Email(body.email),
-            userName = UserName(body.userName),
-            role = body.role.toDomain(),
-        )
+        val user =
+            userService.addUser(
+                email = Email.create(body.email),
+                userName = UserName(body.userName),
+                role = body.role.toDomain(),
+            )
         return ResponseEntity.ok(user.toDto())
     }
 
@@ -89,8 +89,7 @@ class AdminController(
 
     override fun deleteUser(userId: UUID): ResponseEntity<UserDto> = ResponseEntity.ok(userService.deleteUser(UserId(userId)).toDto())
 
-    override fun restoreUser(userId: UUID): ResponseEntity<UserDto> =
-        ResponseEntity.ok(userService.restoreUser(UserId(userId)).toDto())
+    override fun restoreUser(userId: UUID): ResponseEntity<UserDto> = ResponseEntity.ok(userService.restoreUser(UserId(userId)).toDto())
 
     override fun getDeletedUsers(): ResponseEntity<List<UserDto>> = ResponseEntity.ok(userService.getDeletedUsers().map { it.toDto() })
 
@@ -125,8 +124,8 @@ class AdminController(
     override fun connect(body: ApprenticeConnectRequestDto): ResponseEntity<ApprenticeSupervisorPairDto> {
         val pair =
             userService.connectApprenticeToSupervisor(
-                Email(body.apprenticeEmail),
-                Email(body.supervisorEmail),
+                Email.create(body.apprenticeEmail),
+                Email.create(body.supervisorEmail),
             )
         val apprentice = userService.getUser(pair.apprenticeId)
         val supervisor = userService.getUser(pair.supervisorId)

@@ -1,7 +1,6 @@
 package ch.ergon.studentmarks.infrastructure.repository
 
 import ch.ergon.studentmarks.domain.exception.MarkNotFoundException
-import ch.ergon.studentmarks.domain.exception.UserNotFoundException
 import ch.ergon.studentmarks.domain.model.mark.Mark
 import ch.ergon.studentmarks.domain.model.mark.MarkId
 import ch.ergon.studentmarks.domain.model.semester.SemesterId
@@ -11,7 +10,6 @@ import ch.ergon.studentmarks.domain.repository.MarkRepository
 import ch.ergon.studentmarks.gen.Tables.MARK
 import ch.ergon.studentmarks.infrastructure.repository.mapper.MarkRecordMapper.toMark
 import org.jooq.DSLContext
-import org.jooq.impl.DSL.inline
 import org.springframework.stereotype.Repository
 import java.time.LocalDateTime
 
@@ -86,18 +84,24 @@ class MarkRepositoryImpl(
             .set(MARK.VALUE, mark.value.value)
             .set(MARK.SEMESTER_ID, mark.semesterId.value)
             .where(MARK.ID.eq(mark.id.value))
+            .andNot(MARK.DELETED)
             .execute()
 
         return getById(mark.id)
     }
 
     override fun softDelete(markId: MarkId) {
-        dsl
-            .update(MARK)
-            .set(MARK.DELETED, true)
-            .set(MARK.DELETED_TIME, LocalDateTime.now())
-            .where(MARK.ID.eq(markId.value))
-            .execute()
+        val updatedRows =
+            dsl
+                .update(MARK)
+                .set(MARK.DELETED, true)
+                .set(MARK.DELETED_TIME, LocalDateTime.now())
+                .where(MARK.ID.eq(markId.value))
+                .andNot(MARK.DELETED)
+                .execute()
+        if (updatedRows == 0) {
+            throw MarkNotFoundException(markId)
+        }
     }
 
     override fun softDeleteByUser(userId: UserId) {
@@ -110,14 +114,17 @@ class MarkRepositoryImpl(
     }
 
     override fun restore(markId: MarkId): Mark {
-        dsl
-            .update(MARK)
-            .set(MARK.DELETED, false)
-            .setNull(MARK.DELETED_TIME)
-            .where(inline(true))
-            .and(MARK.ID.eq(markId.value))
-            .returning(MARK.asterisk())
-            .fetchOne()!!
+        val updatedRows =
+            dsl
+                .update(MARK)
+                .set(MARK.DELETED, false)
+                .setNull(MARK.DELETED_TIME)
+                .where(MARK.ID.eq(markId.value))
+                .and(MARK.DELETED)
+                .execute()
+        if (updatedRows == 0) {
+            throw MarkNotFoundException(markId)
+        }
 
         return getById(markId)
     }
@@ -133,14 +140,12 @@ class MarkRepositoryImpl(
 
     override fun getOwnerUserId(markId: MarkId): UserId =
         dsl
-            .selectFrom(MARK)
+            .select(MARK.USER_ID)
+            .from(MARK)
             .where(MARK.ID.eq(markId.value))
-            .fetchOne()
-            ?.let { UserId(it.userId) }
-            ?: throw UserNotFoundException(
-                searchParam = markId.value.toString(),
-                message = "The owner of mark with id \"${markId.value}\" was not found.",
-            )
+            .fetchOne(MARK.USER_ID)
+            ?.let { UserId(it) }
+            ?: throw MarkNotFoundException(markId)
 
     override fun deleteExpiredSoftDeleted(olderThan: LocalDateTime) {
         dsl

@@ -1,111 +1,111 @@
 package ch.ergon.studentmarks.application.service
 
+import ch.ergon.studentmarks.application.security.ActingUserProvider
+import ch.ergon.studentmarks.application.security.HasApprenticeReadPermission
+import ch.ergon.studentmarks.application.security.HasStudentDataReadPermission
+import ch.ergon.studentmarks.application.security.IsAdmin
+import ch.ergon.studentmarks.application.security.NoPermissionRequired
+import ch.ergon.studentmarks.application.security.TargetId
+import ch.ergon.studentmarks.domain.exception.DeleteOwnUserException
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPair
 import ch.ergon.studentmarks.domain.model.user.ApprenticeSupervisorPairId
 import ch.ergon.studentmarks.domain.model.user.Email
+import ch.ergon.studentmarks.domain.model.user.Role
 import ch.ergon.studentmarks.domain.model.user.User
 import ch.ergon.studentmarks.domain.model.user.UserId
 import ch.ergon.studentmarks.domain.model.user.UserName
-import ch.ergon.studentmarks.domain.model.user.UserRole
 import ch.ergon.studentmarks.domain.repository.ApprenticeSupervisorRepository
 import ch.ergon.studentmarks.domain.repository.UserRepository
-import ch.ergon.studentmarks.domain.exception.DeleteOwnUserException
-import org.springframework.security.access.prepost.PreAuthorize
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.stereotype.Service
 
 @Service
 class UserService(
     private val userRepository: UserRepository,
     private val apprenticeSupervisorRepository: ApprenticeSupervisorRepository,
+    private val actingUserProvider: ActingUserProvider,
 ) {
-    fun getCurrentUser(): User {
-        val authentication = SecurityContextHolder.getContext().authentication
-        return authentication.principal as User
-    }
+    @NoPermissionRequired("Everyone can load their own user")
+    fun getCurrentUser() = actingUserProvider.actingPerson.user
 
-    fun getCurrentUserOrNull(): User? =
-        try {
-            getCurrentUser()
-        } catch (_: Exception) {
-            null
-        }
-
-    fun resolveUserId(userId: UserId?): UserId = userId ?: getCurrentUser().userId
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun getAllUser(searchQuery: String): List<User> = userRepository.getAll(searchQuery)
 
-    fun getUserByEmail(email: Email): User = userRepository.getByEmail(email)
+    @HasStudentDataReadPermission
+    fun getUser(
+        @TargetId userId: UserId,
+    ): User = userRepository.getById(userId)
 
-    fun getUser(userId: UserId): User = userRepository.getById(userId)
-
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
-    fun addUser(email: Email, userName: UserName, role: UserRole): User {
+    @IsAdmin
+    fun addUser(
+        email: Email,
+        userName: UserName,
+        role: Role,
+    ): User {
         val user = User.create(email, userName, role)
         return userRepository.create(user)
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun editUser(
         userId: UserId,
         user: User,
     ): User = userRepository.update(userId, user)
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun deleteUser(userId: UserId): User {
-        if (userId == getCurrentUser().userId) {
+        if (userId == actingUserProvider.actingPerson.user.userId) {
             throw DeleteOwnUserException()
         }
         return userRepository.softDelete(userId)
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun restoreUser(userId: UserId): User = userRepository.restore(userId)
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    // TODO: Arguments should probably be ids
+    @IsAdmin
     fun connectApprenticeToSupervisor(
         apprenticeEmail: Email,
         supervisorEmail: Email,
     ): ApprenticeSupervisorPair {
-        val apprentice = getUserByEmail(apprenticeEmail)
-        val supervisor = getUserByEmail(supervisorEmail)
+        val apprentice = userRepository.getByEmail(apprenticeEmail)
+        val supervisor = userRepository.getByEmail(supervisorEmail)
         return apprenticeSupervisorRepository.connect(
             apprenticeId = apprentice.userId,
             supervisorId = supervisor.userId,
         )
     }
 
-    @PreAuthorize("hasPermission(#supervisorId, 'IS_CURRENT_USER')")
-    fun getApprentice(supervisorId: UserId): List<User> = userRepository.findApprenticesForSupervisor(getUser(supervisorId))
+    @HasApprenticeReadPermission
+    fun getApprentice(
+        // TODO: Consider using actingPerson directly
+        @TargetId supervisorId: UserId,
+    ): List<User> = userRepository.findApprenticesForSupervisor(userRepository.getById(supervisorId))
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun getMatchingApprentice(searchQuery: String): List<User> = userRepository.searchApprentices(searchQuery)
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun getMatchingSupervisor(searchQuery: String): List<User> = userRepository.searchSupervisors(searchQuery)
 
-    @PreAuthorize("hasPermission(#supervisorId, 'IS_CURRENT_USER')")
+    @IsAdmin
     fun getApprenticeSupervisorPairs(supervisorId: UserId): List<ApprenticeSupervisorPair> =
-        apprenticeSupervisorRepository.findBySupervisor(supervisorId, getUser(supervisorId).isAdmin)
+        apprenticeSupervisorRepository.findBySupervisor(supervisorId, userRepository.getById(supervisorId).isAdmin)
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun getAllConnections(): List<ApprenticeSupervisorPair> = apprenticeSupervisorRepository.getAll()
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun updateApprenticeSupervisorConnection(pair: ApprenticeSupervisorPair) {
         apprenticeSupervisorRepository.updateOrInsert(pair)
     }
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun deleteConnection(pairId: ApprenticeSupervisorPairId): ApprenticeSupervisorPair = apprenticeSupervisorRepository.delete(pairId)
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun getDeletedUsers(): List<User> = userRepository.findDeleted()
 
-    @PreAuthorize("hasRole('ROLE_ADMIN')")
+    @IsAdmin
     fun deleteDeletedUser(userId: UserId): User = userRepository.permanentlyDelete(userId)
-
-    fun getNotificationEmailListForApprentice(apprenticeId: UserId): List<User> =
-        userRepository.findSupervisorsWithNotificationsForApprentice(apprenticeId)
 }

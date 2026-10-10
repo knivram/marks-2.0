@@ -1,11 +1,11 @@
 package ch.ergon.studentmarks.infrastructure.repository
 
+import ch.ergon.studentmarks.domain.exception.SubjectNotFoundException
 import ch.ergon.studentmarks.domain.model.subject.Subject
 import ch.ergon.studentmarks.domain.model.subject.SubjectId
 import ch.ergon.studentmarks.domain.repository.SubjectRepository
 import ch.ergon.studentmarks.gen.Tables.SUBJECT
 import ch.ergon.studentmarks.infrastructure.repository.mapper.SubjectRecordMapper.toSubject
-import ch.ergon.studentmarks.domain.exception.SubjectNotFoundException
 import org.jooq.DSLContext
 import org.springframework.stereotype.Repository
 
